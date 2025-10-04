@@ -1,0 +1,26 @@
+{
+  "github.copilot.enable": {
+    "*": true,
+    "java": true
+  },
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "Always reference copilot-instructions.json in .github folder for project context, architecture patterns, and coding guidelines"
+    },
+    {
+      "text": "Use reference repositories in ../reference-repos/ for implementation patterns. Reference parkinglot for Spring Boot architecture."
+    },
+    {
+      "text": "Follow Java 21 syntax and Spring Boot 3.2.x best practices"
+    }
+  ],
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "C:\\Program Files\\Java\\jdk-21",
+      "default": true
+    }
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic"
+}

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 Parking Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .response-box {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .badge-booked { background: #ffc107; color: #000; }
+        .badge-active { background: #28a745; color: white; }
+        .badge-completed { background: #007bff; color: white; }
+        .badge-cancelled { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Parking Management System</h1>
+            <p>Production-Ready REST API with JWT Authentication</p>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="grid hidden" id="stats-dashboard">
+            <div class="stat-card">
+                <h3 id="total-slots">--</h3>
+                <p>Total Slots</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="available-slots">--</h3>
+                <p>Available Slots</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="active-bookings">--</h3>
+                <p>Active Bookings</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="showTab('auth')">🔐 Authentication</button>
+                <button class="tab-btn" onclick="showTab('slots')">🅿️ Parking Slots</button>
+                <button class="tab-btn" onclick="showTab('vehicles')">🚗 Vehicles</button>
+                <button class="tab-btn" onclick="showTab('bookings')">📋 Bookings</button>
+            </div>
+
+            <!-- Authentication Tab -->
+            <div id="tab-auth" class="tab-content">
+                <h2 class="section-title">Authentication</h2>
+                
+                <h3>Register</h3>
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="reg-username" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="reg-email" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="reg-password" placeholder="Enter password">
+                </div>
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="reg-fullname" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" id="reg-phone" placeholder="Enter phone number">
+                </div>
+                <button class="btn" onclick="register()">Register</button>
+
+                <hr style="margin: 30px 0;">
+
+                <h3>Login</h3>
+                <div class="form-group">
+                    <label>Username/Email:</label>
+                    <input type="text" id="login-username" value="admin" placeholder="Enter username or email">
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="login-password" value="admin123" placeholder="Enter password">
+                </div>
+                <button class="btn btn-success" onclick="login()">Login</button>
+
+                <div id="auth-response" class="response-box hidden"></div>
+            </div>
+
+            <!-- Slots Tab -->
+            <div id="tab-slots" class="tab-content hidden">
+                <h2 class="section-title">Parking Slots</h2>
+                
+                <button class="btn" onclick="getAllSlots()">Get All Slots</button>
+                <button class="btn btn-success" onclick="getAvailableSlots()">Get Available Slots</button>
+
+                <div id="slots-response" class="response-box hidden"></div>
+            </div>
+
+            <!-- Vehicles Tab -->
+            <div id="tab-vehicles" class="tab-content hidden">
+                <h2 class="section-title">My Vehicles</h2>
+                
+                <h3>Register New Vehicle</h3>
+                <div class="form-group">
+                    <label>Vehicle Number:</label>
+                    <input type="text" id="vehicle-number" placeholder="e.g., KA01AB1234">
+                </div>
+                <div class="form-group">
+                    <label>Vehicle Type:</label>
+                    <select id="vehicle-type">
+                        <option value="TWO_WHEELER">Two Wheeler</option>
+                        <option value="FOUR_WHEELER">Four Wheeler</option>
+                        <option value="HEAVY_VEHICLE">Heavy Vehicle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Model:</label>
+                    <input type="text" id="vehicle-model" placeholder="e.g., Honda Activa">
+                </div>
+                <div class="form-group">
+                    <label>Color:</label>
+                    <input type="text" id="vehicle-color" placeholder="e.g., Black">
+                </div>
+                <button class="btn" onclick="registerVehicle()">Register Vehicle</button>
+
+                <hr style="margin: 30px 0;">
+
+                <button class="btn btn-success" onclick="getMyVehicles()">Get My Vehicles</button>
+
+                <div id="vehicles-response" class="response-box hidden"></div>
+            </div>
+
+            <!-- Bookings Tab -->
+            <div id="tab-bookings" class="tab-content hidden">
+                <h2 class="section-title">Bookings</h2>
+                
+                <h3>Create New Booking</h3>
+                <div class="form-group">
+                    <label>Vehicle ID:</label>
+                    <input type="number" id="booking-vehicle-id" placeholder="Enter vehicle ID">
+                </div>
+                <div class="form-group">
+                    <label>Slot ID:</label>
+                    <input type="number" id="booking-slot-id" placeholder="Enter slot ID">
+                </div>
+                <button class="btn" onclick="createBooking()">Create Booking</button>
+
+                <hr style="margin: 30px 0;">
+
+                <button class="btn btn-success" onclick="getMyBookings()">Get My Bookings</button>
+
+                <div id="bookings-response" class="response-box hidden"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: white; margin-top: 30px; opacity: 0.9;">
+            <p>🚀 Built with Spring Boot 3.2 | JWT Authentication | MySQL | Swagger</p>
+            <p style="margin-top: 10px;">API Documentation: <a href="http://localhost:8080/swagger-ui.html" target="_blank" style="color: #ffd700;">Swagger UI</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let token = localStorage.getItem('token') || '';
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function showResponse(elementId, data, isError = false) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('hidden', 'success', 'error');
+            el.classList.add(isError ? 'error' : 'success');
+            el.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (token) {
+                options.headers['Authorization'] = 'Bearer ' + token;
+            }
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(API_BASE + endpoint, options);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw data;
+                }
+                
+                return { success: true, data };
+            } catch (error) {
+                return { success: false, error };
+            }
+        }
+
+        async function register() {
+            const body = {
+                username: document.getElementById('reg-username').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                fullName: document.getElementById('reg-fullname').value,
+                phoneNumber: document.getElementById('reg-phone').value
+            };
+
+            const result = await apiCall('/auth/register', 'POST', body);
+            showResponse('auth-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function login() {
+            const body = {
+                usernameOrEmail: document.getElementById('login-username').value,
+                password: document.getElementById('login-password').value
+            };
+
+            const result = await apiCall('/auth/login', 'POST', body);
+            
+            if (result.success) {
+                token = result.data.token;
+                localStorage.setItem('token', token);
+                document.getElementById('stats-dashboard').classList.remove('hidden');
+                alert('✅ Login successful! Token saved.');
+            }
+            
+            showResponse('auth-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function getAllSlots() {
+            const result = await apiCall('/slots');
+            showResponse('slots-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function getAvailableSlots() {
+            const result = await apiCall('/slots/available');
+            showResponse('slots-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function registerVehicle() {
+            const body = {
+                vehicleNumber: document.getElementById('vehicle-number').value,
+                vehicleType: document.getElementById('vehicle-type').value,
+                vehicleModel: document.getElementById('vehicle-model').value,
+                vehicleColor: document.getElementById('vehicle-color').value
+            };
+
+            const result = await apiCall('/vehicles', 'POST', body);
+            showResponse('vehicles-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function getMyVehicles() {
+            const result = await apiCall('/vehicles');
+            showResponse('vehicles-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function createBooking() {
+            const body = {
+                vehicleId: parseInt(document.getElementById('booking-vehicle-id').value),
+                slotId: parseInt(document.getElementById('booking-slot-id').value),
+                expectedCheckOut: new Date(Date.now() + 3600000).toISOString()
+            };
+
+            const result = await apiCall('/bookings', 'POST', body);
+            showResponse('bookings-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        async function getMyBookings() {
+            const result = await apiCall('/bookings');
+            showResponse('bookings-response', result.success ? result.data : result.error, !result.success);
+        }
+
+        // Check if logged in on page load
+        if (token) {
+            document.getElementById('stats-dashboard').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
