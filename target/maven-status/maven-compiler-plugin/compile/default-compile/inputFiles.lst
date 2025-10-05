@@ -14,6 +14,7 @@ C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\co
 C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\controller\BookingController.java
 C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\controller\VehicleController.java
 C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\repository\UserRepository.java
+C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\config\CorsConfig.java
 C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\service\VehicleService.java
 C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\controller\ParkingSlotController.java
 C:\Users\vikas\Documents\Java_fresher\parking-management-system\src\main\java\com\parking\security\JwtAuthenticationFilter.java

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test - Parking Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .info {
+            color: #2196F3;
+        }
+        .buttons {
+            text-align: center;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .badge-success {
+            background: #4CAF50;
+        }
+        .badge-error {
+            background: #f44336;
+        }
+        .badge-info {
+            background: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 CORS Configuration Test</h1>
+        <p style="text-align: center;">Testing CORS for Parking Management System API</p>
+        
+        <div class="buttons">
+            <button onclick="testCORS()">🚀 Run CORS Test</button>
+            <button onclick="testPublicEndpoint()">🔓 Test Public Endpoint (/api/slots)</button>
+            <button onclick="testPreflightRequest()">✈️ Test Preflight (OPTIONS)</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div class="result" id="result">
+Click a button above to start testing CORS configuration...
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const resultDiv = document.getElementById('result');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            resultDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            resultDiv.scrollTop = resultDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            resultDiv.innerHTML = 'Results cleared. Ready for new tests...\n';
+        }
+
+        async function testCORS() {
+            clearResults();
+            log('🧪 Starting comprehensive CORS test...', 'info');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+            
+            // Test 1: GET request to public endpoint
+            log('\n📋 Test 1: GET /api/slots (Public endpoint)', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/slots`, {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'http://localhost:3000'
+                    }
+                });
+                
+                log(`   Status: ${response.status} ${response.statusText}`, 'info');
+                log(`   CORS Headers Present: ${response.headers.has('access-control-allow-origin')}`, 'info');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`   ✅ CORS WORKING! Got ${data.length} parking slots`, 'success');
+                } else {
+                    log(`   ⚠️ Got response but with status ${response.status}`, 'info');
+                    log(`   ✅ CORS is working (request not blocked)`, 'success');
+                }
+            } catch (error) {
+                if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                    log(`   ❌ CORS BLOCKED! Error: ${error.message}`, 'error');
+                } else {
+                    log(`   ⚠️ Error: ${error.message}`, 'error');
+                }
+            }
+
+            // Test 2: OPTIONS preflight
+            log('\n📋 Test 2: OPTIONS /api/slots (Preflight request)', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/slots`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:3000',
+                        'Access-Control-Request-Method': 'GET'
+                    }
+                });
+                
+                log(`   Status: ${response.status} ${response.statusText}`, 'info');
+                log(`   Allow-Origin: ${response.headers.get('access-control-allow-origin')}`, 'info');
+                log(`   Allow-Methods: ${response.headers.get('access-control-allow-methods')}`, 'info');
+                
+                if (response.ok) {
+                    log(`   ✅ Preflight request successful!`, 'success');
+                } else {
+                    log(`   ⚠️ Preflight returned ${response.status}`, 'info');
+                }
+            } catch (error) {
+                log(`   ❌ Preflight failed: ${error.message}`, 'error');
+            }
+
+            // Test 3: Check from different origins
+            log('\n📋 Test 3: Testing different origins', 'info');
+            const origins = ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4200'];
+            for (const origin of origins) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/slots`, {
+                        method: 'GET',
+                        headers: { 'Origin': origin }
+                    });
+                    log(`   ${origin}: ${response.ok ? '✅' : '⚠️'} Status ${response.status}`, response.ok ? 'success' : 'info');
+                } catch (error) {
+                    log(`   ${origin}: ❌ Blocked`, 'error');
+                }
+            }
+
+            log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+            log('🏁 CORS testing completed!', 'info');
+        }
+
+        async function testPublicEndpoint() {
+            clearResults();
+            log('🔓 Testing public endpoint /api/slots...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/slots`);
+                log(`Status: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Success! Retrieved ${data.length} parking slots`, 'success');
+                    log('\nSample data:', 'info');
+                    log(JSON.stringify(data.slice(0, 2), null, 2), 'info');
+                } else {
+                    log(`⚠️ Status ${response.status}: ${response.statusText}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPreflightRequest() {
+            clearResults();
+            log('✈️ Testing OPTIONS preflight request...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/slots`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://localhost:3000',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                log(`Status: ${response.status} ${response.statusText}`, 'info');
+                log(`\nCORS Headers:`, 'info');
+                log(`  Access-Control-Allow-Origin: ${response.headers.get('access-control-allow-origin')}`, 'info');
+                log(`  Access-Control-Allow-Methods: ${response.headers.get('access-control-allow-methods')}`, 'info');
+                log(`  Access-Control-Allow-Headers: ${response.headers.get('access-control-allow-headers')}`, 'info');
+                log(`  Access-Control-Allow-Credentials: ${response.headers.get('access-control-allow-credentials')}`, 'info');
+                log(`  Access-Control-Max-Age: ${response.headers.get('access-control-max-age')}`, 'info');
+                
+                if (response.ok) {
+                    log(`\n✅ Preflight request successful! CORS is properly configured.`, 'success');
+                } else {
+                    log(`\n⚠️ Preflight returned status ${response.status}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ Preflight failed: ${error.message}`, 'error');
+                log(`This usually means CORS is blocking the request.`, 'error');
+            }
+        }
+
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            log('🎯 CORS Test Page Loaded', 'success');
+            log('Server: ' + API_BASE, 'info');
+            log('Ready to test! Click a button above.\n', 'info');
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.parking.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.parking.entity.base.AuditableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
@@ -91,6 +92,7 @@ public class ParkingSlot extends AuditableEntity {
     @Column(name = "longitude", nullable = false, precision = 9, scale = 6)
     private BigDecimal longitude;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "slot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @lombok.Builder.Default
     private List<Booking> bookings = new ArrayList<>();

@@ -1,5 +1,6 @@
 package com.parking.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.parking.entity.base.AuditableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -71,6 +72,7 @@ public class User extends AuditableEntity {
     @lombok.Builder.Default
     private Boolean isActive = Boolean.TRUE;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @lombok.Builder.Default
     private List<Vehicle> vehicles = new ArrayList<>();
