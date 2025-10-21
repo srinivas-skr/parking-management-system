@@ -53,6 +53,7 @@ public class ParkingSlot extends AuditableEntity {
     @NotBlank
     @Size(max = 255)
     @Column(name = "location_description", nullable = false, length = 255)
+    @com.fasterxml.jackson.annotation.JsonProperty("location")
     private String locationDescription;
 
     @NotNull
@@ -70,6 +71,7 @@ public class ParkingSlot extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "slot_status", nullable = false, length = 20)
     @lombok.Builder.Default
+    @com.fasterxml.jackson.annotation.JsonProperty("status")
     private SlotStatus slotStatus = SlotStatus.AVAILABLE;
 
     @NotNull
