@@ -22,7 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     List<Booking> findBySlotIdAndStatus(Long slotId, BookingStatus status);
     
-    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
+    @Query("SELECT b FROM Booking b LEFT JOIN FETCH b.vehicle LEFT JOIN FETCH b.slot WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
     List<Booking> findUserBookingsOrderByDate(@Param("userId") Long userId);
     
     @Query("SELECT b FROM Booking b WHERE b.status = :status ORDER BY b.createdAt DESC")
