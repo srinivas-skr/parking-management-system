@@ -66,6 +66,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints - Base URL and health
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/index.html").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+                        
+                        // Static resources (frontend assets)
+                        .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+                        .requestMatchers("/*.js").permitAll()
+                        .requestMatchers("/*.css").permitAll()
+                        .requestMatchers("/*.png").permitAll()
+                        .requestMatchers("/*.jpg").permitAll()
+                        .requestMatchers("/*.svg").permitAll()
+                        
                         .requestMatchers("/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
