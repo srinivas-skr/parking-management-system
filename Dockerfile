@@ -1,46 +1,35 @@
 # Multi-stage Dockerfile for Parking Management System
 # Stage 1: Maven Build
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
 # Copy Maven files first for better caching
 COPY pom.xml .
-COPY src ./src
+RUN mvn dependency:go-offline -B
 
-# Build the application (skip tests for faster builds in CI/CD)
-RUN apk add --no-cache maven && \
-    mvn clean package -DskipTests && \
-    mv target/parking-management-system-1.0.0.jar app.jar
+# Copy source and build
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
 # Stage 2: Runtime with JRE
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 # Add labels for better container management
 LABEL maintainer="your.email@example.com"
 LABEL version="1.0.0"
 LABEL description="Spring Boot Parking Management System"
 
-# Create non-root user for security
-RUN addgroup -S spring && adduser -S spring -G spring
-
 WORKDIR /app
 
 # Copy JAR from builder stage
-COPY --from=builder /app/app.jar app.jar
-
-# Change ownership to non-root user
-RUN chown spring:spring app.jar
-
-# Switch to non-root user
-USER spring:spring
+COPY --from=builder /app/target/*.jar app.jar
 
 # Expose application port
 EXPOSE 8080
 
-# Set production profile and JVM options
-ENV SPRING_PROFILES_ACTIVE=prod
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC"
+# Set JVM options optimized for Fly.io
+ENV JAVA_OPTS="-Xmx200m -Xms128m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \

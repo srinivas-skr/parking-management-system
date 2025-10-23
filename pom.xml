@@ -14,7 +14,7 @@
     
     <groupId>com.parking</groupId>
     <artifactId>parking-management-system</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>Parking Management System</name>
     <description>Production-ready Parking Management System with Real-time Updates</description>
     

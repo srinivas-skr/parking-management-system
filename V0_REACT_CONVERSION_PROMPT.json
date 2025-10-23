@@ -1,0 +1,346 @@
+{
+  "conversionTask": "Convert Next.js + TypeScript to Pure React + JavaScript (Vite)",
+  "strictRequirements": {
+    "framework": "React 18 with Vite (NOT Next.js)",
+    "language": "JavaScript only (NO TypeScript)",
+    "routing": "React Router v6 (NOT Next.js App Router)",
+    "buildTool": "Vite (NOT Next.js)",
+    "targetAudience": "Fresher developers (0-1 year experience)"
+  },
+
+  "backendCompatibility": {
+    "apiBaseUrl": "https://parking-management-system-hs2i.onrender.com/api",
+    "authentication": "JWT Bearer Token (stored in localStorage)",
+    "corsOrigins": ["http://localhost:3000", "http://localhost:5173"],
+    "endpoints": {
+      "auth": {
+        "login": "POST /api/auth/login",
+        "request": {
+          "usernameOrEmail": "string",
+          "password": "string"
+        },
+        "response": {
+          "token": "string",
+          "user": {
+            "id": "number",
+            "username": "string",
+            "email": "string",
+            "fullName": "string",
+            "role": "string (USER/ADMIN/OPERATOR)"
+          }
+        }
+      },
+      "slots": {
+        "getAll": "GET /api/slots",
+        "getAvailable": "GET /api/slots/available?type={TWO_WHEELER|FOUR_WHEELER|HEAVY_VEHICLE}",
+        "getById": "GET /api/slots/{id}",
+        "countAvailable": "GET /api/slots/count/available"
+      },
+      "bookings": {
+        "create": "POST /api/bookings",
+        "getUserBookings": "GET /api/bookings",
+        "checkIn": "POST /api/bookings/{id}/checkin",
+        "checkOut": "POST /api/bookings/{id}/checkout",
+        "cancel": "DELETE /api/bookings/{id}"
+      },
+      "vehicles": {
+        "create": "POST /api/vehicles",
+        "getUserVehicles": "GET /api/vehicles",
+        "delete": "DELETE /api/vehicles/{id}"
+      }
+    }
+  },
+
+  "conversionInstructions": {
+    "step1_projectSetup": {
+      "action": "Create Vite React project structure",
+      "commands": [
+        "npm create vite@latest parking-react -- --template react",
+        "cd parking-react",
+        "npm install"
+      ],
+      "structure": {
+        "src/": {
+          "pages/": [
+            "Login.jsx",
+            "Dashboard.jsx",
+            "Vehicles.jsx",
+            "Bookings.jsx",
+            "BookSlot.jsx"
+          ],
+          "components/": {
+            "common/": [
+              "Button.jsx",
+              "Input.jsx",
+              "Card.jsx",
+              "Modal.jsx"
+            ],
+            "layout/": [
+              "Navbar.jsx"
+            ],
+            "dashboard/": [
+              "StatsCard.jsx",
+              "SlotCard.jsx"
+            ],
+            "booking/": [
+              "BookingCard.jsx"
+            ],
+            "vehicle/": [
+              "VehicleCard.jsx",
+              "AddVehicleModal.jsx"
+            ]
+          },
+          "context/": [
+            "AuthContext.jsx"
+          ],
+          "services/": [
+            "api.js",
+            "authService.js",
+            "slotService.js",
+            "bookingService.js",
+            "vehicleService.js"
+          ],
+          "routes/": [
+            "ProtectedRoute.jsx",
+            "AppRoutes.jsx"
+          ],
+          "utils/": [
+            "constants.js",
+            "helpers.js"
+          ],
+          "App.jsx": "Main app component with router",
+          "main.jsx": "Entry point"
+        }
+      }
+    },
+
+    "step2_dependencies": {
+      "action": "Install required packages",
+      "packages": {
+        "routing": "react-router-dom",
+        "http": "axios",
+        "styling": "tailwindcss postcss autoprefixer",
+        "ui": "@radix-ui/react-slot class-variance-authority clsx tailwind-merge",
+        "icons": "lucide-react",
+        "notifications": "sonner",
+        "forms": "react-hook-form zod @hookform/resolvers",
+        "dates": "date-fns",
+        "qr": "react-qr-code"
+      }
+    },
+
+    "step3_convertTypeScriptToJavaScript": {
+      "action": "Remove all TypeScript syntax",
+      "rules": [
+        "Remove all 'interface' declarations",
+        "Remove all 'type' definitions",
+        "Remove all type annotations (: Type)",
+        "Remove generic brackets (<Type>)",
+        "Remove 'as' type assertions",
+        "Change all .tsx files to .jsx",
+        "Change all .ts files to .js"
+      ],
+      "examples": {
+        "before_typescript": "const handleLogin = async (data: LoginData): Promise<void> => {}",
+        "after_javascript": "const handleLogin = async (data) => {}"
+      }
+    },
+
+    "step4_convertNextJsToReact": {
+      "routing": {
+        "remove": [
+          "Next.js App Router (app/ directory)",
+          "page.tsx files",
+          "layout.tsx files",
+          "loading.tsx files",
+          "import Link from 'next/link'",
+          "import { useRouter } from 'next/navigation'"
+        ],
+        "add": [
+          "React Router setup in App.jsx",
+          "import { Link } from 'react-router-dom'",
+          "import { useNavigate } from 'react-router-dom'",
+          "BrowserRouter wrapper",
+          "Routes and Route components"
+        ],
+        "example": {
+          "AppJsx": "import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';\nimport Login from './pages/Login';\nimport Dashboard from './pages/Dashboard';\nimport ProtectedRoute from './routes/ProtectedRoute';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path=\"/login\" element={<Login />} />\n        <Route path=\"/dashboard\" element={\n          <ProtectedRoute>\n            <Dashboard />\n          </ProtectedRoute>\n        } />\n        <Route path=\"/\" element={<Navigate to=\"/dashboard\" />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}"
+        }
+      },
+      "navigation": {
+        "before_nextjs": "<Link href=\"/dashboard\">Dashboard</Link>",
+        "after_react": "<Link to=\"/dashboard\">Dashboard</Link>"
+      },
+      "environmentVariables": {
+        "before_nextjs": "process.env.NEXT_PUBLIC_API_URL",
+        "after_vite": "import.meta.env.VITE_API_URL"
+      }
+    },
+
+    "step5_apiClient": {
+      "file": "src/services/api.js",
+      "implementation": "// API Configuration\nconst API_BASE_URL = import.meta.env.VITE_API_URL || 'https://parking-management-system-hs2i.onrender.com/api';\n\n// Axios instance with interceptors\nimport axios from 'axios';\n\nconst api = axios.create({\n  baseURL: API_BASE_URL,\n  headers: {\n    'Content-Type': 'application/json'\n  }\n});\n\n// Request interceptor - Add JWT token\napi.interceptors.request.use(\n  (config) => {\n    const token = localStorage.getItem('token');\n    if (token) {\n      config.headers.Authorization = `Bearer ${token}`;\n    }\n    return config;\n  },\n  (error) => Promise.reject(error)\n);\n\n// Response interceptor - Handle errors\napi.interceptors.response.use(\n  (response) => response,\n  (error) => {\n    if (error.response?.status === 401) {\n      localStorage.removeItem('token');\n      localStorage.removeItem('user');\n      window.location.href = '/login';\n    }\n    return Promise.reject(error);\n  }\n);\n\nexport default api;"
+    },
+
+    "step6_authContext": {
+      "file": "src/context/AuthContext.jsx",
+      "implementation": "import { createContext, useContext, useState, useEffect } from 'react';\n\nconst AuthContext = createContext();\n\nexport function AuthProvider({ children }) {\n  const [user, setUser] = useState(null);\n  const [loading, setLoading] = useState(true);\n\n  useEffect(() => {\n    const storedUser = localStorage.getItem('user');\n    if (storedUser) {\n      setUser(JSON.parse(storedUser));\n    }\n    setLoading(false);\n  }, []);\n\n  const login = (token, userData) => {\n    localStorage.setItem('token', token);\n    localStorage.setItem('user', JSON.stringify(userData));\n    setUser(userData);\n  };\n\n  const logout = () => {\n    localStorage.removeItem('token');\n    localStorage.removeItem('user');\n    setUser(null);\n  };\n\n  return (\n    <AuthContext.Provider value={{ user, loading, login, logout }}>\n      {children}\n    </AuthContext.Provider>\n  );\n}\n\nexport function useAuth() {\n  return useContext(AuthContext);\n}"
+    },
+
+    "step7_protectedRoute": {
+      "file": "src/routes/ProtectedRoute.jsx",
+      "implementation": "import { Navigate } from 'react-router-dom';\nimport { useAuth } from '../context/AuthContext';\n\nfunction ProtectedRoute({ children }) {\n  const { user, loading } = useAuth();\n\n  if (loading) {\n    return <div>Loading...</div>;\n  }\n\n  return user ? children : <Navigate to=\"/login\" />;\n}\n\nexport default ProtectedRoute;"
+    },
+
+    "step8_keepExistingComponents": {
+      "action": "Copy and convert existing components",
+      "components": [
+        "Navbar.tsx → Navbar.jsx",
+        "StatsCard.tsx → StatsCard.jsx",
+        "SlotCard.tsx → SlotCard.jsx",
+        "BookingCard.tsx → BookingCard.jsx",
+        "VehicleCard.tsx → VehicleCard.jsx",
+        "AddVehicleModal.tsx → AddVehicleModal.jsx"
+      ],
+      "uiComponents": {
+        "keep": "All shadcn/ui components from components/ui/",
+        "convert": "Rename .tsx to .jsx and remove TypeScript types",
+        "note": "These components work in pure React, just need JavaScript conversion"
+      }
+    },
+
+    "step9_pages": {
+      "convertPages": [
+        {
+          "from": "app/login/page.tsx",
+          "to": "src/pages/Login.jsx",
+          "changes": [
+            "Remove TypeScript types",
+            "Use useNavigate instead of Next.js router",
+            "Keep all UI and logic"
+          ]
+        },
+        {
+          "from": "app/dashboard/page.tsx",
+          "to": "src/pages/Dashboard.jsx",
+          "changes": [
+            "Remove TypeScript types",
+            "Add useState/useEffect for data fetching",
+            "No server-side fetching"
+          ]
+        },
+        {
+          "from": "app/vehicles/page.tsx",
+          "to": "src/pages/Vehicles.jsx",
+          "changes": [
+            "Convert to client-side data fetching",
+            "Remove TypeScript types"
+          ]
+        },
+        {
+          "from": "app/bookings/page.tsx",
+          "to": "src/pages/Bookings.jsx",
+          "changes": [
+            "Convert to client-side data fetching",
+            "Remove TypeScript types"
+          ]
+        },
+        {
+          "from": "app/book/[slotId]/page.tsx",
+          "to": "src/pages/BookSlot.jsx",
+          "changes": [
+            "Use useParams() for route params",
+            "Remove TypeScript types"
+          ]
+        }
+      ]
+    },
+
+    "step10_environmentSetup": {
+      "file": ".env",
+      "content": "VITE_API_URL=https://parking-management-system-hs2i.onrender.com/api",
+      "note": "Use VITE_ prefix (not NEXT_PUBLIC_)"
+    },
+
+    "step11_viteConfig": {
+      "file": "vite.config.js",
+      "content": "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nimport path from 'path';\n\nexport default defineConfig({\n  plugins: [react()],\n  resolve: {\n    alias: {\n      '@': path.resolve(__dirname, './src')\n    }\n  },\n  server: {\n    port: 3000\n  }\n});"
+    },
+
+    "step12_tailwindConfig": {
+      "file": "tailwind.config.js",
+      "content": "export default {\n  content: [\n    './index.html',\n    './src/**/*.{js,jsx}'\n  ],\n  theme: {\n    extend: {\n      colors: {\n        primary: {\n          50: '#EEF2FF',\n          500: '#6366F1',\n          600: '#4F46E5'\n        }\n      }\n    }\n  },\n  plugins: []\n}"
+    }
+  },
+
+  "criticalRules": {
+    "doNOT": [
+      "Do NOT use TypeScript",
+      "Do NOT use Next.js specific features",
+      "Do NOT use Server Components",
+      "Do NOT use getServerSideProps or getStaticProps",
+      "Do NOT use Next.js Image component",
+      "Do NOT use Next.js Link component",
+      "Do NOT use process.env.NEXT_PUBLIC_*"
+    ],
+    "doUSE": [
+      "Use plain JavaScript (.js, .jsx)",
+      "Use React Router v6 for navigation",
+      "Use useState and useEffect for data fetching",
+      "Use axios for API calls",
+      "Use import.meta.env.VITE_* for environment variables",
+      "Use regular <img> tags or custom Image component",
+      "Use React Router <Link> component",
+      "Use standard React patterns (hooks, context, components)"
+    ]
+  },
+
+  "testingChecklist": [
+    "✅ No TypeScript errors (all files are .js/.jsx)",
+    "✅ React Router navigation works",
+    "✅ Login redirects to dashboard",
+    "✅ Protected routes block unauthenticated users",
+    "✅ API calls work with JWT token",
+    "✅ Dashboard shows parking slots",
+    "✅ Can add vehicles",
+    "✅ Can book parking slots",
+    "✅ Can view bookings",
+    "✅ Logout works",
+    "✅ Responsive design maintained",
+    "✅ All shadcn/ui components work",
+    "✅ No console errors"
+  ],
+
+  "outputFormat": {
+    "deliverables": [
+      "Complete src/ folder with all converted files",
+      "package.json with correct dependencies",
+      "vite.config.js",
+      "tailwind.config.js",
+      ".env file",
+      "index.html",
+      "README.md with setup instructions"
+    ],
+    "folderStructure": "Standard Vite + React structure (NOT Next.js app/ directory)"
+  },
+
+  "fresherFriendly": {
+    "codeStyle": {
+      "useArrowFunctions": "Prefer arrow functions for components",
+      "useNamedExports": "Use named exports for utilities, default for pages",
+      "addComments": "Add comments explaining React concepts",
+      "simplePatterns": "Use simple, understandable patterns",
+      "avoidComplexity": "Avoid advanced patterns like HOCs, render props unless necessary"
+    },
+    "interviewReadiness": [
+      "Code demonstrates React hooks usage clearly",
+      "State management with Context API is evident",
+      "API integration pattern is clear",
+      "Protected routes implementation is visible",
+      "Form handling is straightforward",
+      "Error handling is present"
+    ]
+  },
+
+  "finalNote": "This conversion creates a PURE REACT application that freshers can easily understand and explain in interviews. No Next.js complexity, no TypeScript confusion, just clean React code with JavaScript that works perfectly with the existing Spring Boot backend."
+}

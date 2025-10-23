@@ -1,0 +1,1183 @@
+{
+  "project": "Professional Parking Management System - Modern UI",
+  "description": "Build a stunning, professional parking management web application with smooth animations, modern gradients, and exceptional user experience",
+  "apiBaseUrl": "https://parking-management-system-hs2i.onrender.com/api",
+  
+  "visualDesign": {
+    "theme": "Modern Professional with Glassmorphism",
+    "designInspiration": "Stripe Dashboard + Notion + Linear App",
+    "colorPalette": {
+      "primary": {
+        "50": "#EEF2FF",
+        "100": "#E0E7FF",
+        "500": "#6366F1",
+        "600": "#4F46E5",
+        "700": "#4338CA",
+        "gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      },
+      "secondary": {
+        "500": "#8B5CF6",
+        "gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      },
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "danger": "#EF4444",
+      "info": "#3B82F6",
+      "neutral": {
+        "50": "#F9FAFB",
+        "100": "#F3F4F6",
+        "200": "#E5E7EB",
+        "300": "#D1D5DB",
+        "500": "#6B7280",
+        "700": "#374151",
+        "900": "#111827"
+      }
+    },
+    "typography": {
+      "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "headings": {
+        "h1": "32px, bold, letter-spacing: -0.02em",
+        "h2": "24px, semibold",
+        "h3": "20px, semibold",
+        "h4": "18px, medium"
+      },
+      "body": "16px, regular, line-height: 1.6",
+      "small": "14px, regular"
+    },
+    "spacing": {
+      "containerMaxWidth": "1280px",
+      "cardPadding": "24px",
+      "sectionGap": "48px"
+    },
+    "effects": {
+      "shadows": {
+        "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+        "inner": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)"
+      },
+      "blur": "backdrop-filter: blur(12px)",
+      "transitions": "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+      "animations": {
+        "fadeIn": "opacity 0 to 1, 0.5s",
+        "slideUp": "translateY(20px) to 0, 0.5s",
+        "scaleIn": "scale(0.95) to 1, 0.3s"
+      }
+    },
+    "glassmorphism": {
+      "background": "rgba(255, 255, 255, 0.7)",
+      "backdropFilter": "blur(10px)",
+      "border": "1px solid rgba(255, 255, 255, 0.18)",
+      "boxShadow": "0 8px 32px 0 rgba(31, 38, 135, 0.37)"
+    }
+  },
+
+  "pages": [
+    {
+      "name": "Login Page",
+      "route": "/login",
+      "visualDesign": {
+        "layout": "Split screen (50-50)",
+        "leftSide": {
+          "background": "Animated gradient (purple to indigo)",
+          "content": [
+            "Large heading: 'Welcome Back'",
+            "Subheading: 'Manage your parking spaces efficiently'",
+            "3D illustration of parking lot or modern car",
+            "Floating elements animation",
+            "Stats ticker: '1000+ Parking Slots • 500+ Happy Users • 24/7 Support'"
+          ],
+          "animation": "Gradient shift animation, floating elements"
+        },
+        "rightSide": {
+          "background": "White with subtle pattern",
+          "card": {
+            "style": "Glassmorphism card with shadow-2xl",
+            "maxWidth": "400px",
+            "padding": "48px",
+            "borderRadius": "24px"
+          },
+          "logo": "Top center with gradient text",
+          "form": {
+            "inputs": [
+              {
+                "type": "text",
+                "label": "Email or Username",
+                "placeholder": "john@example.com",
+                "icon": "mail-icon (left)",
+                "style": "Large, rounded-lg, border-2, focus:ring-2 focus:ring-primary"
+              },
+              {
+                "type": "password",
+                "label": "Password",
+                "placeholder": "••••••••",
+                "icon": "lock-icon (left), eye-icon (right toggle)",
+                "style": "Same as above"
+              }
+            ],
+            "rememberMe": {
+              "type": "checkbox",
+              "label": "Remember me for 30 days",
+              "style": "Custom styled checkbox with smooth toggle"
+            },
+            "forgotPassword": {
+              "text": "Forgot password?",
+              "position": "Right aligned",
+              "style": "Text-primary-600, hover:underline"
+            },
+            "submitButton": {
+              "text": "Sign In",
+              "style": "Full width, gradient background, white text, rounded-lg, shadow-lg, hover:shadow-xl, transform hover:scale-105",
+              "loadingState": "Spinner with 'Signing in...' text"
+            }
+          },
+          "divider": "OR with lines (centered)",
+          "socialLogin": [
+            {
+              "provider": "Google",
+              "icon": "Google icon",
+              "style": "White background, border, hover:shadow-md"
+            }
+          ],
+          "registerLink": {
+            "text": "Don't have an account? Sign up",
+            "style": "Centered, text-primary-600, hover:text-primary-700"
+          }
+        }
+      },
+      "api": {
+        "endpoint": "/api/auth/login",
+        "method": "POST",
+        "request": {
+          "usernameOrEmail": "string",
+          "password": "string"
+        },
+        "response": {
+          "token": "string",
+          "user": {
+            "id": "number",
+            "username": "string",
+            "email": "string",
+            "fullName": "string",
+            "role": "string"
+          }
+        }
+      },
+      "validation": {
+        "email": "Valid email or username required",
+        "password": "Minimum 8 characters",
+        "errorDisplay": "Red text below input with shake animation"
+      }
+    },
+
+    {
+      "name": "Dashboard",
+      "route": "/dashboard",
+      "authRequired": true,
+      "visualDesign": {
+        "navbar": {
+          "style": "Sticky top, white background, shadow-sm, backdrop-blur",
+          "height": "72px",
+          "content": {
+            "left": {
+              "logo": "Gradient text with icon",
+              "navigation": [
+                {
+                  "label": "Dashboard",
+                  "icon": "grid-icon",
+                  "active": "Primary color with bottom border"
+                },
+                {
+                  "label": "My Bookings",
+                  "icon": "calendar-icon"
+                },
+                {
+                  "label": "My Vehicles",
+                  "icon": "car-icon"
+                }
+              ]
+            },
+            "right": {
+              "searchBar": {
+                "placeholder": "Search slots...",
+                "icon": "search-icon",
+                "style": "Rounded-full, glass effect, width: 300px"
+              },
+              "notifications": {
+                "icon": "bell-icon",
+                "badge": "Red dot for unread",
+                "dropdown": "Glassmorphism dropdown"
+              },
+              "userMenu": {
+                "avatar": "Circular with gradient border",
+                "name": "User's full name",
+                "role": "Small badge (USER/ADMIN)",
+                "dropdown": {
+                  "items": [
+                    {
+                      "icon": "user-icon",
+                      "label": "Profile",
+                      "link": "/profile"
+                    },
+                    {
+                      "icon": "settings-icon",
+                      "label": "Settings",
+                      "link": "/settings"
+                    },
+                    {
+                      "divider": true
+                    },
+                    {
+                      "icon": "logout-icon",
+                      "label": "Logout",
+                      "color": "red",
+                      "action": "logout"
+                    }
+                  ],
+                  "style": "Glass effect, shadow-xl, animated dropdown"
+                }
+              }
+            }
+          }
+        },
+        "hero": {
+          "background": "Gradient banner (120px height)",
+          "content": {
+            "greeting": {
+              "text": "Good morning, {userName}! 👋",
+              "style": "Large white text, semibold, font-size: 32px"
+            },
+            "subtitle": {
+              "text": "Here's what's happening with your parking today",
+              "style": "White text with opacity-80, font-size: 16px"
+            }
+          }
+        },
+        "statsCards": {
+          "layout": "Grid 4 columns (responsive: mobile 1, tablet 2, desktop 4)",
+          "gap": "24px",
+          "cards": [
+            {
+              "title": "Total Slots",
+              "value": "20",
+              "change": "+2 from last week",
+              "changeType": "positive",
+              "icon": "parking-square",
+              "iconBackground": "bg-blue-100",
+              "iconColor": "text-blue-600",
+              "gradient": "from-blue-50 to-blue-100",
+              "animation": "Fade in with slide up on load"
+            },
+            {
+              "title": "Available Now",
+              "value": "15",
+              "percentage": "75%",
+              "icon": "check-circle",
+              "iconBackground": "bg-green-100",
+              "iconColor": "text-green-600",
+              "gradient": "from-green-50 to-green-100",
+              "sparkline": "Mini chart showing availability trend"
+            },
+            {
+              "title": "My Bookings",
+              "value": "3",
+              "subtitle": "2 active",
+              "icon": "calendar-check",
+              "iconBackground": "bg-purple-100",
+              "iconColor": "text-purple-600",
+              "gradient": "from-purple-50 to-purple-100"
+            },
+            {
+              "title": "Total Spent",
+              "value": "₹2,450",
+              "change": "-12% from last month",
+              "changeType": "positive",
+              "icon": "indian-rupee",
+              "iconBackground": "bg-orange-100",
+              "iconColor": "text-orange-600",
+              "gradient": "from-orange-50 to-orange-100"
+            }
+          ],
+          "cardStyle": {
+            "background": "White",
+            "border": "1px border-gray-200",
+            "borderRadius": "16px",
+            "padding": "24px",
+            "shadow": "shadow-md hover:shadow-xl",
+            "transition": "transform 0.3s, shadow 0.3s",
+            "hover": "scale-105"
+          }
+        },
+        "filters": {
+          "style": "Flex row, gap-16px, margin-top: 32px",
+          "components": [
+            {
+              "type": "searchInput",
+              "placeholder": "Search by slot number...",
+              "icon": "search",
+              "style": "Rounded-lg, border-2, focus:ring-2"
+            },
+            {
+              "type": "dropdown",
+              "label": "Vehicle Type",
+              "options": [
+                {
+                  "value": "all",
+                  "label": "All Types",
+                  "icon": "layers"
+                },
+                {
+                  "value": "TWO_WHEELER",
+                  "label": "Two Wheeler",
+                  "icon": "bike"
+                },
+                {
+                  "value": "FOUR_WHEELER",
+                  "label": "Four Wheeler",
+                  "icon": "car"
+                },
+                {
+                  "value": "HEAVY_VEHICLE",
+                  "label": "Heavy Vehicle",
+                  "icon": "truck"
+                }
+              ],
+              "style": "Custom styled dropdown with icons"
+            },
+            {
+              "type": "dropdown",
+              "label": "Status",
+              "options": [
+                {
+                  "value": "all",
+                  "label": "All Status"
+                },
+                {
+                  "value": "AVAILABLE",
+                  "label": "Available",
+                  "badge": "green"
+                },
+                {
+                  "value": "OCCUPIED",
+                  "label": "Occupied",
+                  "badge": "red"
+                },
+                {
+                  "value": "RESERVED",
+                  "label": "Reserved",
+                  "badge": "yellow"
+                }
+              ]
+            },
+            {
+              "type": "toggleGroup",
+              "label": "View",
+              "options": [
+                {
+                  "value": "grid",
+                  "icon": "grid",
+                  "active": true
+                },
+                {
+                  "value": "list",
+                  "icon": "list"
+                }
+              ]
+            }
+          ]
+        },
+        "slotsGrid": {
+          "heading": "Available Parking Slots",
+          "layout": "Grid 4 columns (responsive: mobile 1, tablet 2, desktop 4)",
+          "gap": "20px",
+          "card": {
+            "style": {
+              "background": "White",
+              "borderRadius": "16px",
+              "border": "2px solid (green if available, gray if occupied)",
+              "padding": "20px",
+              "shadow": "shadow-lg hover:shadow-2xl",
+              "transition": "all 0.3s ease",
+              "hover": "transform scale-105, border-color changes to primary"
+            },
+            "statusIndicator": {
+              "position": "Top-right corner",
+              "style": "Absolute positioned badge",
+              "available": {
+                "text": "Available",
+                "background": "bg-green-100",
+                "textColor": "text-green-700",
+                "icon": "check-circle",
+                "pulse": "Pulse animation"
+              },
+              "occupied": {
+                "text": "Occupied",
+                "background": "bg-red-100",
+                "textColor": "text-red-700",
+                "icon": "x-circle"
+              },
+              "reserved": {
+                "text": "Reserved",
+                "background": "bg-yellow-100",
+                "textColor": "text-yellow-700",
+                "icon": "clock"
+              }
+            },
+            "content": [
+              {
+                "slotNumber": {
+                  "text": "A-101",
+                  "style": "Large, bold, gradient text (primary gradient)",
+                  "size": "28px"
+                }
+              },
+              {
+                "vehicleType": {
+                  "icon": "Large vehicle icon (60px)",
+                  "iconStyle": "Gradient color fill",
+                  "label": "Four Wheeler",
+                  "style": "Text-sm, text-gray-600"
+                }
+              },
+              {
+                "details": {
+                  "layout": "Flex column, gap-8px, margin-top: 16px",
+                  "items": [
+                    {
+                      "icon": "map-pin",
+                      "label": "Floor 1, Zone A",
+                      "style": "text-gray-700"
+                    },
+                    {
+                      "icon": "ruler",
+                      "label": "Near Main Entrance",
+                      "style": "text-gray-600"
+                    }
+                  ]
+                }
+              },
+              {
+                "pricing": {
+                  "amount": "₹50",
+                  "period": "/hour",
+                  "style": "Large price (24px), bold, gradient text",
+                  "background": "Subtle gradient background"
+                }
+              },
+              {
+                "bookButton": {
+                  "text": "Book Now",
+                  "icon": "arrow-right",
+                  "style": "Full width, gradient background (primary), white text, rounded-lg, shadow-md, hover:shadow-xl, transform hover:scale-105",
+                  "disabled": "If occupied/reserved: gray background, cursor-not-allowed"
+                }
+              }
+            ]
+          }
+        },
+        "emptyState": {
+          "condition": "No slots available",
+          "illustration": "Large SVG illustration (parking lot)",
+          "heading": "No parking slots found",
+          "description": "Try adjusting your filters or check back later",
+          "action": {
+            "text": "Clear Filters",
+            "style": "Primary button"
+          }
+        }
+      },
+      "api": {
+        "getAllSlots": "GET /api/slots",
+        "getAvailableSlots": "GET /api/slots/available?type={vehicleType}",
+        "countAvailable": "GET /api/slots/count/available"
+      }
+    },
+
+    {
+      "name": "My Vehicles",
+      "route": "/vehicles",
+      "authRequired": true,
+      "visualDesign": {
+        "header": {
+          "title": "My Vehicles",
+          "subtitle": "Manage your registered vehicles",
+          "action": {
+            "text": "Add Vehicle",
+            "icon": "plus-circle",
+            "style": "Primary gradient button with shadow"
+          }
+        },
+        "layout": "Grid 3 columns (responsive)",
+        "vehicleCard": {
+          "style": {
+            "background": "White with gradient border on hover",
+            "borderRadius": "20px",
+            "padding": "24px",
+            "shadow": "shadow-lg hover:shadow-2xl",
+            "transition": "all 0.3s"
+          },
+          "content": {
+            "vehicleIcon": {
+              "size": "80px",
+              "style": "Gradient colored icon",
+              "type": "Dynamic based on vehicle type"
+            },
+            "licensePlate": {
+              "text": "MH-01-AB-1234",
+              "style": "Large, bold, letter-spacing: 0.1em",
+              "badge": "License plate styled badge"
+            },
+            "details": [
+              {
+                "label": "Type",
+                "value": "Four Wheeler",
+                "icon": "car"
+              },
+              {
+                "label": "Model",
+                "value": "Honda City",
+                "icon": "tag"
+              },
+              {
+                "label": "Color",
+                "value": "Silver",
+                "icon": "palette",
+                "colorDot": "Show actual color as dot"
+              }
+            ],
+            "actions": {
+              "edit": {
+                "icon": "edit",
+                "style": "Ghost button with hover effect"
+              },
+              "delete": {
+                "icon": "trash",
+                "style": "Ghost button, red on hover",
+                "confirm": "Show confirmation modal"
+              }
+            }
+          }
+        },
+        "addVehicleModal": {
+          "trigger": "Click 'Add Vehicle' button",
+          "style": {
+            "backdrop": "Blur backdrop",
+            "modal": {
+              "maxWidth": "500px",
+              "background": "White",
+              "borderRadius": "24px",
+              "padding": "32px",
+              "shadow": "shadow-2xl",
+              "animation": "Scale in from 0.9 to 1"
+            }
+          },
+          "header": {
+            "title": "Add New Vehicle",
+            "subtitle": "Register your vehicle for quick booking",
+            "closeButton": "Top-right X button"
+          },
+          "form": {
+            "fields": [
+              {
+                "name": "licensePlate",
+                "label": "License Plate Number",
+                "type": "text",
+                "placeholder": "MH-01-AB-1234",
+                "icon": "hash",
+                "required": true,
+                "validation": "Max 10 characters, unique",
+                "style": "Uppercase transform"
+              },
+              {
+                "name": "vehicleType",
+                "label": "Vehicle Type",
+                "type": "radio-cards",
+                "options": [
+                  {
+                    "value": "TWO_WHEELER",
+                    "label": "Two Wheeler",
+                    "icon": "bike",
+                    "style": "Card style radio with large icon"
+                  },
+                  {
+                    "value": "FOUR_WHEELER",
+                    "label": "Four Wheeler",
+                    "icon": "car"
+                  },
+                  {
+                    "value": "HEAVY_VEHICLE",
+                    "label": "Heavy Vehicle",
+                    "icon": "truck"
+                  }
+                ],
+                "required": true
+              },
+              {
+                "name": "vehicleModel",
+                "label": "Model (Optional)",
+                "type": "text",
+                "placeholder": "Honda City",
+                "icon": "tag"
+              },
+              {
+                "name": "vehicleColor",
+                "label": "Color (Optional)",
+                "type": "color-picker",
+                "presets": ["Red", "Blue", "Black", "White", "Silver", "Gray"],
+                "style": "Color swatches"
+              }
+            ],
+            "submitButton": {
+              "text": "Add Vehicle",
+              "icon": "check",
+              "style": "Full width, gradient, loading state with spinner"
+            }
+          }
+        },
+        "emptyState": {
+          "condition": "No vehicles registered",
+          "illustration": "Empty state SVG",
+          "heading": "No vehicles yet",
+          "description": "Add your first vehicle to start booking parking slots",
+          "cta": {
+            "text": "Add Your First Vehicle",
+            "style": "Large gradient button"
+          }
+        }
+      },
+      "api": {
+        "getVehicles": "GET /api/vehicles",
+        "addVehicle": "POST /api/vehicles",
+        "deleteVehicle": "DELETE /api/vehicles/{id}"
+      }
+    },
+
+    {
+      "name": "Book Slot",
+      "route": "/book/:slotId",
+      "authRequired": true,
+      "visualDesign": {
+        "layout": "Two column (60-40 split)",
+        "leftColumn": {
+          "slotDetails": {
+            "card": {
+              "style": "Large card with gradient border, shadow-2xl, rounded-2xl",
+              "background": "White with subtle pattern"
+            },
+            "header": {
+              "slotNumber": {
+                "text": "A-101",
+                "style": "Huge gradient text (48px), bold"
+              },
+              "statusBadge": {
+                "text": "Available",
+                "style": "Large badge with pulse animation"
+              }
+            },
+            "heroImage": {
+              "type": "3D illustration or photo of parking slot",
+              "style": "Rounded-xl, shadow-lg, margin-bottom: 24px"
+            },
+            "details": {
+              "layout": "Grid 2 columns",
+              "items": [
+                {
+                  "icon": "layers (gradient)",
+                  "label": "Floor",
+                  "value": "Ground Floor"
+                },
+                {
+                  "icon": "map-pin",
+                  "label": "Location",
+                  "value": "Zone A, Near Entrance"
+                },
+                {
+                  "icon": "car",
+                  "label": "Vehicle Type",
+                  "value": "Four Wheeler"
+                },
+                {
+                  "icon": "indian-rupee",
+                  "label": "Rate",
+                  "value": "₹50/hour",
+                  "style": "Large, gradient text"
+                }
+              ],
+              "style": "Each item has icon, label, value with nice spacing"
+            },
+            "features": {
+              "heading": "Features",
+              "list": [
+                {
+                  "icon": "check-circle (green)",
+                  "text": "24/7 Security"
+                },
+                {
+                  "icon": "check-circle",
+                  "text": "CCTV Surveillance"
+                },
+                {
+                  "icon": "check-circle",
+                  "text": "Covered Parking"
+                }
+              ]
+            }
+          }
+        },
+        "rightColumn": {
+          "bookingForm": {
+            "card": {
+              "style": "Sticky top-24, white background, shadow-xl, rounded-2xl, padding: 32px"
+            },
+            "heading": "Book This Slot",
+            "form": {
+              "fields": [
+                {
+                  "name": "vehicle",
+                  "label": "Select Vehicle",
+                  "type": "custom-dropdown",
+                  "style": "Show vehicle cards in dropdown",
+                  "options": "Fetch from /api/vehicles",
+                  "emptyState": {
+                    "text": "No vehicles found",
+                    "action": "Add Vehicle",
+                    "link": "/vehicles"
+                  },
+                  "optionCard": {
+                    "icon": "Vehicle type icon",
+                    "licensePlate": "Large text",
+                    "model": "Small text",
+                    "style": "Card style option with hover effect"
+                  }
+                },
+                {
+                  "name": "checkInTime",
+                  "label": "Check-in Time",
+                  "type": "datetime-picker",
+                  "icon": "calendar",
+                  "min": "Now",
+                  "style": "Modern datetime picker with calendar view"
+                },
+                {
+                  "name": "expectedCheckOut",
+                  "label": "Expected Check-out",
+                  "type": "datetime-picker",
+                  "icon": "calendar",
+                  "min": "Check-in time + 1 hour",
+                  "style": "Same as above"
+                },
+                {
+                  "name": "duration",
+                  "label": "Duration",
+                  "type": "display",
+                  "value": "Auto-calculated (e.g., 3 hours 30 mins)",
+                  "icon": "clock",
+                  "style": "Large, bold, gradient text"
+                },
+                {
+                  "name": "totalCost",
+                  "label": "Total Cost",
+                  "type": "display",
+                  "value": "Auto-calculated (e.g., ₹175)",
+                  "calculation": "duration × pricePerHour",
+                  "style": "Very large, gradient text (36px), with breakdown tooltip",
+                  "breakdown": {
+                    "text": "3.5 hrs × ₹50/hr = ₹175",
+                    "style": "Tooltip on hover"
+                  }
+                }
+              ],
+              "divider": "Dashed line",
+              "priceBreakdown": {
+                "style": "Background: gradient-light, padding: 16px, rounded-lg",
+                "items": [
+                  {
+                    "label": "Base Rate",
+                    "value": "₹50/hr"
+                  },
+                  {
+                    "label": "Duration",
+                    "value": "3.5 hrs"
+                  },
+                  {
+                    "label": "Subtotal",
+                    "value": "₹175"
+                  },
+                  {
+                    "label": "Tax (18%)",
+                    "value": "₹31.50"
+                  },
+                  {
+                    "divider": true
+                  },
+                  {
+                    "label": "Total",
+                    "value": "₹206.50",
+                    "style": "Large, bold, gradient"
+                  }
+                ]
+              },
+              "confirmButton": {
+                "text": "Confirm Booking",
+                "icon": "check-circle",
+                "style": "Full width, extra large, gradient background, white text, shadow-xl, hover:shadow-2xl, transform hover:scale-105",
+                "loadingState": "Show spinner and 'Processing...'"
+              }
+            }
+          },
+          "successModal": {
+            "trigger": "After successful booking",
+            "style": "Centered modal with confetti animation",
+            "content": {
+              "icon": "Large checkmark with animation",
+              "heading": "Booking Confirmed! 🎉",
+              "bookingCode": {
+                "text": "PARK-2024-001",
+                "style": "Large, monospace font, badge style"
+              },
+              "qrCode": {
+                "size": "200px",
+                "style": "Center aligned, with border"
+              },
+              "message": "Show this QR code at the entrance",
+              "actions": [
+                {
+                  "text": "Download QR Code",
+                  "icon": "download",
+                  "style": "Outline button"
+                },
+                {
+                  "text": "View Booking",
+                  "icon": "arrow-right",
+                  "style": "Primary button",
+                  "link": "/bookings"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "api": {
+        "getSlot": "GET /api/slots/{id}",
+        "createBooking": "POST /api/bookings"
+      }
+    },
+
+    {
+      "name": "My Bookings",
+      "route": "/bookings",
+      "authRequired": true,
+      "visualDesign": {
+        "header": {
+          "title": "My Bookings",
+          "subtitle": "Manage all your parking reservations",
+          "action": {
+            "text": "Book New Slot",
+            "icon": "plus",
+            "style": "Primary gradient button",
+            "link": "/dashboard"
+          }
+        },
+        "tabs": {
+          "style": "Pill style tabs with sliding indicator",
+          "items": [
+            {
+              "label": "Active",
+              "value": "active",
+              "badge": "2",
+              "color": "green"
+            },
+            {
+              "label": "Upcoming",
+              "value": "upcoming",
+              "badge": "1",
+              "color": "blue"
+            },
+            {
+              "label": "Completed",
+              "value": "completed",
+              "badge": "5",
+              "color": "gray"
+            },
+            {
+              "label": "Cancelled",
+              "value": "cancelled",
+              "color": "red"
+            }
+          ]
+        },
+        "bookingCard": {
+          "style": {
+            "background": "White",
+            "borderRadius": "20px",
+            "border": "2px solid (color based on status)",
+            "padding": "24px",
+            "shadow": "shadow-lg hover:shadow-2xl",
+            "transition": "all 0.3s",
+            "marginBottom": "16px"
+          },
+          "layout": "Flex row (responsive: column on mobile)",
+          "leftSection": {
+            "bookingCode": {
+              "text": "PARK-2024-001",
+              "style": "Large, monospace, gradient text, clickable to copy",
+              "copyButton": "Click to copy with toast notification"
+            },
+            "qrCode": {
+              "size": "120px",
+              "style": "Rounded, border",
+              "action": "Click to enlarge"
+            }
+          },
+          "middleSection": {
+            "slotInfo": {
+              "slotNumber": {
+                "text": "A-101",
+                "style": "Extra large, bold, gradient"
+              },
+              "location": "Floor 1, Zone A",
+              "vehicleInfo": {
+                "icon": "Vehicle type icon",
+                "licensePlate": "MH-01-AB-1234",
+                "model": "Honda City"
+              }
+            },
+            "timeInfo": {
+              "checkIn": {
+                "label": "Check-in",
+                "datetime": "Oct 5, 2024 10:00 AM",
+                "icon": "login",
+                "relative": "in 2 hours"
+              },
+              "checkOut": {
+                "label": "Check-out",
+                "datetime": "Oct 5, 2024 6:00 PM",
+                "icon": "logout",
+                "relative": "8 hours later"
+              },
+              "duration": {
+                "text": "8 hours",
+                "style": "Badge with clock icon"
+              }
+            }
+          },
+          "rightSection": {
+            "status": {
+              "BOOKED": {
+                "badge": "Booked",
+                "color": "blue",
+                "icon": "calendar",
+                "animation": "Pulse"
+              },
+              "ACTIVE": {
+                "badge": "Active",
+                "color": "green",
+                "icon": "zap",
+                "animation": "Pulse"
+              },
+              "COMPLETED": {
+                "badge": "Completed",
+                "color": "gray",
+                "icon": "check-circle"
+              },
+              "CANCELLED": {
+                "badge": "Cancelled",
+                "color": "red",
+                "icon": "x-circle"
+              }
+            },
+            "pricing": {
+              "amount": "₹400",
+              "style": "Large, bold, gradient text",
+              "breakdown": "8 hrs × ₹50/hr (tooltip)"
+            },
+            "actions": {
+              "BOOKED": [
+                {
+                  "text": "Check-In",
+                  "icon": "login",
+                  "style": "Primary gradient button",
+                  "action": "POST /api/bookings/{id}/checkin"
+                },
+                {
+                  "text": "Cancel",
+                  "icon": "x",
+                  "style": "Outline button, red",
+                  "confirm": "Show confirmation dialog"
+                }
+              ],
+              "ACTIVE": [
+                {
+                  "text": "Check-Out",
+                  "icon": "logout",
+                  "style": "Primary gradient button",
+                  "action": "POST /api/bookings/{id}/checkout"
+                },
+                {
+                  "text": "Extend",
+                  "icon": "clock",
+                  "style": "Outline button"
+                }
+              ],
+              "COMPLETED": [
+                {
+                  "text": "View Receipt",
+                  "icon": "file-text",
+                  "style": "Outline button"
+                },
+                {
+                  "text": "Download",
+                  "icon": "download",
+                  "style": "Ghost button"
+                }
+              ]
+            }
+          }
+        },
+        "emptyState": {
+          "illustration": "Empty calendar illustration",
+          "heading": "No bookings yet",
+          "description": "Start booking parking slots to see them here",
+          "cta": {
+            "text": "Browse Available Slots",
+            "style": "Large gradient button",
+            "link": "/dashboard"
+          }
+        }
+      },
+      "api": {
+        "getBookings": "GET /api/bookings",
+        "checkIn": "POST /api/bookings/{id}/checkin",
+        "checkOut": "POST /api/bookings/{id}/checkout",
+        "cancel": "DELETE /api/bookings/{id}"
+      }
+    }
+  ],
+
+  "components": {
+    "toast": {
+      "position": "Top-right",
+      "style": "Glassmorphism with icon, auto-dismiss (3s)",
+      "types": {
+        "success": "Green with check icon",
+        "error": "Red with X icon",
+        "info": "Blue with info icon",
+        "warning": "Yellow with alert icon"
+      }
+    },
+    "confirmDialog": {
+      "style": "Centered modal with blur backdrop",
+      "icon": "Large warning icon",
+      "title": "Are you sure?",
+      "description": "This action cannot be undone",
+      "buttons": [
+        {
+          "text": "Cancel",
+          "style": "Outline button"
+        },
+        {
+          "text": "Confirm",
+          "style": "Danger button (red gradient)"
+        }
+      ]
+    },
+    "loading": {
+      "fullPage": "Gradient spinner with logo",
+      "inline": "Small spinner",
+      "skeleton": "Shimmer effect for cards"
+    }
+  },
+
+  "technicalStack": {
+    "framework": "React 18 with Vite",
+    "routing": "React Router v6 (for navigation)",
+    "language": "TypeScript (or JavaScript based on preference)",
+    "styling": "Tailwind CSS v3.4+",
+    "uiLibrary": "shadcn/ui (for base components) or custom components",
+    "icons": "Lucide React (modern icon library)",
+    "animations": "Framer Motion (for smooth animations)",
+    "forms": "React Hook Form + Zod validation",
+    "dateTime": "react-datepicker or date-fns",
+    "http": "Axios with JWT interceptors",
+    "state": "React Context API + useState/useReducer (show understanding of React fundamentals)",
+    "stateManagement": "Optional: Zustand (if you want to show modern state management)",
+    "charts": "Recharts (for admin dashboard stats)",
+    "qrCode": "react-qr-code (for booking QR codes)",
+    "buildTool": "Vite (fast build, modern tooling)",
+    "deployment": "Vercel or Netlify (free hosting for frontend)"
+  },
+
+  "fresherFocusPoints": {
+    "showcase": [
+      "React Hooks usage (useState, useEffect, useContext, useCallback)",
+      "Component composition and reusability",
+      "Custom hooks (e.g., useAuth, useApi, useBooking)",
+      "Protected routes implementation",
+      "API integration with error handling",
+      "Loading states and UX patterns",
+      "Form validation and user feedback",
+      "Responsive design principles",
+      "Clean folder structure",
+      "Code comments for interviews"
+    ],
+    "resumePoints": [
+      "Built full-stack parking management system with React 18",
+      "Implemented JWT authentication with protected routes",
+      "Integrated REST API with Axios interceptors",
+      "Created reusable components with custom hooks",
+      "Designed responsive UI with Tailwind CSS",
+      "Implemented real-time booking system with QR code generation",
+      "Used React Context API for state management",
+      "Deployed frontend on Vercel with CI/CD"
+    ]
+  },
+
+  "projectStructure": {
+    "recommended": {
+      "src/": {
+        "components/": {
+          "common/": ["Button.jsx", "Input.jsx", "Card.jsx", "Modal.jsx", "Toast.jsx"],
+          "layout/": ["Navbar.jsx", "Sidebar.jsx", "Footer.jsx"],
+          "dashboard/": ["StatsCard.jsx", "SlotCard.jsx", "FilterBar.jsx"],
+          "booking/": ["BookingCard.jsx", "BookingForm.jsx", "QRCodeDisplay.jsx"],
+          "vehicle/": ["VehicleCard.jsx", "AddVehicleModal.jsx"]
+        },
+        "pages/": ["Login.jsx", "Register.jsx", "Dashboard.jsx", "Bookings.jsx", "Vehicles.jsx", "BookSlot.jsx"],
+        "hooks/": ["useAuth.js", "useApi.js", "useBooking.js", "useVehicle.js", "useToast.js"],
+        "context/": ["AuthContext.jsx", "BookingContext.jsx"],
+        "services/": ["api.js (axios config)", "authService.js", "bookingService.js", "vehicleService.js"],
+        "utils/": ["constants.js", "helpers.js", "validators.js"],
+        "routes/": ["ProtectedRoute.jsx", "AppRoutes.jsx"],
+        "assets/": ["images/", "icons/"],
+        "styles/": ["index.css (Tailwind imports)"]
+      }
+    }
+  },
+
+  "responsive": {
+    "mobile": "< 768px: Single column, bottom nav, hamburger menu",
+    "tablet": "768px - 1024px: 2 columns, side nav",
+    "desktop": "> 1024px: Full layout with sidebar, multi-column grids"
+  },
+
+  "performance": {
+    "lazyLoading": "React.lazy() for route-based code splitting",
+    "memoization": "useMemo and useCallback for expensive operations",
+    "imageOptimization": "Lazy load images, use WebP format",
+    "debouncing": "Debounce search inputs",
+    "caching": "Cache API responses in context/state"
+  },
+
+  "interviewReadiness": {
+    "explainablePatterns": [
+      "Why Context API over props drilling",
+      "Custom hooks for reusable logic",
+      "Protected route implementation",
+      "JWT token storage (localStorage vs sessionStorage)",
+      "Error boundary for error handling",
+      "Optimistic UI updates",
+      "Controlled vs uncontrolled components"
+    ]
+  }
+}

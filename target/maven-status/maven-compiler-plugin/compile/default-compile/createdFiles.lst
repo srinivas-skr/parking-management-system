@@ -30,6 +30,7 @@ com\parking\dto\response\BookingResponse$BookingResponseBuilder.class
 com\parking\dto\response\ApiResponse$ApiResponseBuilder.class
 com\parking\config\KeepAliveScheduler.class
 com\parking\exception\GlobalExceptionHandler.class
+com\parking\config\CorsConfig.class
 com\parking\entity\base\AuditableEntity.class
 com\parking\service\impl\ParkingSlotServiceImpl.class
 com\parking\dto\request\BookingRequest.class
@@ -55,6 +56,7 @@ com\parking\entity\Vehicle.class
 com\parking\entity\Payment$PaymentStatus.class
 com\parking\ParkingManagementApplication.class
 com\parking\repository\VehicleRepository.class
+com\parking\config\CorsConfig$1.class
 com\parking\config\DataInitializer.class
 com\parking\entity\Payment$PaymentMethod.class
 com\parking\repository\UserRepository.class
