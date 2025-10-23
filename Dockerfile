@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Parking Management System
 # Stage 1: Maven Build
-FROM maven:3.9-eclipse-temurin-17 AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # Stage 2: Runtime with JRE
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 # Add labels for better container management
 LABEL maintainer="your.email@example.com"
