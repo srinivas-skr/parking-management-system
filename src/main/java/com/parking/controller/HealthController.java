@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/health")
 public class HealthController {
 
-    @GetMapping
+    // Public health endpoint for Render health checks
+    @GetMapping("/health")
     public Map<String, Object> health() {
         Map<String, Object> health = new HashMap<>();
         health.put("status", "UP");
@@ -20,8 +20,14 @@ public class HealthController {
         health.put("message", "Parking Management System is running successfully!");
         return health;
     }
+
+    // Additional API health endpoint
+    @GetMapping("/api/health")
+    public Map<String, Object> apiHealth() {
+        return health();
+    }
     
-    @GetMapping("/ping")
+    @GetMapping("/api/health/ping")
     public String ping() {
         return "pong - Server is alive at " + LocalDateTime.now();
     }

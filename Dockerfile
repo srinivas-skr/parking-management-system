@@ -28,12 +28,12 @@ COPY --from=builder /app/target/*.jar app.jar
 # Expose application port
 EXPOSE 8080
 
-# Set JVM options optimized for Fly.io
-ENV JAVA_OPTS="-Xmx200m -Xms128m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
+# Set JVM options optimized for Render (512MB max)
+ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+# Health check - Use /health endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=90s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/health || exit 1
 
-# Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Run the application - Use PORT from environment
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar"]
