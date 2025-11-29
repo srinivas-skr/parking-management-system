@@ -1,0 +1,80 @@
+{
+  "version": "1.0",
+  "context": {
+    "projectName": "Smart Parking Slot Booking System",
+    "projectType": "Spring Boot REST API with JWT Authentication",
+    "javaVersion": "21",
+    "springBootVersion": "3.2.x",
+    "buildTool": "Maven",
+    "database": "MySQL 8.0",
+    "mainPackage": "com.parking"
+  },
+  "referenceRepositories": [
+    {
+      "name": "parkinglot",
+      "path": "../reference-repos/parkinglot",
+      "purpose": "Base architecture, JWT authentication, Spring Security, Docker setup",
+      "keyFiles": [
+        "src/main/java/com/project/parkinglot/controller/ParkController.java",
+        "src/main/java/com/project/parkinglot/service/impl/ParkServiceImpl.java",
+        "src/main/java/com/project/parkinglot/security/jwt/JwtUtils.java"
+      ]
+    },
+    {
+      "name": "chat-app-react-nodejs",
+      "path": "../reference-repos/chat-app-react-nodejs",
+      "purpose": "WebSocket real-time patterns for live slot updates"
+    },
+    {
+      "name": "Online-Banking-Full-Stack-Web-Application",
+      "path": "../reference-repos/Online-Banking-Full-Stack-Web-Application",
+      "purpose": "Transaction management patterns and security"
+    },
+    {
+      "name": "Java-React-FullStack",
+      "path": "../reference-repos/Java-React-FullStack",
+      "purpose": "Docker Compose, Redis caching, MapStruct DTO patterns"
+    }
+  ],
+  "copilotBehavior": {
+    "alwaysFollow": [
+      "Use Java 21 syntax and features",
+      "Follow package structure: com.parking.{entity,dto,controller,service,repository,security}",
+      "Reference parkinglot repo for JWT and Spring Security patterns",
+      "Use constructor-based dependency injection, not @Autowired fields",
+      "Add validation annotations (@NotNull, @NotBlank) on DTOs",
+      "Use ResponseEntity for all controller methods",
+      "Follow REST API naming conventions"
+    ],
+    "neverDo": [
+      "Don't use @Autowired on fields - use constructor injection",
+      "Don't put business logic in controllers - always in service layer",
+      "Don't expose entities directly in REST APIs - use DTOs",
+      "Don't hardcode values - use application.properties"
+    ]
+  },
+  "features": {
+    "mustImplement": [
+      {
+        "name": "Advance Booking System",
+        "description": "Users can book parking slots for future dates/times",
+        "reference": "Follow ParkController and ParkService patterns from parkinglot repo"
+      },
+      {
+        "name": "Real-Time Slot Updates",
+        "description": "WebSocket notifications when slots are booked/released",
+        "reference": "Adapt chat-app-react-nodejs Socket.io patterns to Spring STOMP WebSocket"
+      },
+      {
+        "name": "QR Code Entry/Exit",
+        "description": "Generate QR code on check-in, scan on check-out",
+        "dependencies": "Add com.google.zxing:core:3.5.1 to pom.xml"
+      },
+      {
+        "name": "Geolocation Search",
+        "description": "Find nearest parking areas based on user coordinates",
+        "implementation": "Add latitude/longitude to ParkingArea entity, implement Haversine formula"
+      }
+    ]
+  }
+}

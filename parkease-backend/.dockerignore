@@ -1,0 +1,70 @@
+# Build artifacts
+target/
+!target/parking-management-system-1.0.0.jar
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# Test files
+src/test/
+
+# Docker files
+docker-compose.yml
+Dockerfile
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Scripts
+*.bat
+*.ps1
+*.sh
+
+# Frontend
+frontend.html
+cors-test.html
+
+# Reference repos
+reference-repos/
+
+# GitHub
+.github/

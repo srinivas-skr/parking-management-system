@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: parking_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: parking_db
+      MYSQL_USER: parking_user
+      MYSQL_PASSWORD: parking_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - parking-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  parking-app:
+    build: .
+    container_name: parking_app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/parking_db?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: parking_user
+      SPRING_DATASOURCE_PASSWORD: parking_pass
+      JWT_SECRET: ${JWT_SECRET:-mySecretKeyForProduction}
+    ports:
+      - "8080:8080"
+    networks:
+      - parking-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  parking-network:
+    driver: bridge

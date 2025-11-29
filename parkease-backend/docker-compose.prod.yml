@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: parking-mysql-prod
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root123}
+      MYSQL_DATABASE: parking_db
+      MYSQL_USER: parking_user
+      MYSQL_PASSWORD: ${DB_PASSWORD:-parking123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - parking-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  parking-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parking-app-prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/parking_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: parking_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-parking123}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      JWT_EXPIRATION: 86400000
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - parking-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  parking-network:
+    driver: bridge
