@@ -27,23 +27,22 @@ public class DemoUserInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        createDemoUser();
+        createDemoUser("demo@parkease.com", "demo");
+        createDemoUser("demo@parking.com", "demouser");
     }
 
-    private void createDemoUser() {
-        String demoEmail = "demo@parkease.com";
-        
+    private void createDemoUser(String email, String username) {
         // Check if demo user already exists
-        if (userRepository.existsByEmail(demoEmail)) {
-            logger.info("Demo user already exists: {}", demoEmail);
+        if (userRepository.existsByEmail(email)) {
+            logger.info("Demo user already exists: {}", email);
             return;
         }
 
         try {
             // Create demo user
             User demoUser = User.builder()
-                    .username("demo")
-                    .email(demoEmail)
+                    .username(username)
+                    .email(email)
                     .password(passwordEncoder.encode("demo123"))
                     .fullName("Demo User")
                     .phoneNumber("1234567890")
@@ -52,12 +51,10 @@ public class DemoUserInitializer implements CommandLineRunner {
                     .build();
 
             userRepository.save(demoUser);
-            logger.info("✅ Demo user created successfully: {}", demoEmail);
-            logger.info("📧 Email: demo@parkease.com");
+            logger.info("✅ Demo user created successfully: {}", email);
             logger.info("🔑 Password: demo123");
-            logger.info("🎯 Use 'Try Demo' button on landing page for instant access");
         } catch (Exception e) {
-            logger.error("Failed to create demo user: {}", e.getMessage(), e);
+            logger.error("Failed to create demo user {}: {}", email, e.getMessage(), e);
         }
     }
 }
