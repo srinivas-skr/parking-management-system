@@ -81,9 +81,8 @@ export default function BookSlot() {
       
       await api.post("/bookings", {
         slotId: slot.id,
-        vehicleId: formData.vehicleId,
-        startTime: formData.checkInTime,
-        endTime: formData.checkOutTime,
+        vehicleId: parseInt(formData.vehicleId),
+        expectedCheckOut: formData.checkOutTime,
       })
 
       toast.success("Booking created successfully", {
