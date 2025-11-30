@@ -79,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers("/*.svg").permitAll()
                         
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/api/health/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
