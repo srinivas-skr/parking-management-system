@@ -68,8 +68,8 @@ export default function LandingPage() {
       {/* FULL-SCREEN 3D BACKGROUND - Covers entire viewport */}
       <SplineBackground />
       
-      {/* All content floats on top with z-10 */}
-      <div className="relative z-10">
+      {/* All content floats on top with z-20 for clickability */}
+      <div className="relative z-20">
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           {/* Hero Content with backdrop blur for readability */}
