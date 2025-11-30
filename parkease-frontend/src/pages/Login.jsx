@@ -228,7 +228,7 @@ function Login() {
                   className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
                   onClick={() => {
                     setFormData({
-                      usernameOrEmail: "demo@parking.com",
+                      usernameOrEmail: "demo@parkease.com",
                       password: "demo123"
                     })
                   }}
