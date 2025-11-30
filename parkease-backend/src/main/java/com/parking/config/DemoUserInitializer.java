@@ -31,7 +31,7 @@ public class DemoUserInitializer implements CommandLineRunner {
     }
 
     private void createDemoUser() {
-        String demoEmail = "demo@parking.com";
+        String demoEmail = "demo@parkease.com";
         
         // Check if demo user already exists
         if (userRepository.existsByEmail(demoEmail)) {
@@ -53,7 +53,7 @@ public class DemoUserInitializer implements CommandLineRunner {
 
             userRepository.save(demoUser);
             logger.info("✅ Demo user created successfully: {}", demoEmail);
-            logger.info("📧 Email: demo@parking.com");
+            logger.info("📧 Email: demo@parkease.com");
             logger.info("🔑 Password: demo123");
             logger.info("🎯 Use 'Try Demo' button on landing page for instant access");
         } catch (Exception e) {
