@@ -4,8 +4,6 @@ services:
     env: docker
     region: oregon
     plan: free
-    rootDir: parkease-backend
-    dockerfilePath: ./Dockerfile
     healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
