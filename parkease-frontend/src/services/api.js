@@ -13,7 +13,8 @@ let wakeUpToastId = null
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  // Note: We use JWT tokens in localStorage, not cookies, so withCredentials is not needed
+  // withCredentials: true causes CORS issues when backend uses allowedOriginPatterns("*")
   headers: {
     "Content-Type": "application/json",
   },
