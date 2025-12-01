@@ -84,8 +84,8 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            {/* Subheadline - STATIC with drop-shadow for visibility */}
-            <p className="text-xl sm:text-2xl text-slate-700 font-medium mb-24 max-w-3xl mx-auto leading-relaxed drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
+            {/* Subheadline - Dark color like "Smart Parking" for visibility */}
+            <p className="text-xl sm:text-2xl text-slate-900 font-medium mb-24 max-w-3xl mx-auto leading-relaxed">
               Find Free & Paid Parking Across Bengaluru - 50+ Real Locations
             </p>
 
@@ -150,9 +150,6 @@ export default function LandingPage() {
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               Why Choose ParkEase?
             </h2>
-            <p className="text-xl text-white/90 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-              Smart features designed for modern parking management
-            </p>
           </div>
 
           {/* Feature Cards - White bg, no blur (performance optimized) */}
