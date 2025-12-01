@@ -105,10 +105,6 @@ public class ParkingSlot extends AuditableEntity {
     @lombok.Builder.Default
     private List<Booking> bookings = new ArrayList<>();
 
-    @Version
-    @Column(name = "version")
-    private Long version;
-
     public enum SlotStatus {
         AVAILABLE,
         OCCUPIED,
