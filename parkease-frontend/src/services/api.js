@@ -1,7 +1,15 @@
 import axios from "axios"
 import { toast } from "sonner"
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api"
+let API_BASE_URL = import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api"
+
+// Robustly handle URL formatting (ensure it ends with /api)
+if (API_BASE_URL.endsWith("/")) {
+  API_BASE_URL = API_BASE_URL.slice(0, -1)
+}
+if (!API_BASE_URL.endsWith("/api")) {
+  API_BASE_URL += "/api"
+}
 
 // Log the API URL for debugging
 console.log("🔗 API Base URL:", API_BASE_URL)
