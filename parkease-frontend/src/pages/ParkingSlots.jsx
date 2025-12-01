@@ -136,7 +136,7 @@ export default function ParkingSlots() {
     // Filter by status
     if (filters.status !== "all") {
       filtered = filtered.filter(
-        (slot) => (slot.status || slot.slotStatus) === filters.status
+        (slot) => (slot.status || slot.slotStatus || slot.availability) === filters.status
       )
     }
 
