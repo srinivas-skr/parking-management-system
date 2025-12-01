@@ -1,7 +1,7 @@
 import axios from "axios"
 import { toast } from "sonner"
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api"
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://parking-management-system-snowy.onrender.com/api"
 
 // Log the API URL for debugging
 console.log("🔗 API Base URL:", API_BASE_URL)

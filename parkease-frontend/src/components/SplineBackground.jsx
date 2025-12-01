@@ -19,7 +19,7 @@ export default function SplineBackground() {
   const [is3DReady, setIs3DReady] = useState(false);
 
   useEffect(() => {
-    // 1. Backend Warm-up
+    // 1. Backend Warm-up (same URL as api.js)
     const backendUrl = "https://parking-management-system-snowy.onrender.com"; 
     fetch(`${backendUrl}/api/health`).catch(() => {});
 
