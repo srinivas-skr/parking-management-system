@@ -20,7 +20,7 @@ export default function SplineBackground() {
 
   useEffect(() => {
     // 1. Backend Warm-up (same URL as api.js)
-    const backendUrl = "https://parking-management-system-snowy.onrender.com"; 
+    const backendUrl = "https://parking-management-system-hs2i.onrender.com"; 
     fetch(`${backendUrl}/api/health`).catch(() => {});
 
     // 2. Hardware Check (Keep Image for weak devices)
