@@ -8,16 +8,18 @@ import {
 } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { toast } from "sonner"
+import { useAuth } from "../context/AuthContext"
 import api from "../services/api"
 import LoadingScreen from "../components/LoadingScreen"
 import SplineBackground from "../components/SplineBackground"
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [loading, setLoading] = useState(false)
   const [showFullScreenLoader, setShowFullScreenLoader] = useState(false)
 
-  // Demo login handler
+  // Demo login handler - automatically logs in with demo credentials
   const handleDemoLogin = async () => {
     try {
       setLoading(true)
@@ -29,24 +31,34 @@ export default function LandingPage() {
         password: "demo123"
       }
 
+      console.log("🚀 Attempting demo login...")
       const response = await api.post("/auth/login", credentials)
+      console.log("✅ Demo login response:", response.data)
       
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token)
-        localStorage.setItem("user", JSON.stringify(response.data))
+        // Extract user data from response
+        const { token, id, username, email, fullName, role } = response.data
+        const userData = { id, username, email, fullName, role }
+        
+        // Use AuthContext login to properly set auth state
+        login(token, userData)
         
         toast.success("Welcome to demo mode! 👋", { id: "demo-login" })
         
-        // Keep loader for smooth transition
+        // Navigate to dashboard
         setTimeout(() => {
           setShowFullScreenLoader(false)
           navigate("/dashboard")
-        }, 1000)
+        }, 800)
+      } else {
+        throw new Error("No token received")
       }
     } catch (error) {
-      console.error("Demo login failed:", error)
-      toast.error("Demo login failed. Please try manual login.", { id: "demo-login" })
+      console.error("❌ Demo login failed:", error)
+      toast.error("Demo login failed. Redirecting to login page...", { id: "demo-login" })
       setShowFullScreenLoader(false)
+      // Fallback: redirect to login page
+      setTimeout(() => navigate("/login"), 1500)
     } finally {
       setLoading(false)
     }
