@@ -215,28 +215,6 @@ function Login() {
                 </motion.div>
               </form>
 
-              {/* Demo Login Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="mt-4"
-              >
-                <Button 
-                  type="button"
-                  variant="outline"
-                  className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
-                  onClick={() => {
-                    setFormData({
-                      usernameOrEmail: "demo@parking.com",
-                      password: "demo123"
-                    })
-                  }}
-                >
-                  <span className="mr-2">🚀</span> One-Click Demo Login
-                </Button>
-              </motion.div>
-              
               {/* Register Link */}
               <div className="mt-6 text-center">
                 <p className="text-muted-foreground text-sm">

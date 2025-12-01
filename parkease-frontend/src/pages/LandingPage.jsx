@@ -89,8 +89,8 @@ export default function LandingPage() {
               Find Free & Paid Parking Across Bengaluru - 50+ Real Locations
             </p>
 
-            {/* CTA Buttons - STATIC (only CSS hover, no JS animation) */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {/* CTA Buttons - 3 options: Try Demo, Create Account, Sign In */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
               <Button
                 onClick={handleDemoLogin}
                 disabled={loading}
@@ -98,8 +98,17 @@ export default function LandingPage() {
                 className="group bg-purple-600 text-white hover:bg-purple-700 px-8 py-6 rounded-xl text-lg font-semibold shadow-2xl shadow-purple-500/30 hover:shadow-3xl hover:shadow-[0_0_40px_rgba(99,102,241,0.6)] transition-all duration-300 hover:scale-105 hover:-translate-y-2 disabled:opacity-50"
               >
                 <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                Try Demo Now
+                {loading ? "Logging in..." : "Try Demo"}
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+
+              <Button
+                onClick={() => navigate("/register")}
+                size="lg"
+                className="group bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 px-8 py-6 rounded-xl text-lg font-semibold shadow-xl shadow-green-500/20 hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2"
+              >
+                <span className="mr-2">✨</span>
+                Create Account
               </Button>
 
               <Button
