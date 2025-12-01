@@ -28,8 +28,8 @@ COPY --from=builder /app/target/*.jar app.jar
 # Expose application port
 EXPOSE 8080
 
-# Set JVM options optimized for Render (512MB max)
-ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
+# Set JVM options ULTRA-OPTIMIZED for Render Free Tier (512MB, 0.1 CPU)
+ENV JAVA_OPTS="-Xmx384m -Xms128m -XX:+UseSerialGC -XX:MaxRAM=450m -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.security.egd=file:/dev/./urandom"
 
 # Health check - Use /actuator/health endpoint
 HEALTHCHECK --interval=30s --timeout=3s --start-period=90s --retries=3 \
