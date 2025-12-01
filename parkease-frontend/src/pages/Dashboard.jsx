@@ -6,29 +6,33 @@ import { motion } from "framer-motion"
 import { useAuth } from "../context/AuthContext"
 import Navbar from "../components/Navbar"
 import StatsCard from "../components/StatsCard"
-import SlotCard from "../components/SlotCard"
-import EmptyState from "../components/EmptyState"
 import Skeleton from "../components/ui/skeleton"
 import PageTransition from "../components/PageTransition"
 import ParticleBackground from "../components/ParticleBackground"
 import AnalyticsSection from "../components/AnalyticsSection"
-import MapView from "../components/MapView"
 import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
 import { toast } from "sonner"
-import { Search, Grid, List, Car, Clock, Calendar, DollarSign, RefreshCw } from "lucide-react"
+import { Car, Bike, Clock, Calendar, DollarSign, RefreshCw, MapPin, ArrowRight, Sparkles } from "lucide-react"
 import api from "../services/api"
+
+// Popular areas in Bengaluru with coordinates
+const popularAreas = [
+  { name: "Koramangala", lat: 12.9352, lng: 77.6245, icon: "🏢", slots: 45 },
+  { name: "Indiranagar", lat: 12.9719, lng: 77.6412, icon: "🎯", slots: 38 },
+  { name: "Whitefield", lat: 12.9771, lng: 77.7265, icon: "💼", slots: 52 },
+  { name: "MG Road", lat: 12.9756, lng: 77.6066, icon: "🛍️", slots: 28 },
+  { name: "HSR Layout", lat: 12.9082, lng: 77.6476, icon: "🏠", slots: 35 },
+  { name: "Electronic City", lat: 12.8426, lng: 77.6598, icon: "🏭", slots: 60 },
+  { name: "Jayanagar", lat: 12.9250, lng: 77.5838, icon: "🌳", slots: 22 },
+  { name: "Malleshwaram", lat: 13.0096, lng: 77.5679, icon: "🏛️", slots: 18 },
+]
 
 function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [slots, setSlots] = useState([])
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState("ALL")
-  const [filterStatus, setFilterStatus] = useState("ALL")
-  const [viewMode, setViewMode] = useState("grid")
+  const [selectedVehicle, setSelectedVehicle] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -38,65 +42,36 @@ function Dashboard() {
     try {
       setLoading(true)
       
-      // Fetch slots and bookings separately to handle partial failures
-      const [slotsResult, bookingsResult] = await Promise.allSettled([
-        api.get("/slots"), 
-        api.get("/bookings")
-      ])
+      // Fetch only bookings for dashboard stats
+      const bookingsResult = await api.get("/bookings").catch(() => ({ data: [] }))
       
-      // Handle slots result
-      if (slotsResult.status === 'fulfilled') {
-        console.log("✅ Slots loaded:", slotsResult.value.data.length)
-        setSlots(Array.isArray(slotsResult.value.data) ? slotsResult.value.data : [])
-      } else {
-        console.error("❌ Failed to load slots:", slotsResult.reason)
-        setSlots([])
-      }
-      
-      // Handle bookings result
-      if (bookingsResult.status === 'fulfilled') {
-        console.log("✅ Bookings loaded:", bookingsResult.value.data.length)
-        setBookings(Array.isArray(bookingsResult.value.data) ? bookingsResult.value.data : [])
-      } else {
-        console.error("❌ Failed to load bookings:", bookingsResult.reason)
-        setBookings([])
-        // Show warning but don't fail the entire page
-        if (bookingsResult.reason?.response?.status === 500) {
-          toast.warning("Bookings temporarily unavailable. Slots are still accessible.")
-        }
+      if (bookingsResult.data) {
+        console.log("✅ Bookings loaded:", bookingsResult.data.length)
+        setBookings(Array.isArray(bookingsResult.data) ? bookingsResult.data : [])
       }
       
     } catch (error) {
       console.error("❌ Failed to fetch data:", error)
-      // api.js will handle retry logic and show appropriate toasts
-      setSlots([])
       setBookings([])
     } finally {
       setLoading(false)
     }
   }
 
-  const filteredSlots = slots.filter((slot) => {
-    // If search query is empty, show all (don't filter by search)
-    const matchesSearch = !searchQuery || 
-      slot.slotNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      slot.location?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = filterType === "ALL" || slot.vehicleType === filterType
-    const matchesStatus = filterStatus === "ALL" || slot.status === filterStatus
-    return matchesSearch && matchesType && matchesStatus
-  })
-  
-  // Log filtered results for debugging
-  useEffect(() => {
-    console.log("🔍 Search Query:", searchQuery)
-    console.log("📊 Total Slots:", slots.length)
-    console.log("✅ Filtered Slots:", filteredSlots.length)
-  }, [searchQuery, slots, filteredSlots.length])
+  const handleVehicleSelect = (vehicleType) => {
+    setSelectedVehicle(vehicleType)
+    // Navigate to Find Parking page with vehicle filter
+    navigate(`/slots?vehicleType=${vehicleType}`)
+  }
+
+  const handleAreaSelect = (area) => {
+    // Navigate to Find Parking page with area location
+    navigate(`/slots?area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
+  }
 
   const stats = {
-    totalSlots: slots.length,
-    availableSlots: slots.filter((s) => s.status === "AVAILABLE").length,
     myBookings: bookings.length,
+    activeBookings: bookings.filter((b) => b.status === "ACTIVE" || b.status === "CONFIRMED").length,
     totalSpent: bookings.reduce((sum, b) => sum + (b.totalCost || 0), 0),
   }
 
@@ -113,8 +88,8 @@ function Dashboard() {
           </div>
           
           {/* Stats Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -128,45 +103,17 @@ function Dashboard() {
             ))}
           </div>
           
-          {/* Search Bar Skeleton */}
-          <Skeleton className="h-12 w-full rounded-lg bg-white/60" />
+          {/* Vehicle Selection Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2].map((i) => (
+              <Skeleton key={i} className="h-40 w-full rounded-xl bg-white/60" />
+            ))}
+          </div>
           
-          {/* Slots Grid Skeleton - with shimmer effect */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.05 }}
-                className="relative bg-white/80 backdrop-blur-sm border-2 border-slate-200 rounded-xl p-6 overflow-hidden"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <Skeleton className="h-8 w-20 mb-2" />
-                    <Skeleton className="h-3 w-24" />
-                  </div>
-                  <Skeleton className="h-3 w-3 rounded-full" />
-                </div>
-                <div className="space-y-3 mb-5">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-6 w-24" />
-                </div>
-                <Skeleton className="h-11 w-full rounded-lg" />
-                
-                {/* Shimmer effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '200%' }}
-                  transition={{ 
-                    duration: 1.5, 
-                    repeat: Infinity, 
-                    ease: 'linear',
-                    repeatDelay: 0.5 
-                  }}
-                />
-              </motion.div>
+          {/* Areas Grid Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl bg-white/60" />
             ))}
           </div>
         </main>
@@ -201,7 +148,7 @@ function Dashboard() {
                 transition={{ delay: 0.2, duration: 0.5 }}
                 className="text-4xl font-bold mb-2"
               >
-                Welcome back, {user?.fullName}!
+                Welcome back, {user?.fullName}! 👋
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, x: -20 }}
@@ -209,7 +156,7 @@ function Dashboard() {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-white/90 text-lg"
               >
-                Find and book your perfect parking spot
+                Find and book your perfect parking spot in Bengaluru
               </motion.p>
             </div>
             <motion.div
@@ -218,157 +165,186 @@ function Dashboard() {
               transition={{ delay: 0.4, duration: 0.5 }}
             >
               <Button
-                onClick={() => {
-                  setLoading(true)
-                  fetchData()
-                }}
-                disabled={loading}
+                onClick={() => navigate("/slots")}
                 variant="secondary"
                 size="lg"
                 className="gap-2 shadow-lg"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                <MapPin className="h-4 w-4" />
+                Find Parking Now
               </Button>
             </motion.div>
           </div>
         </motion.div>
 
-        {/* Stats Cards with stagger animation */}
+        {/* Stats Cards */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <StatsCard title="Total Slots" value={stats.totalSlots} icon={Car} gradient="from-blue-500 to-cyan-500" index={0} />
-          <StatsCard
-            title="Available Now"
-            value={stats.availableSlots}
-            icon={Clock}
-            gradient="from-green-500 to-emerald-500"
-            index={1}
-          />
           <StatsCard
             title="My Bookings"
             value={stats.myBookings}
             icon={Calendar}
             gradient="from-purple-500 to-pink-500"
-            index={2}
+            index={0}
+          />
+          <StatsCard
+            title="Active Bookings"
+            value={stats.activeBookings}
+            icon={Clock}
+            gradient="from-green-500 to-emerald-500"
+            index={1}
           />
           <StatsCard
             title="Total Spent"
             value={stats.totalSpent}
             icon={DollarSign}
             gradient="from-orange-500 to-red-500"
-            index={3}
+            index={2}
             prefix="₹ "
             decimals={0}
           />
         </motion.div>
 
-        {/* Map Overview */}
+        {/* Vehicle Type Selection */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.5 }}
-          className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+          transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">Bengaluru Parking Map</h2>
-              <p className="text-sm text-slate-500">Tap a marker to book instantly</p>
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-5 w-5 text-purple-600" />
+            <h2 className="text-2xl font-bold text-slate-900">What are you parking?</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Bike Option */}
+            <motion.div
+              whileHover={{ scale: 1.02, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleVehicleSelect("TWO_WHEELER")}
+              className={`cursor-pointer relative overflow-hidden rounded-2xl p-6 border-2 transition-all duration-300
+                ${selectedVehicle === "TWO_WHEELER" 
+                  ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-100 shadow-lg shadow-green-200" 
+                  : "border-slate-200 bg-white hover:border-green-300 hover:shadow-lg"}`}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg">
+                  <Bike className="h-10 w-10 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-slate-900">Bike / Scooter</h3>
+                  <p className="text-slate-500">Two-wheeler parking spots</p>
+                  <p className="text-green-600 font-semibold mt-1">Starting from ₹10/hr</p>
+                </div>
+                <ArrowRight className="h-6 w-6 text-slate-400" />
+              </div>
+              {/* Decorative element */}
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-green-200/30 rounded-full blur-2xl" />
+            </motion.div>
+
+            {/* Car Option */}
+            <motion.div
+              whileHover={{ scale: 1.02, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleVehicleSelect("FOUR_WHEELER")}
+              className={`cursor-pointer relative overflow-hidden rounded-2xl p-6 border-2 transition-all duration-300
+                ${selectedVehicle === "FOUR_WHEELER" 
+                  ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-100 shadow-lg shadow-blue-200" 
+                  : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg"}`}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <Car className="h-10 w-10 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-slate-900">Car / SUV</h3>
+                  <p className="text-slate-500">Four-wheeler parking spots</p>
+                  <p className="text-blue-600 font-semibold mt-1">Starting from ₹20/hr</p>
+                </div>
+                <ArrowRight className="h-6 w-6 text-slate-400" />
+              </div>
+              {/* Decorative element */}
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-200/30 rounded-full blur-2xl" />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Popular Areas Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-purple-600" />
+              <h2 className="text-2xl font-bold text-slate-900">Popular Areas in Bengaluru</h2>
             </div>
             <Button
-              variant="outline"
-              className="border-purple-500 text-purple-600 hover:bg-purple-50"
+              variant="ghost"
               onClick={() => navigate("/slots")}
+              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
             >
-              Explore Full Map
+              View All <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
-          <div className="h-[420px]">
-            <MapView slots={slots} onSlotSelect={(slot) => navigate(`/book/${slot.id}`)} />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {popularAreas.map((area, index) => (
+              <motion.div
+                key={area.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+                whileHover={{ scale: 1.05, y: -4 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleAreaSelect(area)}
+                className="cursor-pointer bg-white rounded-xl p-4 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="text-3xl mb-2">{area.icon}</div>
+                <h3 className="font-semibold text-slate-900">{area.name}</h3>
+                <p className="text-sm text-slate-500">{area.slots}+ spots</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6"
+        >
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => navigate("/slots")}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <MapPin className="mr-2 h-4 w-4" />
+              Explore All Parking
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/bookings")}
+              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              My Bookings
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/vehicles")}
+              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              <Car className="mr-2 h-4 w-4" />
+              Manage Vehicles
+            </Button>
           </div>
         </motion.div>
 
         {/* Analytics Section */}
         <AnalyticsSection bookings={bookings} />
-
-        {/* Filters */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex flex-col md:flex-row gap-4 items-center justify-between"
-        >
-          <div className="flex-1 w-full md:w-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by slot number or location..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/80 backdrop-blur-sm"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="flex h-10 w-full md:w-40 items-center justify-between rounded-md border border-purple-500 bg-purple-700 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option className="dropdown-option" value="ALL">All Types</option>
-              <option className="dropdown-option" value="TWO_WHEELER">Bike</option>
-              <option className="dropdown-option" value="FOUR_WHEELER">Car</option>
-            </select>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="flex h-10 w-full md:w-40 items-center justify-between rounded-md border border-purple-500 bg-purple-700 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option className="dropdown-option" value="ALL">All Status</option>
-              <option className="dropdown-option" value="AVAILABLE">Available</option>
-              <option className="dropdown-option" value="OCCUPIED">Occupied</option>
-            </select>
-            <div className="flex gap-1 border rounded-md p-1 bg-white/80 backdrop-blur-sm">
-              <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
-                size="icon"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Slots Grid with stagger animation */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}
-        >
-          {filteredSlots.length > 0 ? (
-            filteredSlots.map((slot, index) => (
-              <SlotCard key={slot.id} slot={slot} index={index} onBook={() => navigate(`/book/${slot.id}`)} />
-            ))
-          ) : (
-            <div className="col-span-full">
-              <EmptyState
-                type="search"
-                title="No parking slots found"
-                description="Try adjusting your search filters or check back later for availability"
-              />
-            </div>
-          )}
-        </motion.div>
       </main>
     </PageTransition>
   )

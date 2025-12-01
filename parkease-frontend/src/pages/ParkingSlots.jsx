@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { Map, List, Search, MapPin } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Card } from "../components/ui/card"
@@ -13,6 +13,7 @@ import { localParkingData } from "../data/localParkingData"
 
 export default function ParkingSlots() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [viewMode, setViewMode] = useState("map") // "map" or "list"
   const [slots, setSlots] = useState([])
   const [filteredSlots, setFilteredSlots] = useState([])
@@ -28,6 +29,30 @@ export default function ParkingSlots() {
     priceRange: "all",
     status: "AVAILABLE",
   })
+
+  // Handle URL parameters from Dashboard
+  useEffect(() => {
+    const vehicleType = searchParams.get("vehicleType")
+    const area = searchParams.get("area")
+    const lat = searchParams.get("lat")
+    const lng = searchParams.get("lng")
+
+    if (vehicleType) {
+      setFilters(prev => ({ ...prev, vehicleType }))
+      toast.success(`Showing ${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} parking spots`)
+    }
+
+    if (area && lat && lng) {
+      const location = {
+        name: area,
+        lat: parseFloat(lat),
+        lng: parseFloat(lng)
+      }
+      setSelectedLocation(location)
+      setOpenSearchPopup(true)
+      toast.success(`Showing parking near ${area}`)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     // Auto-detect user location
@@ -194,8 +219,37 @@ export default function ParkingSlots() {
           <p className="text-white/60">
             {selectedLocation
               ? `Showing parking near ${selectedLocation.name}`
+              : filters.vehicleType !== "all"
+              ? `Showing ${filters.vehicleType === "TWO_WHEELER" ? "Bike/Scooter" : "Car/SUV"} parking spots`
               : "Explore parking spots across Bangalore"}
           </p>
+          {/* Active filters indicator */}
+          {(selectedLocation || filters.vehicleType !== "all") && (
+            <div className="mt-3 flex items-center gap-2 flex-wrap">
+              {filters.vehicleType !== "all" && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-600 text-white text-sm">
+                  {filters.vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, vehicleType: "all" }))}
+                    className="ml-1 hover:bg-purple-500 rounded-full p-0.5"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+              {selectedLocation && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-600 text-white text-sm">
+                  📍 {selectedLocation.name}
+                  <button 
+                    onClick={() => setSelectedLocation(null)}
+                    className="ml-1 hover:bg-green-500 rounded-full p-0.5"
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Search and Filters */}
