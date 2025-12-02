@@ -112,9 +112,9 @@ function SlotCard({ slot, onBook, index = 0 }) {
               <MapPin className="h-3 w-3" />
               <span>{slot.location || slot.locationDescription || "Bengaluru"}</span>
             </div>
-            {slot.distance !== undefined && (
+            {slot.distance != null && (
               <div className="mt-1 text-xs font-semibold text-purple-600">
-                📍 {slot.distance.toFixed(1)} km away
+                📍 {Number(slot.distance).toFixed(1)} km away
               </div>
             )}
           </div>

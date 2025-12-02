@@ -611,8 +611,8 @@ export default function ParkingSlots() {
                             <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
                               {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
                             </span>
-                            {slot.distance !== undefined && (
-                              <span className="text-gray-500">{slot.distance.toFixed(1)} km</span>
+                            {slot.distance != null && (
+                              <span className="text-gray-500">{Number(slot.distance).toFixed(1)} km</span>
                             )}
                             <span className="text-gray-400">{slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
                           </div>
@@ -750,8 +750,8 @@ export default function ParkingSlots() {
                                     <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
                                       {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
                                     </span>
-                                    {slot.distance !== undefined && (
-                                      <span className="text-gray-500">📍 {slot.distance.toFixed(1)} km</span>
+                                    {slot.distance != null && (
+                                      <span className="text-gray-500">📍 {Number(slot.distance).toFixed(1)} km</span>
                                     )}
                                     <span className="text-gray-400">{slot.vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}</span>
                                   </div>
