@@ -7,7 +7,7 @@ import Skeleton from "../components/ui/skeleton"
 import PageTransition from "../components/PageTransition"
 import ParticleBackground from "../components/ParticleBackground"
 import { toast } from "sonner"
-import { Car, Bike, Clock, Calendar, DollarSign, ChevronDown, Search } from "lucide-react"
+import { Car, Bike, Clock, Calendar, DollarSign, ChevronDown, Search, MapPin, Navigation, Loader2 } from "lucide-react"
 import api from "../services/api"
 
 // Popular areas in Bengaluru with coordinates
@@ -29,6 +29,9 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedVehicle, setSelectedVehicle] = useState(null)
   const [selectedArea, setSelectedArea] = useState(null)
+  const [userLocation, setUserLocation] = useState(null)
+  const [locationLoading, setLocationLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     fetchData()
@@ -61,6 +64,61 @@ function Dashboard() {
       navigate(`/slots?vehicleType=${selectedVehicle}&area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
     } else {
       navigate(`/slots?area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
+    }
+  }
+
+  // GPS Auto-detect location
+  const detectLocation = () => {
+    setLocationLoading(true)
+    
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+          setUserLocation({ lat: latitude, lng: longitude })
+          setLocationLoading(false)
+          toast.success("Location detected! Redirecting to nearby parking...")
+          
+          // Redirect to parking slots page with location
+          let url = `/slots?lat=${latitude}&lng=${longitude}`
+          if (selectedVehicle) url += `&vehicleType=${selectedVehicle}`
+          navigate(url)
+        },
+        (error) => {
+          setLocationLoading(false)
+          toast.error("Location access denied. Please enable location services.")
+          console.error('Geolocation error:', error)
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      )
+    } else {
+      setLocationLoading(false)
+      toast.error("Geolocation is not supported by your browser.")
+    }
+  }
+
+  // Handle search submit
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault()
+    if (searchQuery.trim()) {
+      // Find matching area
+      const matchingArea = popularAreas.find(a => 
+        a.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      if (matchingArea) {
+        handleAreaSelect(matchingArea)
+      } else {
+        // Navigate with search query
+        let url = `/slots?search=${encodeURIComponent(searchQuery)}`
+        if (selectedVehicle) url += `&vehicleType=${selectedVehicle}`
+        navigate(url)
+      }
+    } else {
+      navigate("/slots")
     }
   }
 
@@ -116,7 +174,7 @@ function Dashboard() {
       <main className="relative z-10 container mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
         
         {/* ═══════════════════════════════════════════════════════
-            SECTION 1: HERO BANNER (with "Start Here" arrow)
+            SECTION 1: HERO BANNER
         ═══════════════════════════════════════════════════════ */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -142,30 +200,152 @@ function Dashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-white/90 text-base sm:text-lg mb-4"
+              className="text-white/90 text-base sm:text-lg"
             >
               Find and book your perfect parking spot in Bengaluru
             </motion.p>
-            
-            {/* Animated Arrow Pointing Down */}
-            <motion.div 
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              className="flex flex-col items-center gap-1 mt-4"
-            >
-              <span className="text-white/80 text-sm font-medium">👇 Start Here</span>
-              <ChevronDown className="h-6 w-6 text-white/80" />
-            </motion.div>
           </div>
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 2: STEP 1 - CHOOSE YOUR VEHICLE (PRIMARY ACTION)
+            SECTION 2: QUICK STATS (MOVED TO TOP)
+        ═══════════════════════════════════════════════════════ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-3 gap-3 sm:gap-4"
+        >
+          <motion.div 
+            whileHover={{ y: -2 }}
+            onClick={() => navigate("/bookings")}
+            className="cursor-pointer bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-slate-500">My Bookings</p>
+                <p className="text-2xl sm:text-4xl font-bold text-slate-900 mt-1">{stats.myBookings}</p>
+              </div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-purple-600" />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -2 }}
+            onClick={() => navigate("/bookings")}
+            className="cursor-pointer bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-slate-500">Active</p>
+                <p className="text-2xl sm:text-4xl font-bold text-slate-900 mt-1">{stats.activeBookings}</p>
+              </div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-green-100 rounded-full flex items-center justify-center">
+                <Clock className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -2 }}
+            className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-slate-100 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm text-slate-500">Spent</p>
+                <p className="text-2xl sm:text-4xl font-bold text-slate-900 mt-1">₹{stats.totalSpent}</p>
+              </div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                <DollarSign className="h-6 w-6 sm:h-7 sm:w-7 text-orange-600" />
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 3: LOCATION SEARCH (NEW)
         ═══════════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-100"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <MapPin className="h-7 w-7 sm:h-8 sm:w-8 text-purple-600" />
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Find Parking Near You</h2>
+          </div>
+          
+          <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3 sm:gap-4">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search location (e.g., Koramangala, MG Road)..."
+                className="w-full h-12 sm:h-14 pl-12 pr-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base sm:text-lg transition-colors"
+              />
+            </div>
+            
+            {/* Use My Location Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={detectLocation}
+              disabled={locationLoading}
+              className="h-12 sm:h-14 px-5 sm:px-8 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 sm:gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {locationLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="hidden sm:inline">Detecting...</span>
+                </>
+              ) : (
+                <>
+                  <Navigation className="h-5 w-5" />
+                  <span className="hidden sm:inline">Use My Location</span>
+                  <span className="sm:hidden">GPS</span>
+                </>
+              )}
+            </motion.button>
+            
+            {/* Search Button */}
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="h-12 sm:h-14 px-6 sm:px-8 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 sm:gap-3 transition-all"
+            >
+              <Search className="h-5 w-5" />
+              <span>Search</span>
+            </motion.button>
+          </form>
+          
+          {/* Location Status */}
+          {userLocation && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 text-sm text-green-600 flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg"
+            >
+              <span>✅</span>
+              <span>Location detected: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</span>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 4: STEP 1 - CHOOSE YOUR VEHICLE
+        ═══════════════════════════════════════════════════════ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
           className="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-100"
         >
           {/* Section Header */}
@@ -256,7 +436,7 @@ function Dashboard() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 3: STEP 2 - CHOOSE YOUR AREA
+            SECTION 5: STEP 2 - CHOOSE YOUR AREA
         ═══════════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -320,68 +500,6 @@ function Dashboard() {
                 {selectedArea && <> near <span className="font-semibold text-purple-600">{selectedArea.name}</span></>}
               </p>
             )}
-          </div>
-        </motion.div>
-
-        {/* ═══════════════════════════════════════════════════════
-            SECTION 4: YOUR STATS (Secondary - Bottom)
-        ═══════════════════════════════════════════════════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="pt-4"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-slate-400 text-sm font-medium">📊 Your Stats</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <motion.div 
-              whileHover={{ y: -2 }}
-              onClick={() => navigate("/bookings")}
-              className="cursor-pointer bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">My Bookings</p>
-                  <p className="text-xl font-bold text-slate-900">{stats.myBookings}</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -2 }}
-              onClick={() => navigate("/bookings")}
-              className="cursor-pointer bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Active Bookings</p>
-                  <p className="text-xl font-bold text-slate-900">{stats.activeBookings}</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -2 }}
-              className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Total Spent</p>
-                  <p className="text-xl font-bold text-slate-900">₹{stats.totalSpent}</p>
-                </div>
-              </div>
-            </motion.div>
           </div>
         </motion.div>
 

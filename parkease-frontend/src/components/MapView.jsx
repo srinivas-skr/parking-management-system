@@ -86,7 +86,7 @@ function ChangeMapView({ center, zoom }) {
   return null
 }
 
-export default function MapView({ slots = [], onSlotSelect, userLocation = null, searchLocation = null, openSearchPopup = false, onSearchPopupShown = null }) {
+export default function MapView({ slots = [], onSlotSelect, userLocation = null, searchLocation = null, openSearchPopup = false, onSearchPopupShown = null, highlightedSlotId = null }) {
   // Default center: Bangalore (12.9716, 77.5946)
   const [mapCenter, setMapCenter] = useState([12.9716, 77.5946])
   const [showUserLocation, setShowUserLocation] = useState(false)
