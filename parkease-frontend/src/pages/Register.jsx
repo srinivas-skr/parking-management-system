@@ -79,9 +79,9 @@ export default function Register() {
         </Link>
 
         {/* Registration Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -90,8 +90,8 @@ export default function Register() {
             >
               <UserPlus className="w-8 h-8 text-white" />
             </motion.div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-600">Join ParkEase today</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Join ParkEase today</p>
           </div>
 
           {/* Registration Form */}

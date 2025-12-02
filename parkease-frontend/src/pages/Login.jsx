@@ -124,7 +124,7 @@ function Login() {
       </motion.div>
 
       {/* Right side - Login form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background to-muted">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-gradient-to-br from-background to-muted">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -141,9 +141,9 @@ function Login() {
           </Link>
 
           <Card className="glass shadow-2xl">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-3xl font-bold gradient-text">Welcome back</CardTitle>
-              <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardHeader className="space-y-1 p-4 sm:p-6">
+              <CardTitle className="text-2xl sm:text-3xl font-bold gradient-text">Welcome back</CardTitle>
+              <CardDescription className="text-sm sm:text-base">Enter your credentials to access your account</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">

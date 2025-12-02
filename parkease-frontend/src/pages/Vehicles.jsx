@@ -95,16 +95,16 @@ export default function Vehicles() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 sm:p-8 shadow-2xl mb-8"
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl mb-8"
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">My Vehicles</h1>
-              <p className="text-indigo-100 text-base sm:text-lg">Manage your registered vehicles</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">My Vehicles</h1>
+              <p className="text-indigo-100 text-sm sm:text-base md:text-lg">Manage your registered vehicles</p>
             </div>
             <Button
               onClick={() => setShowAddModal(true)}
-              className="bg-white text-indigo-600 hover:bg-indigo-50 font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="w-full sm:w-auto bg-white text-indigo-600 hover:bg-indigo-50 font-semibold shadow-lg hover:shadow-xl transition-all"
               size="lg"
             >
               <Plus className="mr-2 h-5 w-5" />

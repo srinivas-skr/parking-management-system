@@ -117,12 +117,12 @@ export default function Bookings() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur-sm border-2 border-purple-200 shadow-lg rounded-xl p-1">
-            <TabsTrigger value="all" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">All</TabsTrigger>
-            <TabsTrigger value="BOOKED" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white">Booked</TabsTrigger>
-            <TabsTrigger value="ACTIVE" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white">Active</TabsTrigger>
-            <TabsTrigger value="COMPLETED" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-600 data-[state=active]:to-slate-600 data-[state=active]:text-white">Completed</TabsTrigger>
-            <TabsTrigger value="CANCELLED" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-rose-600 data-[state=active]:text-white">Cancelled</TabsTrigger>
+          <TabsList className="w-full flex flex-nowrap overflow-x-auto justify-start sm:justify-center bg-white/80 backdrop-blur-sm border-2 border-purple-200 shadow-lg rounded-xl p-1 h-auto no-scrollbar">
+            <TabsTrigger value="all" className="flex-shrink-0 flex-1 min-w-[80px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white">All</TabsTrigger>
+            <TabsTrigger value="BOOKED" className="flex-shrink-0 flex-1 min-w-[80px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white">Booked</TabsTrigger>
+            <TabsTrigger value="ACTIVE" className="flex-shrink-0 flex-1 min-w-[80px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white">Active</TabsTrigger>
+            <TabsTrigger value="COMPLETED" className="flex-shrink-0 flex-1 min-w-[80px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-600 data-[state=active]:to-slate-600 data-[state=active]:text-white">Completed</TabsTrigger>
+            <TabsTrigger value="CANCELLED" className="flex-shrink-0 flex-1 min-w-[80px] data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-rose-600 data-[state=active]:text-white">Cancelled</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="space-y-4">

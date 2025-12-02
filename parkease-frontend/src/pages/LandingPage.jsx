@@ -79,7 +79,7 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           {/* Hero Content with backdrop blur for readability */}
-          <div className="relative z-10 container mx-auto px-4 py-20 text-center">
+          <div className="relative z-10 container mx-auto px-4 py-12 sm:py-20 text-center">
           <div>
             {/* Badge - STATIC for performance */}
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full text-purple-900 mb-8 border border-purple-200 shadow-sm">
@@ -88,7 +88,7 @@ export default function LandingPage() {
             </div>
 
             {/* Main Headline - STATIC for performance (no floating animation) */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
               Smart Parking
               <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -97,17 +97,17 @@ export default function LandingPage() {
             </h1>
 
             {/* Subheadline - Dark color like "Smart Parking" for visibility */}
-            <p className="text-xl sm:text-2xl text-slate-900 font-medium mb-24 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-2xl text-slate-900 font-medium mb-12 sm:mb-24 max-w-3xl mx-auto leading-relaxed">
               Find Free & Paid Parking Across Bengaluru - 50+ Real Locations
             </p>
 
             {/* CTA Buttons - 3 options: Try Demo, Create Account, Sign In */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap w-full sm:w-auto">
               <Button
                 onClick={handleDemoLogin}
                 disabled={loading}
                 size="lg"
-                className="group bg-purple-600 text-white hover:bg-purple-700 px-8 py-6 rounded-xl text-lg font-semibold shadow-2xl shadow-purple-500/30 hover:shadow-3xl hover:shadow-[0_0_40px_rgba(99,102,241,0.6)] transition-all duration-300 hover:scale-105 hover:-translate-y-2 disabled:opacity-50"
+                className="w-full sm:w-auto group bg-purple-600 text-white hover:bg-purple-700 px-8 py-6 rounded-xl text-lg font-semibold shadow-2xl shadow-purple-500/30 hover:shadow-3xl hover:shadow-[0_0_40px_rgba(99,102,241,0.6)] transition-all duration-300 hover:scale-105 hover:-translate-y-2 disabled:opacity-50"
               >
                 <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 {loading ? "Logging in..." : "Try Demo (Guest)"}
@@ -117,7 +117,7 @@ export default function LandingPage() {
               <Button
                 onClick={() => navigate("/register")}
                 size="lg"
-                className="group bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 px-8 py-6 rounded-xl text-lg font-semibold shadow-xl shadow-green-500/20 hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2"
+                className="w-full sm:w-auto group bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 px-8 py-6 rounded-xl text-lg font-semibold shadow-xl shadow-green-500/20 hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2"
               >
                 <span className="mr-2">✨</span>
                 Create Account
@@ -127,7 +127,7 @@ export default function LandingPage() {
                 onClick={() => navigate("/login")}
                 size="lg"
                 variant="outline"
-                className="bg-white/50 backdrop-blur-md text-slate-900 border-2 border-white/60 hover:bg-white/80 px-8 py-6 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 hover:-translate-y-2"
+                className="w-full sm:w-auto bg-white/50 backdrop-blur-md text-slate-900 border-2 border-white/60 hover:bg-white/80 px-8 py-6 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-all duration-300 hover:scale-105 hover:-translate-y-2"
               >
                 <LogIn className="w-5 h-5 mr-2" />
                 Sign In

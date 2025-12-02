@@ -120,28 +120,30 @@ function AnalyticsSection({ bookings = [] }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.5 }}
-      className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-8"
     >
       {/* Booking Trends Chart */}
-      <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-6 shadow-lg">
+      <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 sm:p-6 shadow-lg">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="h-5 w-5 text-purple-600" />
-          <h3 className="text-lg font-bold text-slate-900">Booking Trends</h3>
+          <h3 className="text-base sm:text-lg font-bold text-slate-900">Booking Trends</h3>
           <span className="ml-auto text-xs text-slate-500">Last 7 days</span>
         </div>
-        <div className="h-48">
-          <Line data={chartData} options={options} />
+        <div className="h-40 sm:h-48 w-full overflow-x-auto">
+          <div className="min-w-[300px] h-full">
+            <Line data={chartData} options={options} />
+          </div>
         </div>
       </div>
 
       {/* Occupancy Rate */}
-      <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-6 shadow-lg text-white">
+      <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-4 sm:p-6 shadow-lg text-white">
         <div className="flex items-center gap-2 mb-4">
           <Activity className="h-5 w-5" />
-          <h3 className="text-lg font-bold">Occupancy Rate</h3>
+          <h3 className="text-base sm:text-lg font-bold">Occupancy Rate</h3>
         </div>
         <div className="space-y-4">
-          <div className="text-5xl font-bold">{occupancyRate}%</div>
+          <div className="text-4xl sm:text-5xl font-bold">{occupancyRate}%</div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="opacity-90">Overall Usage</span>

@@ -71,7 +71,7 @@ export default function LocationSearchBar({ onLocationSelect, onFilterChange }) 
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60" />
           <input
             type="text"
-            placeholder="Search locations: Koramangala, Indiranagar, MG Road..."
+            placeholder="Search locations (e.g. Koramangala)..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value)

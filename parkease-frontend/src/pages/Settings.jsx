@@ -104,15 +104,15 @@ function Settings() {
     >
       <Navbar />
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <main className="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-            <p className="text-slate-600">Manage your account settings and preferences</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Settings</h1>
+            <p className="text-slate-600 text-sm sm:text-base">Manage your account settings and preferences</p>
           </div>
         </div>
 

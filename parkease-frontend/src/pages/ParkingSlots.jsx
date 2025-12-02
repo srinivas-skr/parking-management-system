@@ -260,8 +260,9 @@ export default function ParkingSlots() {
           />
         </div>
 
-        {/* View Toggle */}
-        <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+        {/* View Toggle + Filters - Mobile Responsive */}
+        <div className="mb-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          {/* View Toggle */}
           <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-1">
             <Button
               size="sm"
@@ -274,7 +275,7 @@ export default function ParkingSlots() {
               }
             >
               <Map className="mr-2 h-4 w-4" />
-              Map View
+              Map
             </Button>
             <Button
               size="sm"
@@ -287,34 +288,35 @@ export default function ParkingSlots() {
               }
             >
               <List className="mr-2 h-4 w-4" />
-              List View
+              List
             </Button>
           </div>
 
-          {/* Distance & Sort Controls */}
-          <div className="flex items-center gap-3">
+          {/* Distance & Sort Controls - Stack on mobile */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
             <select
               value={distanceFilter}
               onChange={(e) => setDistanceFilter(e.target.value)}
-              className="rounded-lg border border-purple-500 bg-purple-700 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="rounded-lg border border-purple-500 bg-purple-700 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[44px]"
             >
               <option className="dropdown-option" value="all">All Distances</option>
               <option className="dropdown-option" value="1">Within 1 km</option>
               <option className="dropdown-option" value="2">Within 2 km</option>
               <option className="dropdown-option" value="5">Within 5 km</option>
             </select>
-            {/* Free/Paid toggle */}
-            <div className="rounded-lg border border-purple-500 bg-purple-700 px-2 py-1 text-sm text-white flex items-center">
+            
+            {/* Free/Paid toggle - Scrollable on small screens */}
+            <div className="rounded-lg border border-purple-500 bg-purple-700 px-2 py-1 text-sm text-white flex items-center justify-center min-h-[44px]">
               <button
                 onClick={() => setFreeFilter("all")}
-                className={`px-2 py-1 rounded ${freeFilter === "all" ? "bg-white/10 font-semibold" : "bg-transparent"}`}
+                className={`px-2 py-1.5 rounded ${freeFilter === "all" ? "bg-white/10 font-semibold" : "bg-transparent"}`}
                 aria-pressed={freeFilter === "all"}
               >
                 All
               </button>
               <button
                 onClick={() => setFreeFilter("free")}
-                className={`px-2 py-1 rounded ${freeFilter === "free" ? "bg-green-600 font-semibold" : "bg-transparent"}`}
+                className={`px-2 py-1.5 rounded ${freeFilter === "free" ? "bg-green-600 font-semibold" : "bg-transparent"}`}
                 aria-pressed={freeFilter === "free"}
                 title="Show free parking only"
               >
@@ -322,7 +324,7 @@ export default function ParkingSlots() {
               </button>
               <button
                 onClick={() => setFreeFilter("paid")}
-                className={`px-2 py-1 rounded ${freeFilter === "paid" ? "bg-red-600 font-semibold" : "bg-transparent"}`}
+                className={`px-2 py-1.5 rounded ${freeFilter === "paid" ? "bg-red-600 font-semibold" : "bg-transparent"}`}
                 aria-pressed={freeFilter === "paid"}
                 title="Show paid parking only"
               >
@@ -333,7 +335,7 @@ export default function ParkingSlots() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="rounded-lg border border-purple-500 bg-purple-700 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="rounded-lg border border-purple-500 bg-purple-700 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[44px]"
             >
               <option className="dropdown-option" value="nearest">Nearest First</option>
               <option className="dropdown-option" value="price-low">Price: Low to High</option>
@@ -341,28 +343,28 @@ export default function ParkingSlots() {
             </select>
           </div>
 
-          <div className="text-white/60">
-            Showing {filteredSlots.length} of {slots.length} slots
+          <div className="text-white/60 text-sm sm:text-base">
+            {filteredSlots.length} of {slots.length} slots
           </div>
         </div>
 
-        {/* Content */}
+        {/* Content - Map/List */}
         {loading ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : filteredSlots.length === 0 ? (
-          <Card className="border-white/10 bg-white/5 p-12 text-center backdrop-blur-xl">
-            <MapPin className="mx-auto mb-4 h-12 w-12 text-white/40" />
-            <h3 className="mb-2 text-xl font-semibold text-white">No parking slots found</h3>
-            <p className="text-white/60">
+          <Card className="border-white/10 bg-white/5 p-8 sm:p-12 text-center backdrop-blur-xl">
+            <MapPin className="mx-auto mb-4 h-10 w-10 sm:h-12 sm:w-12 text-white/40" />
+            <h3 className="mb-2 text-lg sm:text-xl font-semibold text-white">No parking slots found</h3>
+            <p className="text-white/60 text-sm sm:text-base">
               Try adjusting your filters or search in a different location
             </p>
           </Card>
         ) : viewMode === "map" ? (
-          <div className="h-[600px] overflow-hidden rounded-xl">
+          <div className="h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden rounded-xl">
             <MapView
               slots={filteredSlots}
               onSlotSelect={handleSlotSelect}
@@ -372,7 +374,7 @@ export default function ParkingSlots() {
             />
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredSlots.map((slot) => (
               <SlotCard
                 key={slot.id}

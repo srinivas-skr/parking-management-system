@@ -156,17 +156,17 @@ export default function BookSlot() {
         loading={submitting}
       />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-white">Book Parking Slot</h1>
-          <p className="text-white/60">Complete your booking details</p>
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-white">Book Parking Slot</h1>
+          <p className="text-white/60 text-sm sm:text-base">Complete your booking details</p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
-              <div className="p-6">
-                <h2 className="mb-6 text-xl font-semibold text-white">Slot Information</h2>
+              <div className="p-4 sm:p-6">
+                <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-white">Slot Information</h2>
 
                 <div className="mb-8 space-y-4">
                   <div className="flex items-center gap-3 text-white/80">
@@ -246,8 +246,8 @@ export default function BookSlot() {
 
           <div className="lg:col-span-1">
             <Card className="sticky top-24 border-white/10 bg-white/5 backdrop-blur-xl">
-              <div className="p-6">
-                <h3 className="mb-6 text-lg font-semibold text-white">Booking Summary</h3>
+              <div className="p-4 sm:p-6">
+                <h3 className="mb-4 sm:mb-6 text-lg font-semibold text-white">Booking Summary</h3>
 
                 <div className="mb-6 space-y-4">
                   <div className="flex justify-between text-sm">

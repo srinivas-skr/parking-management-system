@@ -132,7 +132,7 @@ function Dashboard() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 rounded-2xl p-8 text-white shadow-2xl overflow-hidden"
+          className="relative bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl overflow-hidden"
         >
           {/* Mesh pattern overlay */}
           <div className="absolute inset-0 opacity-10" style={{
@@ -140,13 +140,13 @@ function Dashboard() {
             backgroundSize: '40px 40px'
           }} />
           
-          <div className="relative z-10 flex items-center justify-between">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-4xl font-bold mb-2"
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2"
               >
                 Welcome back, {user?.fullName}! 👋
               </motion.h1>
@@ -154,7 +154,7 @@ function Dashboard() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-white/90 text-lg"
+                className="text-white/90 text-sm sm:text-base lg:text-lg"
               >
                 Find and book your perfect parking spot in Bengaluru
               </motion.p>
@@ -163,12 +163,13 @@ function Dashboard() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, duration: 0.5 }}
+              className="w-full sm:w-auto"
             >
               <Button
                 onClick={() => navigate("/slots")}
                 variant="secondary"
                 size="lg"
-                className="gap-2 shadow-lg"
+                className="gap-2 shadow-lg w-full sm:w-auto min-h-[44px]"
               >
                 <MapPin className="h-4 w-4" />
                 Find Parking Now
@@ -179,7 +180,7 @@ function Dashboard() {
 
         {/* Stats Cards */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
         >
           <StatsCard
             title="My Bookings"
@@ -214,29 +215,29 @@ function Dashboard() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-5 w-5 text-purple-600" />
-            <h2 className="text-2xl font-bold text-slate-900">What are you parking?</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">What are you parking?</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Bike Option */}
             <motion.div
               whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleVehicleSelect("TWO_WHEELER")}
-              className={`cursor-pointer relative overflow-hidden rounded-2xl p-6 border-2 transition-all duration-300
+              className={`cursor-pointer relative overflow-hidden rounded-2xl p-4 sm:p-6 border-2 transition-all duration-300 min-h-[100px]
                 ${selectedVehicle === "TWO_WHEELER" 
                   ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-100 shadow-lg shadow-green-200" 
                   : "border-slate-200 bg-white hover:border-green-300 hover:shadow-lg"}`}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg">
-                  <Bike className="h-10 w-10 text-white" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Bike className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-slate-900">Bike / Scooter</h3>
-                  <p className="text-slate-500">Two-wheeler parking spots</p>
-                  <p className="text-green-600 font-semibold mt-1">Starting from ₹10/hr</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-2xl font-bold text-slate-900">Bike / Scooter</h3>
+                  <p className="text-slate-500 text-sm sm:text-base">Two-wheeler parking spots</p>
+                  <p className="text-green-600 font-semibold mt-1 text-sm sm:text-base">Starting from ₹10/hr</p>
                 </div>
-                <ArrowRight className="h-6 w-6 text-slate-400" />
+                <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400 flex-shrink-0" />
               </div>
               {/* Decorative element */}
               <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-green-200/30 rounded-full blur-2xl" />
@@ -247,21 +248,21 @@ function Dashboard() {
               whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleVehicleSelect("FOUR_WHEELER")}
-              className={`cursor-pointer relative overflow-hidden rounded-2xl p-6 border-2 transition-all duration-300
+              className={`cursor-pointer relative overflow-hidden rounded-2xl p-4 sm:p-6 border-2 transition-all duration-300 min-h-[100px]
                 ${selectedVehicle === "FOUR_WHEELER" 
                   ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-100 shadow-lg shadow-blue-200" 
                   : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg"}`}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg">
-                  <Car className="h-10 w-10 text-white" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Car className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-slate-900">Car / SUV</h3>
-                  <p className="text-slate-500">Four-wheeler parking spots</p>
-                  <p className="text-blue-600 font-semibold mt-1">Starting from ₹20/hr</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-2xl font-bold text-slate-900">Car / SUV</h3>
+                  <p className="text-slate-500 text-sm sm:text-base">Four-wheeler parking spots</p>
+                  <p className="text-blue-600 font-semibold mt-1 text-sm sm:text-base">Starting from ₹20/hr</p>
                 </div>
-                <ArrowRight className="h-6 w-6 text-slate-400" />
+                <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400 flex-shrink-0" />
               </div>
               {/* Decorative element */}
               <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-200/30 rounded-full blur-2xl" />
@@ -275,20 +276,20 @@ function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-purple-600" />
-              <h2 className="text-2xl font-bold text-slate-900">Popular Areas in Bengaluru</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Popular Areas in Bengaluru</h2>
             </div>
             <Button
               variant="ghost"
               onClick={() => navigate("/slots")}
-              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 min-h-[44px]"
             >
               View All <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {popularAreas.map((area, index) => (
               <motion.div
                 key={area.name}
@@ -298,11 +299,11 @@ function Dashboard() {
                 whileHover={{ scale: 1.05, y: -4 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleAreaSelect(area)}
-                className="cursor-pointer bg-white rounded-xl p-4 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300"
+                className="cursor-pointer bg-white rounded-xl p-3 sm:p-4 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 min-h-[80px]"
               >
-                <div className="text-3xl mb-2">{area.icon}</div>
-                <h3 className="font-semibold text-slate-900">{area.name}</h3>
-                <p className="text-sm text-slate-500">{area.slots}+ spots</p>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">{area.icon}</div>
+                <h3 className="font-semibold text-slate-900 text-sm sm:text-base">{area.name}</h3>
+                <p className="text-xs sm:text-sm text-slate-500">{area.slots}+ spots</p>
               </motion.div>
             ))}
           </div>
@@ -313,13 +314,13 @@ function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6"
+          className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4 sm:p-6"
         >
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
             <Button
               onClick={() => navigate("/slots")}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto min-h-[44px]"
             >
               <MapPin className="mr-2 h-4 w-4" />
               Explore All Parking
@@ -327,7 +328,7 @@ function Dashboard() {
             <Button
               variant="outline"
               onClick={() => navigate("/bookings")}
-              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+              className="border-purple-300 text-purple-700 hover:bg-purple-50 w-full sm:w-auto min-h-[44px]"
             >
               <Calendar className="mr-2 h-4 w-4" />
               My Bookings
@@ -335,7 +336,7 @@ function Dashboard() {
             <Button
               variant="outline"
               onClick={() => navigate("/vehicles")}
-              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+              className="border-purple-300 text-purple-700 hover:bg-purple-50 w-full sm:w-auto min-h-[44px]"
             >
               <Car className="mr-2 h-4 w-4" />
               Manage Vehicles
