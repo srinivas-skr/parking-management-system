@@ -105,12 +105,18 @@ export default function ParkingSlots() {
   // Quiet refresh - updates slots without loading state
   const refreshSlotsQuietly = useCallback(async () => {
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots')
+      const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots'
+      const response = await fetch(apiUrl)
       if (response.ok) {
         const freshData = await response.json()
-        const availableSlots = freshData.filter(slot => slot.slotStatus === 'AVAILABLE')
-        setSlots(availableSlots)
-        setLastUpdated(new Date())
+        const availableSlots = freshData.filter(slot => 
+          slot.slotStatus === 'AVAILABLE' || slot.slotStatus === 'available'
+        )
+        
+        if (availableSlots.length > 0) {
+          setSlots(availableSlots)
+          setLastUpdated(new Date())
+        }
       }
     } catch (error) {
       console.error("Error refreshing parking data:", error)
@@ -125,25 +131,43 @@ export default function ParkingSlots() {
     try {
       setLoading(true)
       // Fetch real parking slots from backend API
-      const response = await fetch(import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots')
+      const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots'
+      console.log('🔗 Fetching from:', apiUrl)
+      
+      const response = await fetch(apiUrl)
       
       if (!response.ok) {
-        throw new Error('Failed to fetch slots from server')
+        throw new Error(`Backend returned ${response.status}`)
       }
       
       const slotsData = await response.json()
-      console.log(`🅿️ Real parking slots loaded from backend: ${slotsData.length} slots`)
+      console.log(`🅿️ Backend response:`, slotsData)
+      console.log(`🅿️ Total slots from backend: ${slotsData.length}`)
       
       // Filter to show only AVAILABLE slots to prevent user confusion
-      const availableSlots = slotsData.filter(slot => slot.slotStatus === 'AVAILABLE')
+      const availableSlots = slotsData.filter(slot => 
+        slot.slotStatus === 'AVAILABLE' || slot.slotStatus === 'available'
+      )
       
-      setSlots(availableSlots)
-      setFilteredSlots(availableSlots)
+      console.log(`✅ Available slots after filter: ${availableSlots.length}`)
+      
+      if (availableSlots.length === 0) {
+        console.warn('⚠️ Backend returned 0 available slots, using OSM fallback')
+        // Fallback to OSM data if no slots available
+        const fallbackData = getRealtimeParkingData()
+        setSlots(fallbackData)
+        setFilteredSlots(fallbackData)
+        toast.info(`Using ${fallbackData.length} demo parking locations (backend has no available slots)`)
+      } else {
+        setSlots(availableSlots)
+        setFilteredSlots(availableSlots)
+        toast.success(`Loaded ${availableSlots.length} available parking slots`)
+      }
+      
       setLastUpdated(new Date())
-      toast.success(`Loaded ${availableSlots.length} available parking slots`)
     } catch (error) {
       console.error("Error loading parking data:", error)
-      toast.error("Failed to load parking data")
+      toast.error("Using demo data (backend unavailable)")
       // Fallback to OSM data if backend fails
       const fallbackData = getRealtimeParkingData()
       setSlots(fallbackData)
