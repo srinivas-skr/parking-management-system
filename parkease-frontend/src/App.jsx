@@ -11,6 +11,7 @@ import Bookings from "./pages/Bookings"
 import BookSlot from "./pages/BookSlot"
 import ParkingSlots from "./pages/ParkingSlots"
 import Settings from "./pages/Settings"
+import NotFound from "./pages/NotFound"
 
 // Page titles mapping
 const pageTitles = {
@@ -90,6 +91,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
+        {/* CATCH-ALL: Show 404 page for unknown URLs */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   )
