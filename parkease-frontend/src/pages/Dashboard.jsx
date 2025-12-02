@@ -139,7 +139,8 @@ function Dashboard() {
         }
         
         toast.error(errorMsg, {
-          description: "💡 Tip: Use the search box or select an area instead"
+          description: "💡 Tip: Use the search box or select an area instead",
+          duration: 5000
         })
       },
       options
