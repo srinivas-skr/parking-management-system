@@ -2,26 +2,46 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { MapPin, DollarSign } from "lucide-react"
+import { MapPin, DollarSign, Clock, Car, Bike, Plus, Calendar, Zap } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Card } from "../components/ui/card"
 import { Label } from "../components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import Navbar from "../components/Navbar"
 import BookingConfirmationModal from "../components/BookingConfirmationModal"
 import { toast } from 'sonner'
 import api from "../services/api"
 
+// Demo vehicles for when API returns empty
+const DEMO_VEHICLES = [
+  { id: 1, vehicleNumber: "KA-01-AB-1234", vehicleType: "Car", brand: "Honda City" },
+  { id: 2, vehicleNumber: "KA-05-CD-5678", vehicleType: "Bike", brand: "Honda Activa" },
+  { id: 3, vehicleNumber: "KA-03-EF-9012", vehicleType: "Car", brand: "Maruti Swift" },
+]
+
+// Quick duration options (popular choices)
+const DURATION_OPTIONS = [
+  { hours: 1, label: "1 Hour", popular: false },
+  { hours: 2, label: "2 Hours", popular: true },
+  { hours: 3, label: "3 Hours", popular: false },
+  { hours: 4, label: "4 Hours", popular: false },
+  { hours: 6, label: "6 Hours", popular: false },
+  { hours: 12, label: "Half Day", popular: false },
+  { hours: 24, label: "Full Day", popular: true },
+]
+
 export default function BookSlot() {
   const { slotId } = useParams()
   const navigate = useNavigate()
-  // using sonner toast (Toaster is mounted in main.jsx)
 
   const [slot, setSlot] = useState(null)
   const [vehicles, setVehicles] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [selectedDuration, setSelectedDuration] = useState(2) // Default 2 hours
+  const [startOption, setStartOption] = useState("now") // "now" or "later"
+  const [customDate, setCustomDate] = useState("")
+  const [customTime, setCustomTime] = useState("")
   const [formData, setFormData] = useState({
     vehicleId: "",
     checkInTime: "",
@@ -32,34 +52,64 @@ export default function BookSlot() {
     fetchSlotAndVehicles()
   }, [slotId])
 
+  // Update check-in/out times when duration or start option changes
+  useEffect(() => {
+    updateBookingTimes()
+  }, [selectedDuration, startOption, customDate, customTime])
+
   const fetchSlotAndVehicles = async () => {
     try {
       const [slotRes, vehiclesRes] = await Promise.all([api.get(`/slots/${slotId}`), api.get("/vehicles")])
-      // Backend returns data directly for slots (wrapped) but direct array for vehicles
       setSlot(slotRes.data.data || slotRes.data)
       const vehicleData = vehiclesRes.data || []
       console.log("🚗 Vehicles loaded:", vehicleData)
-      setVehicles(vehicleData)
+      
+      // Use demo vehicles if none returned
+      if (vehicleData.length === 0) {
+        console.log("📌 Using demo vehicles")
+        setVehicles(DEMO_VEHICLES)
+      } else {
+        setVehicles(vehicleData)
+      }
     } catch (error) {
       console.error("Failed to fetch data:", error)
+      // Use demo vehicles on error
+      setVehicles(DEMO_VEHICLES)
       toast.error(error.response?.data?.message || "Failed to fetch data")
     } finally {
       setLoading(false)
     }
   }
 
+  const updateBookingTimes = () => {
+    let checkIn
+    
+    if (startOption === "now") {
+      checkIn = new Date()
+      // Round to next 15 minutes
+      checkIn.setMinutes(Math.ceil(checkIn.getMinutes() / 15) * 15, 0, 0)
+    } else if (customDate && customTime) {
+      checkIn = new Date(`${customDate}T${customTime}`)
+    } else {
+      return
+    }
+
+    const checkOut = new Date(checkIn.getTime() + selectedDuration * 60 * 60 * 1000)
+    
+    setFormData({
+      ...formData,
+      checkInTime: checkIn.toISOString().slice(0, 16),
+      checkOutTime: checkOut.toISOString().slice(0, 16),
+    })
+  }
+
   const calculateCost = () => {
-    if (!formData.checkInTime || !formData.checkOutTime || !slot) return 0
-
-    const checkIn = new Date(formData.checkInTime)
-    const checkOut = new Date(formData.checkOutTime)
-    const hours = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60))
-
-    return hours * (slot.pricePerHour || 0)
+    if (!slot) return 0
+    return selectedDuration * (slot.pricePerHour || 0)
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e?.preventDefault()
 
     if (!formData.vehicleId) {
       toast.error("Please select a vehicle")
@@ -67,11 +117,10 @@ export default function BookSlot() {
     }
 
     if (!formData.checkInTime || !formData.checkOutTime) {
-      toast.error("Please select check-in and check-out times")
+      toast.error("Please select booking time")
       return
     }
 
-    // Show confirmation modal instead of direct booking
     setShowConfirmModal(true)
   }
 
@@ -85,8 +134,8 @@ export default function BookSlot() {
         expectedCheckOut: formData.checkOutTime,
       })
 
-      toast.success("Booking created successfully", {
-        description: `Slot ${slot.slotNumber || slot.id} reserved`,
+      toast.success("Booking created successfully! 🎉", {
+        description: `Slot ${slot.slotNumber || slot.id} reserved for ${selectedDuration} hours`,
       })
 
       setShowConfirmModal(false)
@@ -119,6 +168,25 @@ export default function BookSlot() {
     }
   }
 
+  // Format time for display
+  const formatTimeDisplay = (isoString) => {
+    if (!isoString) return "--:--"
+    const date = new Date(isoString)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+  }
+
+  const formatDateDisplay = (isoString) => {
+    if (!isoString) return "Select date"
+    const date = new Date(isoString)
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    if (date.toDateString() === today.toDateString()) return "Today"
+    if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow"
+    return date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -147,7 +215,6 @@ export default function BookSlot() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Navbar />
       
-      {/* Confirmation Modal */}
       <BookingConfirmationModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
@@ -163,117 +230,247 @@ export default function BookSlot() {
         </div>
 
         <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Slot Information Card */}
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="p-4 sm:p-6">
-                <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-white">Slot Information</h2>
-
-                <div className="mb-8 space-y-4">
+                <h2 className="mb-4 text-lg font-semibold text-white">📍 Slot Information</h2>
+                <div className="flex flex-wrap gap-4">
                   <div className="flex items-center gap-3 text-white/80">
-                    <MapPin className="h-5 w-5 text-primary" />
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                      <MapPin className="h-5 w-5 text-purple-400" />
+                    </div>
                     <div>
-                      <p className="text-sm text-white/60">Location</p>
+                      <p className="text-xs text-white/50">Location</p>
                       <p className="font-medium text-white">{slot.location}</p>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-3 text-white/80">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-green-400" />
+                    </div>
                     <div>
-                      <p className="text-sm text-white/60">Price per Hour</p>
-                      <p className="font-medium text-white">₹ {slot.pricePerHour}</p>
+                      <p className="text-xs text-white/50">Price</p>
+                      <p className="font-medium text-white">₹{slot.pricePerHour}/hour</p>
                     </div>
                   </div>
                 </div>
+              </div>
+            </Card>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="vehicle" className="text-white/80">
-                      Select Vehicle
-                    </Label>
-                    <select
-                      id="vehicle"
-                      value={formData.vehicleId}
-                      onChange={(e) => {
-                        console.log("🎯 Selected vehicle ID:", e.target.value)
-                        setFormData({ ...formData, vehicleId: e.target.value })
-                      }}
-                      required
-                      className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+            {/* Vehicle Selection - Improved */}
+            <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-white">🚗 Select Vehicle</h2>
+                  <button 
+                    onClick={() => navigate('/my-vehicles')}
+                    className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                  >
+                    <Plus className="h-4 w-4" /> Add New
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {vehicles.map((vehicle) => (
+                    <button
+                      key={vehicle.id}
+                      onClick={() => setFormData({ ...formData, vehicleId: String(vehicle.id) })}
+                      className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                        formData.vehicleId === String(vehicle.id)
+                          ? "border-purple-500 bg-purple-500/20"
+                          : "border-white/10 bg-white/5 hover:border-white/30"
+                      }`}
                     >
-                      <option value="">Choose a vehicle</option>
-                      {vehicles.map((vehicle) => (
-                        <option key={vehicle.id} value={vehicle.id}>
-                          {vehicle.vehicleNumber} ({vehicle.vehicleType})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        formData.vehicleId === String(vehicle.id) ? "bg-purple-500" : "bg-white/10"
+                      }`}>
+                        {vehicle.vehicleType === "Bike" || vehicle.vehicleType === "TWO_WHEELER" ? (
+                          <Bike className="h-6 w-6 text-white" />
+                        ) : (
+                          <Car className="h-6 w-6 text-white" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-white truncate">{vehicle.vehicleNumber}</p>
+                        <p className="text-sm text-white/60">{vehicle.brand || vehicle.vehicleType}</p>
+                      </div>
+                      {formData.vehicleId === String(vehicle.id) && (
+                        <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                          <span className="text-white text-sm">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Card>
 
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="checkIn" className="text-white/80">
-                        Check-in Time
-                      </Label>
+            {/* Time Selection - User Friendly */}
+            <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+              <div className="p-4 sm:p-6">
+                <h2 className="text-lg font-semibold text-white mb-4">⏰ When do you want to park?</h2>
+                
+                {/* Start Now or Later Toggle */}
+                <div className="flex gap-3 mb-6">
+                  <button
+                    onClick={() => setStartOption("now")}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 transition-all ${
+                      startOption === "now"
+                        ? "border-green-500 bg-green-500/20 text-green-400"
+                        : "border-white/10 bg-white/5 text-white/70 hover:border-white/30"
+                    }`}
+                  >
+                    <Zap className="h-5 w-5" />
+                    <span className="font-semibold">Start Now</span>
+                  </button>
+                  <button
+                    onClick={() => setStartOption("later")}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 transition-all ${
+                      startOption === "later"
+                        ? "border-blue-500 bg-blue-500/20 text-blue-400"
+                        : "border-white/10 bg-white/5 text-white/70 hover:border-white/30"
+                    }`}
+                  >
+                    <Calendar className="h-5 w-5" />
+                    <span className="font-semibold">Schedule Later</span>
+                  </button>
+                </div>
+
+                {/* Custom Date/Time for "Later" option */}
+                {startOption === "later" && (
+                  <div className="grid grid-cols-2 gap-4 mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                    <div>
+                      <label className="block text-sm text-white/60 mb-2">Date</label>
                       <input
-                        id="checkIn"
-                        type="datetime-local"
-                        value={formData.checkInTime}
-                        onChange={(e) => setFormData({ ...formData, checkInTime: e.target.value })}
-                        required
-                        className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        type="date"
+                        value={customDate}
+                        onChange={(e) => setCustomDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:border-blue-500 focus:outline-none"
                       />
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="checkOut" className="text-white/80">
-                        Check-out Time
-                      </Label>
+                    <div>
+                      <label className="block text-sm text-white/60 mb-2">Time</label>
                       <input
-                        id="checkOut"
-                        type="datetime-local"
-                        value={formData.checkOutTime}
-                        onChange={(e) => setFormData({ ...formData, checkOutTime: e.target.value })}
-                        required
-                        className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        type="time"
+                        value={customTime}
+                        onChange={(e) => setCustomTime(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:border-blue-500 focus:outline-none"
                       />
                     </div>
                   </div>
-                </form>
+                )}
+
+                {/* Duration Selection - Quick Buttons */}
+                <div className="mb-4">
+                  <label className="block text-sm text-white/60 mb-3">How long do you need?</label>
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                    {DURATION_OPTIONS.map((option) => (
+                      <button
+                        key={option.hours}
+                        onClick={() => setSelectedDuration(option.hours)}
+                        className={`relative py-3 px-2 rounded-xl border-2 transition-all text-center ${
+                          selectedDuration === option.hours
+                            ? "border-purple-500 bg-purple-500/20"
+                            : "border-white/10 bg-white/5 hover:border-white/30"
+                        }`}
+                      >
+                        {option.popular && (
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-yellow-500 text-[10px] font-bold text-black rounded-full">
+                            POPULAR
+                          </span>
+                        )}
+                        <span className={`text-sm font-semibold ${selectedDuration === option.hours ? "text-purple-400" : "text-white"}`}>
+                          {option.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Time Summary */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20">
+                  <div className="text-center">
+                    <p className="text-xs text-white/50 mb-1">CHECK-IN</p>
+                    <p className="text-lg font-bold text-white">{formatTimeDisplay(formData.checkInTime)}</p>
+                    <p className="text-xs text-white/60">{formatDateDisplay(formData.checkInTime)}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-[2px] bg-white/20"></div>
+                    <div className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold">
+                      {selectedDuration}h
+                    </div>
+                    <div className="w-8 h-[2px] bg-white/20"></div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-white/50 mb-1">CHECK-OUT</p>
+                    <p className="text-lg font-bold text-white">{formatTimeDisplay(formData.checkOutTime)}</p>
+                    <p className="text-xs text-white/60">{formatDateDisplay(formData.checkOutTime)}</p>
+                  </div>
+                </div>
               </div>
             </Card>
           </div>
 
+          {/* Booking Summary - Right Side */}
           <div className="lg:col-span-1">
             <Card className="sticky top-24 border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="p-4 sm:p-6">
-                <h3 className="mb-4 sm:mb-6 text-lg font-semibold text-white">Booking Summary</h3>
+                <h3 className="mb-4 text-lg font-semibold text-white">📋 Booking Summary</h3>
 
-                <div className="mb-6 space-y-4">
+                <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-white/60">Slot</span>
-                    <span className="font-medium text-white">{slot.name}</span>
+                    <span className="font-medium text-white">{slot.name || slot.location}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-white/60">Price/Hour</span>
-                    <span className="font-medium text-white">₹ {slot.pricePerHour}</span>
+                    <span className="text-white/60">Duration</span>
+                    <span className="font-medium text-white">{selectedDuration} hours</span>
                   </div>
 
+                  <div className="flex justify-between text-sm">
+                    <span className="text-white/60">Rate</span>
+                    <span className="font-medium text-white">₹{slot.pricePerHour}/hr</span>
+                  </div>
+
+                  {formData.vehicleId && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-white/60">Vehicle</span>
+                      <span className="font-medium text-white">
+                        {vehicles.find(v => v.id === parseInt(formData.vehicleId))?.vehicleNumber}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="border-t border-white/10 pt-4">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold text-white">Total</span>
-                      <span className="text-2xl font-bold text-primary">₹ {totalCost.toFixed(2)}</span>
+                      <div className="text-right">
+                        <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
+                          ₹{totalCost}
+                        </span>
+                        {slot.pricePerHour === 0 && (
+                          <p className="text-xs text-green-400">FREE PARKING! 🎉</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <Button
                   onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
+                  disabled={!formData.vehicleId || !formData.checkInTime}
+                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Confirm Booking
+                  {!formData.vehicleId ? "Select a Vehicle" : "Confirm Booking →"}
                 </Button>
+
+                <p className="text-center text-xs text-white/40 mt-3">
+                  Free cancellation up to 1 hour before check-in
+                </p>
               </div>
             </Card>
           </div>
