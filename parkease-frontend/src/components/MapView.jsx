@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
-import { MapPin, Navigation, CheckCircle, XCircle, Clock, Info } from "lucide-react"
+import { MapPin, Navigation, CheckCircle, XCircle, Clock, Info, Map as MapIcon, X } from "lucide-react"
 import { Button } from "./ui/button"
 import { Card } from "./ui/card"
 import L from "leaflet"
@@ -91,6 +91,8 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
   const [userCoords, setUserCoords] = useState(null)
   const [mapInstance, setMapInstance] = useState(null)
   const [searchedCoords, setSearchedCoords] = useState(null)
+  const [showLegend, setShowLegend] = useState(false)
+  
   const formatRupees = (amount) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -208,8 +210,8 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
 
   return (
     <div className="relative h-full w-full">
-      {/* Map Controls */}
-      <div className="absolute left-4 top-4 z-[1000] space-y-2">
+      {/* Map Controls - My Location Button */}
+      <div className="absolute left-4 top-4 z-[1000]">
         <Button
           onClick={getUserLocation}
           className="bg-white/90 text-slate-900 shadow-lg backdrop-blur hover:bg-white"
@@ -217,11 +219,27 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           <Navigation className="mr-2 h-4 w-4" />
           My Location
         </Button>
+      </div>
 
-        {/* Legend */}
-        <Card className="bg-white/90 p-3 shadow-lg backdrop-blur">
+      {/* Legend Button (Top-Right) - Google Maps Style */}
+      <button 
+        onClick={() => setShowLegend(!showLegend)}
+        className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors"
+      >
+        <MapIcon className="h-4 w-4 text-slate-700" />
+        <span className="text-sm font-medium text-slate-700">Legend</span>
+      </button>
+
+      {/* Legend Dropdown (Collapsible) */}
+      {showLegend && (
+        <div className="absolute right-4 top-16 z-[1000] w-56 bg-white rounded-xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2">
+          <div className="flex justify-between items-center mb-3 border-b pb-2">
+            <h3 className="font-semibold text-sm text-slate-900">Map Legend</h3>
+            <button onClick={() => setShowLegend(false)} className="text-gray-400 hover:text-gray-600">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
           <div className="space-y-2 text-sm">
-            <div className="font-semibold text-slate-900">Legend</div>
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-red-500 shadow" />
               <span className="text-slate-700">Paid parking (₹)</span>
@@ -243,8 +261,8 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
               <span className="text-slate-700">You are here</span>
             </div>
           </div>
-        </Card>
-      </div>
+        </div>
+      )}
 
       {/* Map Container */}
       <MapContainer
@@ -382,27 +400,27 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
         })}
       </MapContainer>
 
-      {/* Stats Overlay */}
-      <div className="absolute bottom-4 right-4 z-[1000]">
-        <Card className="bg-white/90 p-4 shadow-lg backdrop-blur">
-          <div className="space-y-2 text-sm">
-            <div className="font-semibold text-slate-900">Quick Stats</div>
+      {/* Quick Stats Overlay - Mobile: Fixed bottom, Desktop: Absolute bottom-right */}
+      <div className="fixed bottom-20 right-4 md:absolute md:bottom-4 md:right-4 z-[1000]">
+        <Card className="bg-white/95 p-3 shadow-lg backdrop-blur-sm">
+          <div className="space-y-1 text-xs sm:text-sm">
+            <div className="font-semibold text-slate-900 mb-1">Quick Stats</div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
               <span className="text-slate-700">
                 {slots.filter((s) => s.status === "AVAILABLE" || s.slotStatus === "AVAILABLE").length}{" "}
                 Available
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-red-500" />
+              <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
               <span className="text-slate-700">
                 {slots.filter((s) => s.status === "OCCUPIED" || s.slotStatus === "OCCUPIED").length}{" "}
                 Occupied
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-orange-500" />
+              <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
               <span className="text-slate-700">
                 {slots.filter((s) => s.status === "RESERVED" || s.slotStatus === "RESERVED").length}{" "}
                 Reserved

@@ -364,7 +364,7 @@ export default function ParkingSlots() {
             </p>
           </Card>
         ) : viewMode === "map" ? (
-          <div className="h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden rounded-xl">
+          <div className="h-[60vh] sm:h-[65vh] lg:h-[600px] overflow-hidden rounded-xl">
             <MapView
               slots={filteredSlots}
               onSlotSelect={handleSlotSelect}
