@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { Map, List, Search, MapPin, Navigation, X } from "lucide-react"
+import { Map, List, Search, MapPin, Navigation, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Card } from "../components/ui/card"
 import Navbar from "../components/Navbar"
@@ -11,6 +11,22 @@ import { SkeletonCard } from "../components/SkeletonLoaders"
 import { toast } from "sonner"
 import { localParkingData } from "../data/localParkingData"
 import { motion } from "framer-motion"
+
+// Popular areas in Bengaluru with coordinates
+const popularAreas = [
+  { name: "Koramangala", lat: 12.9352, lng: 77.6245, icon: "🏢" },
+  { name: "Indiranagar", lat: 12.9719, lng: 77.6412, icon: "🎯" },
+  { name: "Whitefield", lat: 12.9771, lng: 77.7265, icon: "💼" },
+  { name: "MG Road", lat: 12.9756, lng: 77.6066, icon: "🛍️" },
+  { name: "HSR Layout", lat: 12.9082, lng: 77.6476, icon: "🏠" },
+  { name: "Electronic City", lat: 12.8426, lng: 77.6598, icon: "🏭" },
+  { name: "Jayanagar", lat: 12.9250, lng: 77.5838, icon: "🌳" },
+  { name: "Malleshwaram", lat: 13.0096, lng: 77.5679, icon: "🏛️" },
+  { name: "BTM Layout", lat: 12.9165, lng: 77.6101, icon: "🏘️" },
+  { name: "Yelahanka", lat: 13.0690, lng: 77.5857, icon: "✈️" },
+  { name: "Marathahalli", lat: 12.9591, lng: 77.6974, icon: "🚗" },
+  { name: "Basavanagudi", lat: 12.9428, lng: 77.5693, icon: "🐂" },
+]
 
 export default function ParkingSlots() {
   const navigate = useNavigate()
@@ -26,6 +42,7 @@ export default function ParkingSlots() {
   const [sortBy, setSortBy] = useState("nearest") // "nearest", "price-low", "price-high"
   const [freeFilter, setFreeFilter] = useState("all") // "all", "free", "paid"
   const [highlightedSlot, setHighlightedSlot] = useState(null)
+  const [selectedListArea, setSelectedListArea] = useState(null) // For list view area-based navigation
   const [filters, setFilters] = useState({
     vehicleType: "all",
     priceRange: "all",
@@ -222,6 +239,51 @@ export default function ParkingSlots() {
     navigate(`/book/${slot.id}`)
   }
 
+  // Group slots by nearest area for list view
+  const areasWithSlots = useMemo(() => {
+    return popularAreas.map(area => {
+      // Find slots near this area (within 3km)
+      const nearbySlots = filteredSlots.filter(slot => {
+        const distance = calculateDistance(
+          area.lat, area.lng,
+          parseFloat(slot.latitude), parseFloat(slot.longitude)
+        )
+        return distance <= 3
+      })
+      return {
+        ...area,
+        slots: nearbySlots,
+        slotCount: nearbySlots.length,
+        freeCount: nearbySlots.filter(s => s.isFree || Number(s.pricePerHour) === 0).length,
+        avgPrice: nearbySlots.length > 0 
+          ? Math.round(nearbySlots.reduce((sum, s) => sum + Number(s.pricePerHour || 0), 0) / nearbySlots.length)
+          : 0
+      }
+    }).filter(area => area.slotCount > 0) // Only show areas with slots
+      .sort((a, b) => b.slotCount - a.slotCount) // Sort by slot count
+  }, [filteredSlots])
+
+  // Get slots for selected area in list view
+  const selectedAreaSlots = useMemo(() => {
+    if (!selectedListArea) return []
+    const area = areasWithSlots.find(a => a.name === selectedListArea)
+    return area ? area.slots : []
+  }, [selectedListArea, areasWithSlots])
+
+  // Handle area selection in list view
+  const handleAreaClick = (areaName) => {
+    setSelectedListArea(areaName)
+    const area = areasWithSlots.find(a => a.name === areaName)
+    if (area) {
+      toast.success(`Showing ${area.slotCount} parking spots in ${areaName}`)
+    }
+  }
+
+  // Go back to area list
+  const handleBackToAreas = () => {
+    setSelectedListArea(null)
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Navbar />
@@ -393,76 +455,157 @@ export default function ParkingSlots() {
               overflow-y-auto border-r border-white/10 bg-slate-900/50
             `}>
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-white mb-4 sticky top-0 bg-slate-900/90 py-2 backdrop-blur-sm">
-                  {filteredSlots.length} parking spots 
-                  {selectedLocation && <span className="text-white/60"> near {selectedLocation.name}</span>}
-                </h2>
-                
-                {/* Slot Cards */}
-                <div className={`space-y-4 ${viewMode === "list" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 space-y-0" : ""}`}>
-                  {filteredSlots.map((slot, index) => (
-                    <motion.div
-                      key={slot.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      onMouseEnter={() => setHighlightedSlot(slot.id)}
-                      onMouseLeave={() => setHighlightedSlot(null)}
-                    >
-                      {viewMode === "split" ? (
-                        /* Compact card for split view */
-                        <button
-                          onClick={() => handleSlotSelect(slot)}
-                          className={`w-full text-left border-2 rounded-xl p-4 transition-all hover:shadow-lg ${
-                            highlightedSlot === slot.id 
-                              ? "border-purple-500 bg-purple-900/50" 
-                              : "border-white/10 bg-white/5 hover:border-purple-400"
-                          }`}
+                {/* List View: Show Areas First, then Slots */}
+                {viewMode === "list" && !selectedListArea ? (
+                  /* AREA CARDS VIEW */
+                  <>
+                    <h2 className="text-lg font-semibold text-white mb-4 sticky top-0 bg-slate-900/90 py-2 backdrop-blur-sm z-10">
+                      📍 Select an Area ({areasWithSlots.length} areas with parking)
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {areasWithSlots.map((area, index) => (
+                        <motion.button
+                          key={area.name}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          onClick={() => handleAreaClick(area.name)}
+                          className="group relative border-2 border-white/10 bg-white/5 hover:border-purple-500 hover:bg-purple-900/30 rounded-2xl p-5 text-left transition-all hover:shadow-xl hover:shadow-purple-500/10"
                         >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-bold text-white text-base">{slot.name || slot.location}</h3>
-                                {(slot.isFree || Number(slot.pricePerHour) === 0) ? (
-                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">FREE</span>
-                                ) : (
-                                  <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold">PAID</span>
-                                )}
-                              </div>
-                              <p className="text-white/50 text-sm mb-2">{slot.address || slot.location}</p>
-                              <div className="flex items-center gap-4 text-sm">
-                                <span className="text-green-400 font-semibold">
-                                  {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
-                                </span>
-                                {slot.distance !== undefined && (
-                                  <span className="text-white/50">
-                                    📍 {slot.distance.toFixed(1)} km
-                                  </span>
-                                )}
-                                <span className="text-white/50">
-                                  {slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="text-right ml-3">
-                              <div className={`text-lg font-bold ${slot.status === "AVAILABLE" ? "text-green-400" : "text-red-400"}`}>
-                                {slot.capacity || "∞"}
-                              </div>
-                              <div className="text-[10px] text-white/40">spots</div>
-                            </div>
+                          {/* Area Icon */}
+                          <div className="text-4xl mb-3">{area.icon}</div>
+                          
+                          {/* Area Name */}
+                          <h3 className="text-xl font-bold text-white mb-2">{area.name}</h3>
+                          
+                          {/* Stats Row */}
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-purple-400 font-semibold">{area.slotCount} spots</span>
+                            {area.freeCount > 0 && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">
+                                {area.freeCount} FREE
+                              </span>
+                            )}
                           </div>
-                        </button>
-                      ) : (
-                        /* Full SlotCard for list view */
-                        <SlotCard
-                          slot={slot}
-                          onBook={() => handleSlotSelect(slot)}
-                          index={index}
-                        />
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
+                          
+                          {/* Price Info */}
+                          <div className="text-sm text-white/50">
+                            {area.avgPrice === 0 ? "Free parking available" : `Avg ₹${area.avgPrice}/hr`}
+                          </div>
+                          
+                          {/* Arrow Indicator */}
+                          <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ChevronRight className="h-6 w-6 text-purple-400" />
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </>
+                ) : viewMode === "list" && selectedListArea ? (
+                  /* SLOTS IN SELECTED AREA VIEW */
+                  <>
+                    {/* Back Button + Title */}
+                    <div className="sticky top-0 bg-slate-900/90 py-3 backdrop-blur-sm z-10 mb-4">
+                      <button
+                        onClick={handleBackToAreas}
+                        className="flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-2 transition-colors"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                        <span className="font-medium">Back to Areas</span>
+                      </button>
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        {areasWithSlots.find(a => a.name === selectedListArea)?.icon} {selectedListArea}
+                        <span className="text-white/50 font-normal text-base">
+                          ({selectedAreaSlots.length} spots)
+                        </span>
+                      </h2>
+                    </div>
+                    
+                    {/* Slot Cards Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {selectedAreaSlots.map((slot, index) => (
+                        <motion.div
+                          key={slot.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                        >
+                          <SlotCard
+                            slot={slot}
+                            onBook={() => handleSlotSelect(slot)}
+                            index={index}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  /* SPLIT VIEW: Show all slots in compact cards */
+                  <>
+                    <h2 className="text-lg font-semibold text-white mb-4 sticky top-0 bg-slate-900/90 py-2 backdrop-blur-sm">
+                      {filteredSlots.length} parking spots 
+                      {selectedLocation && <span className="text-white/60"> near {selectedLocation.name}</span>}
+                    </h2>
+                    
+                    {/* Slot Cards */}
+                    <div className="space-y-4">
+                      {filteredSlots.map((slot, index) => (
+                        <motion.div
+                          key={slot.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                          onMouseEnter={() => setHighlightedSlot(slot.id)}
+                          onMouseLeave={() => setHighlightedSlot(null)}
+                        >
+                          {/* Compact card for split view */}
+                          <button
+                            onClick={() => handleSlotSelect(slot)}
+                            className={`w-full text-left border-2 rounded-xl p-4 transition-all hover:shadow-lg ${
+                              highlightedSlot === slot.id 
+                                ? "border-purple-500 bg-purple-900/50" 
+                                : "border-white/10 bg-white/5 hover:border-purple-400"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="font-bold text-white text-base">{slot.name || slot.location}</h3>
+                                  {(slot.isFree || Number(slot.pricePerHour) === 0) ? (
+                                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">FREE</span>
+                                  ) : (
+                                    <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold">PAID</span>
+                                  )}
+                                </div>
+                                <p className="text-white/50 text-sm mb-2">{slot.address || slot.location}</p>
+                                <div className="flex items-center gap-4 text-sm">
+                                  <span className="text-green-400 font-semibold">
+                                    {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
+                                  </span>
+                                  {slot.distance !== undefined && (
+                                    <span className="text-white/50">
+                                      📍 {slot.distance.toFixed(1)} km
+                                    </span>
+                                  )}
+                                  <span className="text-white/50">
+                                    {slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right ml-3">
+                                <div className={`text-lg font-bold ${slot.status === "AVAILABLE" ? "text-green-400" : "text-red-400"}`}>
+                                  {slot.capacity || "∞"}
+                                </div>
+                                <div className="text-[10px] text-white/40">spots</div>
+                              </div>
+                            </div>
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
