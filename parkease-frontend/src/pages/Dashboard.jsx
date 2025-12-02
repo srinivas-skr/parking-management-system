@@ -55,6 +55,14 @@ function Dashboard() {
   const handleVehicleSelect = (vehicleType) => {
     setSelectedVehicle(vehicleType)
     toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected! Now choose your area below.`)
+    
+    // Auto-scroll to area selection section
+    setTimeout(() => {
+      const areaSection = document.getElementById('area-selection-section')
+      if (areaSection) {
+        areaSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 300)
   }
 
   const handleAreaSelect = (area) => {
@@ -490,6 +498,7 @@ function Dashboard() {
             SECTION 5: STEP 2 - CHOOSE YOUR AREA
         ═══════════════════════════════════════════════════════ */}
         <motion.div
+          id="area-selection-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
