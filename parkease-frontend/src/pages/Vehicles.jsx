@@ -16,6 +16,7 @@ export default function Vehicles() {
   const [vehicles, setVehicles] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingVehicle, setEditingVehicle] = useState(null)
 
   useEffect(() => {
     fetchVehicles()
@@ -36,13 +37,32 @@ export default function Vehicles() {
 
   const handleAddVehicle = async (vehicleData) => {
     try {
-      await api.post("/vehicles", vehicleData)
-      toast.success("Vehicle added successfully")
+      // Check if we're editing or adding
+      if (vehicleData.id) {
+        // Update existing vehicle
+        await api.put(`/vehicles/${vehicleData.id}`, vehicleData)
+        toast.success("Vehicle updated successfully")
+      } else {
+        // Add new vehicle
+        await api.post("/vehicles", vehicleData)
+        toast.success("Vehicle added successfully")
+      }
       setShowAddModal(false)
+      setEditingVehicle(null)
       fetchVehicles()
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add vehicle")
+      toast.error(error.response?.data?.message || "Failed to save vehicle")
     }
+  }
+
+  const handleEditVehicle = (vehicle) => {
+    setEditingVehicle(vehicle)
+    setShowAddModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowAddModal(false)
+    setEditingVehicle(null)
   }
 
   const handleDeleteVehicle = async (vehicle) => {
@@ -153,13 +173,13 @@ export default function Vehicles() {
             }}
           >
             {vehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} onEdit={() => {}} onDelete={handleDeleteVehicle} />
+              <VehicleCard key={vehicle.id} vehicle={vehicle} onEdit={handleEditVehicle} onDelete={handleDeleteVehicle} />
             ))}
           </motion.div>
         )}
       </main>
 
-      <AddVehicleModal open={showAddModal} onClose={() => setShowAddModal(false)} onSubmit={handleAddVehicle} />
+      <AddVehicleModal open={showAddModal} onClose={handleCloseModal} onSubmit={handleAddVehicle} editVehicle={editingVehicle} />
     </motion.div>
   )
 }

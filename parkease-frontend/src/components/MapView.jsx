@@ -14,36 +14,38 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 })
 
-// Custom marker icons: green for free (🆓), red for paid (₹)
+// Custom marker icons: Modern design - green for free, red for paid
 const createCustomIcon = (isFree, vehicleType) => {
   const free = isFree === true
   const bg = free
-    ? "linear-gradient(135deg,#34d399 0%,#10b981 100%)"
-    : "linear-gradient(135deg,#f87171 0%,#ef4444 100%)"
-  const contentIcon = free ? "🆓" : "₹"
+    ? "linear-gradient(135deg,#10b981 0%,#059669 100%)"
+    : "linear-gradient(135deg,#ef4444 0%,#dc2626 100%)"
+  // Modern icons: checkmark for free, currency for paid
+  const contentIcon = free 
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>`
 
   return L.divIcon({
     className: "custom-marker",
     html: `
       <div style="
         background: ${bg};
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
-        border: 3px solid rgba(255,255,255,0.85);
-        box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+        border: 3px solid rgba(255,255,255,0.95);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
       ">
-        <span style="transform: rotate(45deg); display: block;">${contentIcon}</span>
+        <span style="transform: rotate(45deg); display: flex; align-items: center; justify-content: center;">${contentIcon}</span>
       </div>
     `,
-    iconSize: [44, 44],
-    iconAnchor: [22, 44],
-    popupAnchor: [0, -42],
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -38],
   })
 }
 
@@ -246,7 +248,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
             </div>
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-emerald-500 shadow" />
-              <span className="text-slate-700">Free parking (🆓)</span>
+              <span className="text-slate-700 flex items-center gap-1">Free parking <span className="bg-emerald-100 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded font-bold">FREE</span></span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <span className="text-lg">🏍️</span>
@@ -270,7 +272,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
         zoom={13}
         style={{ height: "100%", width: "100%", borderRadius: "12px" }}
         scrollWheelZoom={true}
-        whenCreated={setMapInstance}
+        ref={(map) => { if (map) setMapInstance(map) }}
       >
         <ChangeMapView center={mapCenter} zoom={13} />
         

@@ -72,7 +72,7 @@ export default function ParkingSlots() {
 
   useEffect(() => {
     applyFilters()
-  }, [slots, selectedLocation, filters, distanceFilter, sortBy, userLocation])
+  }, [slots, selectedLocation, filters, distanceFilter, sortBy, freeFilter, userLocation])
 
   const fetchSlots = async () => {
     try {
@@ -158,20 +158,32 @@ export default function ParkingSlots() {
       })
     }
 
-    // Filter by status
+    // Filter by status (normalize availability field to status)
+    filtered = filtered.map(slot => ({
+      ...slot,
+      status: slot.status || slot.slotStatus || slot.availability || "AVAILABLE"
+    }))
+    
     if (filters.status !== "all") {
       filtered = filtered.filter(
-        (slot) => (slot.status || slot.slotStatus || slot.availability) === filters.status
+        (slot) => slot.status === filters.status
       )
     }
 
     // Sort slots
-    if (sortBy === "nearest" && filtered[0]?.distance !== undefined) {
-      filtered.sort((a, b) => a.distance - b.distance)
+    if (sortBy === "nearest") {
+      // Check if distance is available on slots
+      const hasDistance = filtered.some(s => s.distance !== undefined)
+      if (hasDistance) {
+        filtered.sort((a, b) => (a.distance || 999) - (b.distance || 999))
+      } else {
+        // Fallback: sort by price if no distance available
+        filtered.sort((a, b) => parseFloat(a.pricePerHour || 0) - parseFloat(b.pricePerHour || 0))
+      }
     } else if (sortBy === "price-low") {
-      filtered.sort((a, b) => parseFloat(a.pricePerHour) - parseFloat(b.pricePerHour))
+      filtered.sort((a, b) => parseFloat(a.pricePerHour || 0) - parseFloat(b.pricePerHour || 0))
     } else if (sortBy === "price-high") {
-      filtered.sort((a, b) => parseFloat(b.pricePerHour) - parseFloat(a.pricePerHour))
+      filtered.sort((a, b) => parseFloat(b.pricePerHour || 0) - parseFloat(a.pricePerHour || 0))
     }
 
     setFilteredSlots(filtered)
@@ -316,11 +328,11 @@ export default function ParkingSlots() {
               </button>
               <button
                 onClick={() => setFreeFilter("free")}
-                className={`px-2 py-1.5 rounded ${freeFilter === "free" ? "bg-green-600 font-semibold" : "bg-transparent"}`}
+                className={`px-2 py-1.5 rounded flex items-center gap-1 ${freeFilter === "free" ? "bg-green-600 font-semibold" : "bg-transparent"}`}
                 aria-pressed={freeFilter === "free"}
                 title="Show free parking only"
               >
-                🆓 Free
+                <span className="bg-green-400/30 text-[10px] px-1.5 py-0.5 rounded font-bold">FREE</span>
               </button>
               <button
                 onClick={() => setFreeFilter("paid")}

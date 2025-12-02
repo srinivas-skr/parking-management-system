@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Car, Bike } from "lucide-react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -29,24 +29,54 @@ const colors = [
   "#ec4899",
 ]
 
-export default function AddVehicleModal({ open, onClose, onSubmit }) {
+// Auto-generate a random color
+const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)]
+
+export default function AddVehicleModal({ open, onClose, onSubmit, editVehicle = null }) {
   const [formData, setFormData] = useState({
     vehicleNumber: "",
     vehicleType: "FOUR_WHEELER",
-    color: "#3b82f6",
+    color: getRandomColor(),
   })
+
+  // Reset form when modal opens/closes or when editing
+  useEffect(() => {
+    if (open) {
+      if (editVehicle) {
+        setFormData({
+          vehicleNumber: editVehicle.vehicleNumber || "",
+          vehicleType: editVehicle.vehicleType || "FOUR_WHEELER",
+          color: editVehicle.color || getRandomColor(),
+        })
+      } else {
+        setFormData({
+          vehicleNumber: "",
+          vehicleType: "FOUR_WHEELER",
+          color: getRandomColor(),
+        })
+      }
+    }
+  }, [editVehicle, open])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit(formData)
-    setFormData({ vehicleNumber: "", vehicleType: "FOUR_WHEELER", color: "#3b82f6" })
+    // Auto-assign random color if not set
+    const dataToSubmit = {
+      ...formData,
+      color: formData.color || getRandomColor(),
+      ...(editVehicle?.id && { id: editVehicle.id })
+    }
+    onSubmit(dataToSubmit)
+    setFormData({ vehicleNumber: "", vehicleType: "FOUR_WHEELER", color: getRandomColor() })
   }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="border-white/10 bg-background/95 backdrop-blur-xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white">Add New Vehicle</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-white">
+            {editVehicle ? "Edit Vehicle" : "Add New Vehicle"}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -88,22 +118,21 @@ export default function AddVehicleModal({ open, onClose, onSubmit }) {
             </div>
           </div>
 
+          {/* Color is auto-assigned - show preview only */}
           <div className="space-y-2">
-            <Label className="text-white/80">Color</Label>
-            <div className="grid grid-cols-8 gap-2">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, color })}
-                  className={`h-10 w-10 rounded-lg transition-all ${
-                    formData.color === color
-                      ? "ring-2 ring-white ring-offset-2 ring-offset-background"
-                      : "hover:scale-110"
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
+            <Label className="text-white/80">Vehicle Color (Auto-assigned)</Label>
+            <div className="flex items-center gap-3">
+              <div 
+                className="h-12 w-12 rounded-xl shadow-lg border-2 border-white/20"
+                style={{ backgroundColor: formData.color }}
+              />
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, color: getRandomColor() })}
+                className="text-sm text-white/60 hover:text-white underline"
+              >
+                🎲 Generate new color
+              </button>
             </div>
           </div>
 
@@ -120,7 +149,7 @@ export default function AddVehicleModal({ open, onClose, onSubmit }) {
               type="submit"
               className="flex-1 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
             >
-              Add Vehicle
+              {editVehicle ? "Save Changes" : "Add Vehicle"}
             </Button>
           </div>
         </form>

@@ -28,6 +28,8 @@ const vehicleTypeConfig = {
 }
 
 function SlotCard({ slot, onBook, index = 0 }) {
+  const isFree = slot.isFree === true || Number(slot.pricePerHour || slot.price || 0) === 0
+  
   const statusConfig = {
     AVAILABLE: {
       dotColor: "bg-emerald-500",
@@ -93,7 +95,19 @@ function SlotCard({ slot, onBook, index = 0 }) {
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-1">{displayName}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-2xl font-bold text-slate-900">{displayName}</h3>
+              {/* Free/Paid Badge */}
+              {isFree ? (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold shadow-sm">
+                  FREE
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-xs font-bold shadow-sm">
+                  PAID
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <MapPin className="h-3 w-3" />
               <span>{slot.location || slot.locationDescription || "Bengaluru"}</span>
