@@ -378,7 +378,7 @@ function Dashboard() {
           </form>
           
           {/* Location Status */}
-          {userLocation && (
+          {userLocation && userLocation.lat != null && userLocation.lng != null && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}

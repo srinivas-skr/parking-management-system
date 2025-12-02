@@ -125,7 +125,7 @@ function ChangeMapView({ center, zoom, onlyOnce = false }) {
   const lastCenterRef = useRef(null)
   
   useEffect(() => {
-    if (!center) return
+    if (!center || center[0] == null || center[1] == null) return
     
     // Prevent repeated centering for same location
     const centerKey = `${center[0].toFixed(4)},${center[1].toFixed(4)}`
