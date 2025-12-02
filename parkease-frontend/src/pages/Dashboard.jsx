@@ -71,7 +71,7 @@ function Dashboard() {
     navigate(`/slots?vehicleType=${selectedVehicle}&area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
   }
 
-  // GPS Auto-detect location
+  // GPS Auto-detect location - WITH IMPROVED ERROR HANDLING
   const detectLocation = () => {
     // ENFORCE: Vehicle type must be selected first
     if (!selectedVehicle) {
@@ -83,32 +83,59 @@ function Dashboard() {
     
     setLocationLoading(true)
     
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          setUserLocation({ lat: latitude, lng: longitude })
-          setLocationLoading(false)
-          toast.success("Location detected! Redirecting to nearby parking...")
-          
-          // Redirect to parking slots page with location AND vehicle type
-          navigate(`/slots?lat=${latitude}&lng=${longitude}&vehicleType=${selectedVehicle}`)
-        },
-        (error) => {
-          setLocationLoading(false)
-          toast.error("Location access denied. Please enable location services.")
-          console.error('Geolocation error:', error)
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      )
-    } else {
+    if (!navigator.geolocation) {
       setLocationLoading(false)
       toast.error("Geolocation is not supported by your browser.")
+      return
     }
+    
+    console.log('🔍 Requesting location...')
+    
+    // ✅ Improved options - use network location first (faster)
+    const options = {
+      enableHighAccuracy: false,  // ✅ Faster - uses network/WiFi location
+      timeout: 15000,             // ✅ 15 second timeout
+      maximumAge: 60000           // ✅ Accept 1-minute-old cached location
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      // SUCCESS
+      (position) => {
+        console.log('✅ Location obtained:', position.coords)
+        const { latitude, longitude } = position.coords
+        setUserLocation({ lat: latitude, lng: longitude })
+        setLocationLoading(false)
+        toast.success("Location detected! Redirecting to nearby parking...")
+        
+        // Redirect to parking slots page with location AND vehicle type
+        navigate(`/slots?lat=${latitude}&lng=${longitude}&vehicleType=${selectedVehicle}`)
+      },
+      // ERROR
+      (error) => {
+        console.error('❌ Geolocation error:', error)
+        setLocationLoading(false)
+        
+        let errorMsg = ''
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMsg = 'Location permission denied. Please enable in browser settings.'
+            break
+          case error.POSITION_UNAVAILABLE:
+            errorMsg = 'Location unavailable. Check GPS/network connection.'
+            break
+          case error.TIMEOUT:
+            errorMsg = 'Location request timed out. Please try again or search manually.'
+            break
+          default:
+            errorMsg = 'Failed to get location. Please search manually.'
+        }
+        
+        toast.error(errorMsg, {
+          description: "💡 Tip: Use the search box or select an area instead"
+        })
+      },
+      options
+    )
   }
 
   // Handle search submit
