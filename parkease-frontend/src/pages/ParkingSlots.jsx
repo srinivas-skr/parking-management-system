@@ -103,11 +103,15 @@ export default function ParkingSlots() {
   }, [])
 
   // Quiet refresh - updates slots without loading state
-  const refreshSlotsQuietly = useCallback(() => {
+  const refreshSlotsQuietly = useCallback(async () => {
     try {
-      const freshData = getRealtimeParkingData()
-      setSlots(freshData)
-      setLastUpdated(new Date())
+      const response = await fetch(import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots')
+      if (response.ok) {
+        const freshData = await response.json()
+        const availableSlots = freshData.filter(slot => slot.slotStatus === 'AVAILABLE')
+        setSlots(availableSlots)
+        setLastUpdated(new Date())
+      }
     } catch (error) {
       console.error("Error refreshing parking data:", error)
     }
@@ -120,16 +124,30 @@ export default function ParkingSlots() {
   const fetchSlots = async () => {
     try {
       setLoading(true)
-      // Use OpenStreetMap real Bangalore parking data with simulated real-time availability
-      const slotsData = getRealtimeParkingData()
-      console.log(`🅿️ OpenStreetMap parking data loaded: ${slotsData.length} locations from ${OSM_ATTRIBUTION.coverage}`)
-      setSlots(slotsData)
-      setFilteredSlots(slotsData)
+      // Fetch real parking slots from backend API
+      const response = await fetch(import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch slots from server')
+      }
+      
+      const slotsData = await response.json()
+      console.log(`🅿️ Real parking slots loaded from backend: ${slotsData.length} slots`)
+      
+      // Filter to show only AVAILABLE slots to prevent user confusion
+      const availableSlots = slotsData.filter(slot => slot.slotStatus === 'AVAILABLE')
+      
+      setSlots(availableSlots)
+      setFilteredSlots(availableSlots)
       setLastUpdated(new Date())
-      toast.success(`Loaded ${TOTAL_OSM_LOCATIONS} real parking spots from OpenStreetMap`)
+      toast.success(`Loaded ${availableSlots.length} available parking slots`)
     } catch (error) {
       console.error("Error loading parking data:", error)
       toast.error("Failed to load parking data")
+      // Fallback to OSM data if backend fails
+      const fallbackData = getRealtimeParkingData()
+      setSlots(fallbackData)
+      setFilteredSlots(fallbackData)
     } finally {
       setLoading(false)
     }

@@ -61,7 +61,16 @@ export default function BookSlot() {
   const fetchSlotAndVehicles = async () => {
     try {
       const [slotRes, vehiclesRes] = await Promise.all([api.get(`/slots/${slotId}`), api.get("/vehicles")])
-      setSlot(slotRes.data.data || slotRes.data)
+      const slotData = slotRes.data.data || slotRes.data
+      
+      // Check if slot is available before allowing booking
+      if (slotData.slotStatus !== 'AVAILABLE') {
+        toast.error("This parking slot is no longer available")
+        navigate('/slots', { replace: true })
+        return
+      }
+      
+      setSlot(slotData)
       const vehicleData = vehiclesRes.data || []
       console.log("🚗 Vehicles loaded:", vehicleData)
       
@@ -128,6 +137,17 @@ export default function BookSlot() {
   const handleConfirmBooking = async () => {
     try {
       setSubmitting(true)
+      
+      // Double-check slot availability before booking
+      const slotCheckRes = await api.get(`/slots/${slotId}`)
+      const currentSlot = slotCheckRes.data.data || slotCheckRes.data
+      
+      if (currentSlot.slotStatus !== 'AVAILABLE') {
+        toast.error("Sorry! This slot was just booked by someone else.")
+        setShowConfirmModal(false)
+        navigate('/slots', { replace: true })
+        return
+      }
       
       await api.post("/bookings", {
         slotId: slot.id,
