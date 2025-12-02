@@ -14,38 +14,63 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 })
 
-// Custom marker icons: Modern design - green for free, red for paid
-const createCustomIcon = (isFree, vehicleType) => {
-  const free = isFree === true
-  const bg = free
-    ? "linear-gradient(135deg,#10b981 0%,#059669 100%)"
-    : "linear-gradient(135deg,#ef4444 0%,#dc2626 100%)"
-  // Modern icons: checkmark for free, currency for paid
-  const contentIcon = free 
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>`
+// Professional marker colors (Google Maps / SpotAngels inspired)
+// Green = Free parking, Blue = Paid parking, Gray = Unavailable
+const createCustomIcon = (slot, isHighlighted = false) => {
+  const isFree = slot?.isFree === true || Number(slot?.pricePerHour || slot?.price || 0) === 0
+  const isAvailable = slot?.status === "AVAILABLE" || slot?.slotStatus === "AVAILABLE"
+  const price = Number(slot?.pricePerHour || slot?.price || 0)
+  
+  // Professional color palette
+  let bg, textColor
+  if (!isAvailable) {
+    // Gray for unavailable/occupied
+    bg = "linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)"
+    textColor = "#fff"
+  } else if (isFree) {
+    // Emerald green for free (softer than bright green)
+    bg = "linear-gradient(135deg, #10B981 0%, #059669 100%)"
+    textColor = "#fff"
+  } else {
+    // Professional blue for paid (not red!)
+    bg = "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)"
+    textColor = "#fff"
+  }
+  
+  // Size based on highlight state
+  const size = isHighlighted ? 44 : 36
+  const fontSize = isHighlighted ? 13 : 11
+  
+  // Display price or "F" for free
+  const displayText = isFree ? "F" : `₹${price}`
 
   return L.divIcon({
     className: "custom-marker",
     html: `
       <div style="
         background: ${bg};
-        width: 40px;
-        height: 40px;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
+        width: ${size}px;
+        height: ${size}px;
+        border-radius: 50%;
         border: 3px solid rgba(255,255,255,0.95);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
       ">
-        <span style="transform: rotate(45deg); display: flex; align-items: center; justify-content: center;">${contentIcon}</span>
+        <span style="
+          color: ${textColor};
+          font-size: ${fontSize}px;
+          font-weight: 700;
+          letter-spacing: -0.5px;
+        ">${displayText}</span>
       </div>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -38],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2 - 4],
   })
 }
 
@@ -53,26 +78,44 @@ const youAreHereIcon = L.divIcon({
   className: "search-marker",
   html: `
     <div style="
-      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-      width: 46px;
-      height: 46px;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 4px solid rgba(255,255,255,0.9);
-      box-shadow: 0 12px 22px rgba(14,165,233,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: white;
-      font-weight: bold;
+      position: relative;
+      width: 20px;
+      height: 20px;
     ">
-      <span style="transform: rotate(45deg); display: block;">ℹ️</span>
+      <!-- Pulsing ring -->
+      <div style="
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        width: 40px;
+        height: 40px;
+        background: rgba(59, 130, 246, 0.2);
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      "></div>
+      <!-- Center dot -->
+      <div style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        height: 20px;
+        background: #3B82F6;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+      "></div>
     </div>
+    <style>
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.5); opacity: 0.2; }
+      }
+    </style>
   `,
-  iconSize: [46, 46],
-  iconAnchor: [23, 46],
-  popupAnchor: [0, -44],
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+  popupAnchor: [0, -15],
 })
 
 // Component to recenter map when location changes
@@ -212,16 +255,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
 
   return (
     <div className="relative h-full w-full">
-      {/* Map Controls - My Location Button */}
-      <div className="absolute left-4 top-4 z-[1000]">
-        <Button
-          onClick={getUserLocation}
-          className="bg-white/90 text-slate-900 shadow-lg backdrop-blur hover:bg-white"
-        >
-          <Navigation className="mr-2 h-4 w-4" />
-          My Location
-        </Button>
-      </div>
+      {/* Top controls removed - moved to floating bottom-right */}
 
       {/* Legend Button (Top-Right) - Google Maps Style */}
       <button 
@@ -232,37 +266,39 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
         <span className="text-sm font-medium text-slate-700">Legend</span>
       </button>
 
-      {/* Legend Dropdown (Collapsible) */}
+      {/* Legend Dropdown (Collapsible) - Updated with new colors */}
       {showLegend && (
-        <div className="absolute right-4 top-16 z-[1000] w-56 bg-white rounded-xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-4 top-16 z-[1000] w-52 bg-white rounded-xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2">
           <div className="flex justify-between items-center mb-3 border-b pb-2">
-            <h3 className="font-semibold text-sm text-slate-900">Map Legend</h3>
+            <h3 className="font-semibold text-sm text-slate-900">Parking Types</h3>
             <button onClick={() => setShowLegend(false)} className="text-gray-400 hover:text-gray-600">
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500 shadow" />
-              <span className="text-slate-700">Paid parking (₹)</span>
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white font-bold shadow">F</div>
+              <span className="text-slate-700">Free Parking</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-emerald-500 shadow" />
-              <span className="text-slate-700 flex items-center gap-1">Free parking <span className="bg-emerald-100 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded font-bold">FREE</span></span>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white font-bold shadow">₹</div>
+              <span className="text-slate-700">Paid Parking</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <span className="text-lg">🏍️</span>
-              <span>Bike friendly</span>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center text-[10px] text-white font-bold shadow">−</div>
+              <span className="text-slate-700">No Spots Available</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <span className="text-lg">🚗</span>
-              <span>Car friendly</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-sky-400" />
-              <span className="text-slate-700">You are here</span>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white shadow-md"></div>
+              <span className="text-slate-700">Your Location</span>
             </div>
           </div>
+          <button
+            onClick={() => setShowLegend(false)}
+            className="mt-4 w-full py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+          >
+            Close
+          </button>
         </div>
       )}
 
@@ -314,12 +350,13 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           const distance = userCoords
             ? calculateDistance(userCoords[0], userCoords[1], coords[0], coords[1])
             : null
+          const isHighlighted = highlightedSlotId === slot.id
 
           return (
             <Marker
               key={slot.id}
               position={coords}
-              icon={createCustomIcon(slot.isFree, slot.vehicleType)}
+              icon={createCustomIcon(slot, isHighlighted)}
               eventHandlers={{
                 click: () => handleMarkerClick(slot),
               }}
@@ -402,34 +439,16 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
         })}
       </MapContainer>
 
-      {/* Quick Stats Overlay - Mobile: Fixed bottom, Desktop: Absolute bottom-right */}
-      <div className="fixed bottom-20 right-4 md:absolute md:bottom-4 md:right-4 z-[1000]">
-        <Card className="bg-white/95 p-3 shadow-lg backdrop-blur-sm">
-          <div className="space-y-1 text-xs sm:text-sm">
-            <div className="font-semibold text-slate-900 mb-1">Quick Stats</div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-              <span className="text-slate-700">
-                {slots.filter((s) => s.status === "AVAILABLE" || s.slotStatus === "AVAILABLE").length}{" "}
-                Available
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-              <span className="text-slate-700">
-                {slots.filter((s) => s.status === "OCCUPIED" || s.slotStatus === "OCCUPIED").length}{" "}
-                Occupied
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
-              <span className="text-slate-700">
-                {slots.filter((s) => s.status === "RESERVED" || s.slotStatus === "RESERVED").length}{" "}
-                Reserved
-              </span>
-            </div>
-          </div>
-        </Card>
+      {/* Floating Zoom Controls - Bottom Right (Google Maps style) */}
+      <div className="absolute bottom-24 right-4 z-[1000] flex flex-col gap-2">
+        {/* My Location Button - Floating */}
+        <button
+          onClick={getUserLocation}
+          className="w-10 h-10 bg-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group"
+          title="My Location"
+        >
+          <Navigation className="h-5 w-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+        </button>
       </div>
     </div>
   )
