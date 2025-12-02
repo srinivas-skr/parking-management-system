@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, memo, useCallback } from "react"
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
 import { MapPin, Navigation, CheckCircle, XCircle, Clock, Info, Map as MapIcon, X } from "lucide-react"
 import { Button } from "./ui/button"
@@ -118,14 +118,29 @@ const youAreHereIcon = L.divIcon({
   popupAnchor: [0, -15],
 })
 
-// Component to recenter map when location changes
-function ChangeMapView({ center, zoom }) {
+// Component to recenter map when location changes - WITH DEBOUNCE
+function ChangeMapView({ center, zoom, onlyOnce = false }) {
   const map = useMap()
+  const hasCenteredRef = useRef(false)
+  const lastCenterRef = useRef(null)
+  
   useEffect(() => {
-    if (center) {
-      map.setView(center, zoom || 13, { animate: true })
-    }
-  }, [center, zoom, map])
+    if (!center) return
+    
+    // Prevent repeated centering for same location
+    const centerKey = `${center[0].toFixed(4)},${center[1].toFixed(4)}`
+    if (lastCenterRef.current === centerKey) return
+    
+    // If onlyOnce mode, only center once ever
+    if (onlyOnce && hasCenteredRef.current) return
+    
+    lastCenterRef.current = centerKey
+    hasCenteredRef.current = true
+    
+    // Use flyTo for smoother transition, disable animation if causing issues
+    map.setView(center, zoom || 13, { animate: false })
+  }, [center, zoom, map, onlyOnce])
+  
   return null
 }
 
@@ -138,6 +153,11 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
   const [searchedCoords, setSearchedCoords] = useState(null)
   const [showLegend, setShowLegend] = useState(false)
   
+  // ✅ ANTI-AUTO-ZOOM: Refs to prevent repeated operations
+  const hasAutoLocatedRef = useRef(false)
+  const lastSearchLocationRef = useRef(null)
+  const popupShownForRef = useRef(null)
+  
   const formatRupees = (amount) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -145,8 +165,12 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
       maximumFractionDigits: 0,
     }).format(Number(amount || 0))
 
-  // AUTO-DETECT location on mount
+  // AUTO-DETECT location on mount - ONLY ONCE
   useEffect(() => {
+    // ✅ Prevent multiple auto-locate calls
+    if (hasAutoLocatedRef.current) return
+    hasAutoLocatedRef.current = true
+    
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -181,44 +205,59 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
     }
   }
 
-  // Center and mark searched location
+  // Center and mark searched location - WITH ANTI-REPEAT PROTECTION
   useEffect(() => {
     if (searchLocation?.lat && searchLocation?.lng) {
+      // ✅ Check if this is the same location we already handled
+      const locationKey = `${searchLocation.lat.toFixed(4)},${searchLocation.lng.toFixed(4)}`
+      if (lastSearchLocationRef.current === locationKey) return
+      lastSearchLocationRef.current = locationKey
+      
       const coords = [searchLocation.lat, searchLocation.lng]
       setMapCenter(coords)
       setSearchedCoords(coords)
       setShowUserLocation(false)
 
       if (mapInstance) {
-        mapInstance.setView(coords, 15, { animate: true })
-        L.popup({
-          closeButton: false,
-          autoClose: true,
-          className: "you-are-here-popup",
-        })
-          .setLatLng(coords)
-          .setContent(`
-            <div style="display:flex;align-items:center;gap:8px;font-weight:600;color:#0f172a;">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(14,165,233,0.1);color:#0ea5e9;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
-              </span>
-              You are here
-            </div>
-          `)
-          .openOn(mapInstance)
-        // If parent requested a callback when the popup is shown, call it
-        if (typeof onSearchPopupShown === "function") {
-          try {
-            onSearchPopupShown()
-          } catch (e) {
-            console.warn("onSearchPopupShown callback threw:", e)
+        // ✅ Disable animation to prevent zoom flicker
+        mapInstance.setView(coords, 15, { animate: false })
+        
+        // ✅ Only show popup once per location
+        if (popupShownForRef.current !== locationKey) {
+          popupShownForRef.current = locationKey
+          
+          L.popup({
+            closeButton: false,
+            autoClose: true,
+            className: "you-are-here-popup",
+          })
+            .setLatLng(coords)
+            .setContent(`
+              <div style="display:flex;align-items:center;gap:8px;font-weight:600;color:#0f172a;">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(14,165,233,0.1);color:#0ea5e9;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+                </span>
+                You are here
+              </div>
+            `)
+            .openOn(mapInstance)
+          
+          // Callback to parent
+          if (typeof onSearchPopupShown === "function") {
+            try {
+              onSearchPopupShown()
+            } catch (e) {
+              console.warn("onSearchPopupShown callback threw:", e)
+            }
           }
         }
       }
     } else if (!searchLocation && searchedCoords) {
       setSearchedCoords(null)
+      lastSearchLocationRef.current = null
+      popupShownForRef.current = null
     }
-  }, [searchLocation, mapInstance, searchedCoords, openSearchPopup, onSearchPopupShown])
+  }, [searchLocation, mapInstance]) // ✅ Removed searchedCoords, openSearchPopup from deps to prevent loops
 
   // Calculate distance between two points (Haversine formula)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -302,15 +341,25 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
         </div>
       )}
 
-      {/* Map Container */}
+      {/* Map Container - WITH ANTI-AUTO-ZOOM SETTINGS */}
       <MapContainer
         center={mapCenter}
         zoom={13}
         style={{ height: "100%", width: "100%", borderRadius: "12px" }}
         scrollWheelZoom={true}
-        ref={(map) => { if (map) setMapInstance(map) }}
+        doubleClickZoom={false}  // ✅ Disable double-click zoom (common cause of auto-zoom)
+        zoomAnimation={false}    // ✅ Disable zoom animations to prevent flicker
+        markerZoomAnimation={false}  // ✅ Disable marker zoom animation
+        ref={(map) => { 
+          if (map && !mapInstance) {
+            setMapInstance(map)
+            // ✅ Stop any auto-zoom behaviors
+            map.options.zoomAnimation = false
+            map.options.markerZoomAnimation = false
+          }
+        }}
       >
-        <ChangeMapView center={mapCenter} zoom={13} />
+        <ChangeMapView center={mapCenter} zoom={13} onlyOnce={true} />
         
         {/* OpenStreetMap Tiles */}
         <TileLayer
