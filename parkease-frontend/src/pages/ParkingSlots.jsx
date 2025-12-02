@@ -286,161 +286,176 @@ export default function ParkingSlots() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <Navbar />
+      {/* Navbar - Hidden on mobile for more space */}
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
 
-      {/* PROFESSIONAL HEADER - Google Maps Inspired (Single Row) */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
-        <div className="container mx-auto">
-          <div className="flex items-center gap-3 sm:gap-4">
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* RESPONSIVE HEADER - Different on Mobile vs Desktop     */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      
+      {/* MOBILE HEADER (< 768px) */}
+      <div className="md:hidden bg-white border-b border-gray-200 shadow-sm">
+        <div className="p-3">
+          {/* Row 1: Back + Title + Avatar */}
+          <div className="flex items-center gap-3 mb-3">
+            <button 
+              onClick={() => navigate('/dashboard')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <span className="text-xl text-gray-600">←</span>
+            </button>
+            <h1 className="text-lg font-bold text-gray-900 flex-1">Find Parking</h1>
+            <button className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              U
+            </button>
+          </div>
+          
+          {/* Row 2: Search Bar */}
+          <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200 mb-2">
+            <Search className="h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search location..."
+              className="flex-1 bg-transparent outline-none text-sm text-gray-800"
+              value={selectedLocation?.name || ""}
+              readOnly
+              onClick={() => document.querySelector('.location-search-input')?.focus()}
+            />
+            {selectedLocation && (
+              <button onClick={() => setSelectedLocation(null)} className="p-1">
+                <X className="h-4 w-4 text-gray-400" />
+              </button>
+            )}
+          </div>
+          
+          {/* Row 3: Filters (Horizontal scroll) */}
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            <select 
+              value={freeFilter}
+              onChange={(e) => setFreeFilter(e.target.value)}
+              className="text-xs bg-gray-100 rounded-lg px-3 py-2 border-none outline-none text-gray-700 flex-shrink-0"
+            >
+              <option value="all">All Spots</option>
+              <option value="free">Free Only</option>
+              <option value="paid">Paid Only</option>
+            </select>
+            <select 
+              value={distanceFilter}
+              onChange={(e) => setDistanceFilter(e.target.value)}
+              className="text-xs bg-gray-100 rounded-lg px-3 py-2 border-none outline-none text-gray-700 flex-shrink-0"
+            >
+              <option value="all">Any Distance</option>
+              <option value="2">Within 2 km</option>
+              <option value="5">Within 5 km</option>
+            </select>
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="text-xs bg-gray-100 rounded-lg px-3 py-2 border-none outline-none text-gray-700 flex-shrink-0"
+            >
+              <option value="nearest">Nearest</option>
+              <option value="price-low">Cheapest</option>
+            </select>
+          </div>
+          
+          {/* Row 4: Results count */}
+          <div className="mt-2 text-xs text-gray-600">
+            <span className="font-semibold text-gray-900">{filteredSlots.length}</span> spots found
+            {selectedLocation && <span className="text-purple-600"> near {selectedLocation.name}</span>}
+          </div>
+        </div>
+      </div>
+      
+      {/* DESKTOP HEADER (≥ 768px) */}
+      <div className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto p-4">
+          <div className="flex items-center gap-4">
             
             {/* Back Button */}
             <button 
               onClick={() => navigate('/dashboard')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <span className="text-xl text-gray-600">←</span>
+              <span className="text-2xl text-gray-600">←</span>
             </button>
             
-            {/* Search Bar (Google Maps style) */}
-            <div className="flex-1 flex items-center gap-2 sm:gap-3 bg-gray-50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white focus-within:shadow-md transition-all">
-              <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
+            {/* Search Bar with Inline Filters */}
+            <div className="flex-1 flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white focus-within:shadow-md transition-all">
+              <Search className="h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search Koramangala, MG Road..."
-                className="flex-1 bg-transparent outline-none text-gray-800 text-sm sm:text-base min-w-0"
+                placeholder="Search parking near Koramangala, MG Road..."
+                className="flex-1 bg-transparent outline-none text-gray-800"
                 value={selectedLocation?.name || ""}
-                onChange={(e) => {
-                  if (!e.target.value) setSelectedLocation(null)
-                }}
+                readOnly
                 onClick={() => document.querySelector('.location-search-input')?.focus()}
               />
-              
-              {/* Clear Button */}
               {selectedLocation && (
-                <button 
-                  onClick={() => setSelectedLocation(null)}
-                  className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                >
+                <button onClick={() => setSelectedLocation(null)} className="p-1 hover:bg-gray-200 rounded-full">
                   <X className="h-4 w-4 text-gray-500" />
                 </button>
               )}
               
-              {/* Inline Filters - Hidden on mobile */}
-              <div className="hidden lg:flex items-center gap-2 border-l border-gray-300 pl-3">
-                
-                {/* Free/Paid Toggle */}
+              {/* Inline Filters (Desktop only) */}
+              <div className="flex items-center gap-3 border-l border-gray-300 pl-4">
                 <select 
                   value={freeFilter}
                   onChange={(e) => setFreeFilter(e.target.value)}
-                  className="text-sm bg-transparent border-none outline-none cursor-pointer text-gray-700 hover:text-gray-900"
+                  className="text-sm bg-transparent border-none outline-none cursor-pointer text-gray-700"
                 >
                   <option value="all">All Spots</option>
                   <option value="free">Free Only</option>
                   <option value="paid">Paid Only</option>
                 </select>
-                
-                {/* Distance Filter */}
                 <select 
                   value={distanceFilter}
                   onChange={(e) => setDistanceFilter(e.target.value)}
-                  className="text-sm bg-transparent border-none outline-none cursor-pointer text-gray-700 hover:text-gray-900"
+                  className="text-sm bg-transparent border-none outline-none cursor-pointer text-gray-700"
                 >
                   <option value="all">Any Distance</option>
                   <option value="2">Within 2 km</option>
                   <option value="5">Within 5 km</option>
                   <option value="10">Within 10 km</option>
                 </select>
-                
-                {/* Sort */}
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="text-sm bg-transparent border-none outline-none cursor-pointer text-gray-700 hover:text-gray-900"
+                  className="text-sm bg-transparent border-none outline-none cursor-pointer text-gray-700"
                 >
                   <option value="nearest">Nearest First</option>
                   <option value="price-low">Cheapest First</option>
-                  <option value="price-high">Most Available</option>
+                  <option value="price-high">Highest Price</option>
                 </select>
               </div>
             </div>
             
-            {/* View Toggle (Split/Map) - Hidden on mobile */}
-            <div className="hidden md:flex bg-gray-100 rounded-lg p-1">
+            {/* View Toggle (Desktop only) */}
+            <div className="flex bg-gray-100 rounded-lg p-1">
               <button 
                 onClick={() => setViewMode('split')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'split' ? 'bg-white shadow-sm text-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'split' ? 'bg-white shadow-sm text-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
               >
-                Split
+                Split View
               </button>
               <button 
                 onClick={() => setViewMode('map')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'map' ? 'bg-white shadow-sm text-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'map' ? 'bg-white shadow-sm text-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
               >
-                Map
-              </button>
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
-              >
-                List
+                Map Only
               </button>
             </div>
             
             {/* User Avatar */}
-            <button className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold hover:bg-purple-700 transition-colors flex-shrink-0">
+            <button className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold hover:bg-purple-700 transition-colors">
               U
             </button>
           </div>
           
-          {/* Mobile Filters Row */}
-          <div className="flex lg:hidden items-center gap-2 mt-3 overflow-x-auto pb-1">
-            <select 
-              value={freeFilter}
-              onChange={(e) => setFreeFilter(e.target.value)}
-              className="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 flex-shrink-0"
-            >
-              <option value="all">All</option>
-              <option value="free">Free</option>
-              <option value="paid">Paid</option>
-            </select>
-            <select 
-              value={distanceFilter}
-              onChange={(e) => setDistanceFilter(e.target.value)}
-              className="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 flex-shrink-0"
-            >
-              <option value="all">Any km</option>
-              <option value="2">≤2 km</option>
-              <option value="5">≤5 km</option>
-            </select>
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 flex-shrink-0"
-            >
-              <option value="nearest">Nearest</option>
-              <option value="price-low">Cheapest</option>
-            </select>
-            
-            {/* Mobile View Toggle */}
-            <div className="flex md:hidden bg-gray-100 rounded-lg p-0.5 ml-auto flex-shrink-0">
-              <button 
-                onClick={() => setViewMode('split')}
-                className={`px-2 py-1 rounded text-xs font-medium ${viewMode === 'split' ? 'bg-white shadow text-purple-600' : 'text-gray-500'}`}
-              >
-                Split
-              </button>
-              <button 
-                onClick={() => setViewMode('map')}
-                className={`px-2 py-1 rounded text-xs font-medium ${viewMode === 'map' ? 'bg-white shadow text-purple-600' : 'text-gray-500'}`}
-              >
-                Map
-              </button>
-            </div>
-          </div>
-          
           {/* Results Count */}
-          <div className="mt-2 text-sm text-gray-600">
-            <span className="font-semibold text-gray-900">{filteredSlots.length}</span> parking spots
+          <div className="mt-3 text-sm text-gray-600">
+            <span className="font-semibold text-gray-900">{filteredSlots.length}</span> parking spots found
             {selectedLocation && <span> near <span className="font-medium text-purple-600">{selectedLocation.name}</span></span>}
             {filters.vehicleType !== "all" && <span> • {filters.vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}</span>}
           </div>
@@ -475,180 +490,14 @@ export default function ParkingSlots() {
           </Card>
         </div>
       ) : (
-        <div className={`flex-1 flex overflow-hidden ${
-          viewMode === "list" ? "flex-col" : 
-          viewMode === "map" ? "flex-col" : 
-          "flex-col lg:flex-row"
-        }`}>
-          
-          {/* LEFT PANEL: Slot List */}
-          {(viewMode === "split" || viewMode === "list") && (
-            <div className={`
-              ${viewMode === "split" ? "w-full lg:w-2/5 h-[40vh] lg:h-full" : "flex-1"} 
-              overflow-y-auto border-r border-gray-200 bg-white
-            `}>
-              <div className="p-4">
-                {/* List View: Show Areas First, then Slots */}
-                {viewMode === "list" && !selectedListArea ? (
-                  /* AREA CARDS VIEW */
-                  <>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4 sticky top-0 bg-white py-2 z-10">
-                      📍 Select an Area ({areasWithSlots.length} areas with parking)
-                    </h2>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {areasWithSlots.map((area, index) => (
-                        <motion.button
-                          key={area.name}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          onClick={() => handleAreaClick(area.name)}
-                          className="group relative border border-gray-200 bg-white hover:border-purple-500 hover:bg-purple-50 rounded-xl p-5 text-left transition-all hover:shadow-lg"
-                        >
-                          {/* Area Icon */}
-                          <div className="text-4xl mb-3">{area.icon}</div>
-                          
-                          {/* Area Name */}
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">{area.name}</h3>
-                          
-                          {/* Stats Row */}
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="text-purple-600 font-semibold">{area.slotCount} spots</span>
-                            {area.freeCount > 0 && (
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
-                                {area.freeCount} FREE
-                              </span>
-                            )}
-                          </div>
-                          
-                          {/* Price Info */}
-                          <div className="text-sm text-gray-500">
-                            {area.avgPrice === 0 ? "Free parking available" : `Avg ₹${area.avgPrice}/hr`}
-                          </div>
-                          
-                          {/* Arrow Indicator */}
-                          <div className="absolute top-1/2 right-4 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <ChevronRight className="h-6 w-6 text-purple-500" />
-                          </div>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </>
-                ) : viewMode === "list" && selectedListArea ? (
-                  /* SLOTS IN SELECTED AREA VIEW */
-                  <>
-                    {/* Back Button + Title */}
-                    <div className="sticky top-0 bg-white py-3 z-10 mb-4">
-                      <button
-                        onClick={handleBackToAreas}
-                        className="flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-2 transition-colors"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                        <span className="font-medium">Back to Areas</span>
-                      </button>
-                      <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                        {areasWithSlots.find(a => a.name === selectedListArea)?.icon} {selectedListArea}
-                        <span className="text-gray-500 font-normal text-base">
-                          ({selectedAreaSlots.length} spots)
-                        </span>
-                      </h2>
-                    </div>
-                    
-                    {/* Slot Cards Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {selectedAreaSlots.map((slot, index) => (
-                        <motion.div
-                          key={slot.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.03 }}
-                        >
-                          <SlotCard
-                            slot={slot}
-                            onBook={() => handleSlotSelect(slot)}
-                            index={index}
-                          />
-                        </motion.div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  /* SPLIT VIEW: Show all slots in compact cards */
-                  <>
-                    <h2 className="text-base font-semibold text-gray-900 mb-4 sticky top-0 bg-white py-2">
-                      {filteredSlots.length} parking spots 
-                      {selectedLocation && <span className="text-gray-500 font-normal"> near {selectedLocation.name}</span>}
-                    </h2>
-                    
-                    {/* Slot Cards */}
-                    <div className="space-y-3">
-                      {filteredSlots.map((slot, index) => (
-                        <motion.div
-                          key={slot.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.03 }}
-                          onMouseEnter={() => setHighlightedSlot(slot.id)}
-                          onMouseLeave={() => setHighlightedSlot(null)}
-                        >
-                          {/* Compact card for split view - Professional Google Maps style */}
-                          <button
-                            onClick={() => handleSlotSelect(slot)}
-                            className={`w-full text-left border rounded-lg p-3 transition-all hover:shadow-md ${
-                              highlightedSlot === slot.id 
-                                ? "border-purple-500 bg-purple-50 shadow-md" 
-                                : "border-gray-200 bg-white hover:border-gray-300"
-                            }`}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h3 className="font-semibold text-gray-900 text-sm truncate">{slot.name || slot.location}</h3>
-                                  {(slot.isFree || Number(slot.pricePerHour) === 0) ? (
-                                    <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold flex-shrink-0">FREE</span>
-                                  ) : (
-                                    <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-bold flex-shrink-0">PAID</span>
-                                  )}
-                                </div>
-                                <p className="text-gray-500 text-xs mb-2 truncate">{slot.address || slot.location}</p>
-                                <div className="flex items-center gap-3 text-xs">
-                                  <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
-                                    {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
-                                  </span>
-                                  {slot.distance !== undefined && (
-                                    <span className="text-gray-500">
-                                      {slot.distance.toFixed(1)} km
-                                    </span>
-                                  )}
-                                  <span className="text-gray-400">
-                                    {slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="text-right ml-3 flex-shrink-0">
-                                <div className={`text-lg font-bold ${slot.status === "AVAILABLE" ? "text-emerald-600" : "text-gray-400"}`}>
-                                  {slot.capacity || "∞"}
-                                </div>
-                                <div className="text-[10px] text-gray-400">spots</div>
-                              </div>
-                            </div>
-                          </button>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* RIGHT PANEL: Map */}
-          {(viewMode === "split" || viewMode === "map") && (
-            <div className={`
-              ${viewMode === "split" ? "flex-1 h-[60vh] lg:h-full" : "flex-1"} 
-              relative
-            `}>
+        <>
+          {/* ═══════════════════════════════════════════════════════ */}
+          {/* MOBILE LAYOUT: Stacked (Map on top, List below)        */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <div className="md:hidden flex flex-col h-full overflow-hidden">
+            
+            {/* MAP - Top section (40vh on mobile) */}
+            <div className="relative h-[40vh] border-b border-gray-200 flex-shrink-0">
               <MapView
                 slots={filteredSlots}
                 onSlotSelect={handleSlotSelect}
@@ -658,8 +507,212 @@ export default function ParkingSlots() {
                 highlightedSlotId={highlightedSlot}
               />
             </div>
-          )}
-        </div>
+            
+            {/* SLOT LIST - Bottom section (60vh, scrollable) */}
+            <div className="flex-1 overflow-y-auto bg-gray-50">
+              <div className="p-3 space-y-3">
+                {filteredSlots.map((slot, index) => (
+                  <motion.div
+                    key={slot.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.02 }}
+                  >
+                    {/* Mobile Slot Card - Compact */}
+                    <button
+                      onClick={() => handleSlotSelect(slot)}
+                      className="w-full bg-white rounded-lg p-3 shadow-sm border border-gray-100 text-left active:scale-[0.98] transition-transform"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-sm text-gray-900 truncate">{slot.name || slot.location}</h3>
+                            {(slot.isFree || Number(slot.pricePerHour) === 0) ? (
+                              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold flex-shrink-0">FREE</span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-bold flex-shrink-0">₹{slot.pricePerHour}</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 truncate">{slot.address || slot.location}</p>
+                          <div className="flex items-center gap-3 mt-2 text-xs">
+                            <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
+                              {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
+                            </span>
+                            {slot.distance !== undefined && (
+                              <span className="text-gray-500">{slot.distance.toFixed(1)} km</span>
+                            )}
+                            <span className="text-gray-400">{slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
+                          </div>
+                        </div>
+                        <div className="text-right ml-2 flex-shrink-0">
+                          <div className={`text-base font-bold ${slot.status === "AVAILABLE" ? "text-emerald-600" : "text-gray-400"}`}>
+                            {slot.capacity || "∞"}
+                          </div>
+                          <div className="text-[9px] text-gray-400">spots</div>
+                        </div>
+                      </div>
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* ═══════════════════════════════════════════════════════ */}
+          {/* DESKTOP LAYOUT: Side-by-side (List 40% | Map 60%)      */}
+          {/* ═══════════════════════════════════════════════════════ */}
+          <div className={`hidden md:flex h-full overflow-hidden ${
+            viewMode === "map" ? "" : ""
+          }`}>
+            
+            {/* LEFT: SLOT LIST (40% width) - Hidden in map-only mode */}
+            {viewMode !== "map" && (
+              <div className="w-2/5 overflow-y-auto border-r border-gray-200 bg-white">
+                <div className="p-4">
+                  {/* List View: Show Areas First, then Slots */}
+                  {viewMode === "list" && !selectedListArea ? (
+                    /* AREA CARDS VIEW */
+                    <>
+                      <h2 className="text-lg font-semibold text-gray-900 mb-4 sticky top-0 bg-white py-2 z-10">
+                        📍 Select an Area ({areasWithSlots.length} areas with parking)
+                      </h2>
+                      
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                        {areasWithSlots.map((area, index) => (
+                          <motion.button
+                            key={area.name}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            onClick={() => handleAreaClick(area.name)}
+                            className="group relative border border-gray-200 bg-white hover:border-purple-500 hover:bg-purple-50 rounded-xl p-5 text-left transition-all hover:shadow-lg"
+                          >
+                            <div className="text-3xl mb-2">{area.icon}</div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">{area.name}</h3>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-purple-600 font-semibold text-sm">{area.slotCount} spots</span>
+                              {area.freeCount > 0 && (
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                                  {area.freeCount} FREE
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {area.avgPrice === 0 ? "Free parking" : `Avg ₹${area.avgPrice}/hr`}
+                            </div>
+                            <ChevronRight className="absolute top-1/2 right-3 -translate-y-1/2 h-5 w-5 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </motion.button>
+                        ))}
+                      </div>
+                    </>
+                  ) : viewMode === "list" && selectedListArea ? (
+                    /* SLOTS IN SELECTED AREA VIEW */
+                    <>
+                      <div className="sticky top-0 bg-white py-3 z-10 mb-4">
+                        <button
+                          onClick={handleBackToAreas}
+                          className="flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-2 transition-colors"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                          <span className="font-medium">Back to Areas</span>
+                        </button>
+                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                          {areasWithSlots.find(a => a.name === selectedListArea)?.icon} {selectedListArea}
+                          <span className="text-gray-500 font-normal text-base">({selectedAreaSlots.length} spots)</span>
+                        </h2>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {selectedAreaSlots.map((slot, index) => (
+                          <motion.div
+                            key={slot.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                          >
+                            <SlotCard slot={slot} onBook={() => handleSlotSelect(slot)} index={index} />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    /* SPLIT VIEW: Show all slots */
+                    <>
+                      <h2 className="text-base font-semibold text-gray-900 mb-4 sticky top-0 bg-white py-2 z-10">
+                        {filteredSlots.length} parking spots
+                        {selectedLocation && <span className="text-gray-500 font-normal"> near {selectedLocation.name}</span>}
+                      </h2>
+                      
+                      <div className="space-y-3">
+                        {filteredSlots.map((slot, index) => (
+                          <motion.div
+                            key={slot.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.02 }}
+                            onMouseEnter={() => setHighlightedSlot(slot.id)}
+                            onMouseLeave={() => setHighlightedSlot(null)}
+                          >
+                            {/* Desktop Slot Card */}
+                            <button
+                              onClick={() => handleSlotSelect(slot)}
+                              className={`w-full text-left border-2 rounded-xl p-4 transition-all hover:shadow-lg ${
+                                highlightedSlot === slot.id 
+                                  ? "border-purple-500 bg-purple-50 shadow-lg" 
+                                  : "border-gray-200 bg-white hover:border-gray-300"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="font-bold text-base text-gray-900 truncate">{slot.name || slot.location}</h3>
+                                    {(slot.isFree || Number(slot.pricePerHour) === 0) ? (
+                                      <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-xs font-bold">FREE</span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold">PAID</span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-gray-500 mb-2">{slot.address || slot.location}</p>
+                                  <div className="flex items-center gap-4 text-sm">
+                                    <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
+                                      {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
+                                    </span>
+                                    {slot.distance !== undefined && (
+                                      <span className="text-gray-500">📍 {slot.distance.toFixed(1)} km</span>
+                                    )}
+                                    <span className="text-gray-400">{slot.vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}</span>
+                                  </div>
+                                </div>
+                                <div className="text-right ml-4 flex-shrink-0">
+                                  <div className={`text-xl font-bold ${slot.status === "AVAILABLE" ? "text-emerald-600" : "text-gray-400"}`}>
+                                    {slot.capacity || "∞"}
+                                  </div>
+                                  <div className="text-xs text-gray-400">available</div>
+                                </div>
+                              </div>
+                            </button>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* RIGHT: MAP (60% width or 100% in map-only mode) */}
+            <div className={`relative ${viewMode === "map" ? "flex-1" : "flex-1"}`}>
+              <MapView
+                slots={filteredSlots}
+                onSlotSelect={handleSlotSelect}
+                searchLocation={selectedLocation}
+                openSearchPopup={openSearchPopup}
+                onSearchPopupShown={() => setOpenSearchPopup(false)}
+                highlightedSlotId={highlightedSlot}
+              />
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
