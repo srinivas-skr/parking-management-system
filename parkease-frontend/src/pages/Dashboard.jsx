@@ -1,18 +1,13 @@
-
-
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "../context/AuthContext"
 import Navbar from "../components/Navbar"
-import StatsCard from "../components/StatsCard"
 import Skeleton from "../components/ui/skeleton"
 import PageTransition from "../components/PageTransition"
 import ParticleBackground from "../components/ParticleBackground"
-import AnalyticsSection from "../components/AnalyticsSection"
-import { Button } from "../components/ui/button"
 import { toast } from "sonner"
-import { Car, Bike, Clock, Calendar, DollarSign, RefreshCw, MapPin, ArrowRight, Sparkles } from "lucide-react"
+import { Car, Bike, Clock, Calendar, DollarSign, ChevronDown, Search } from "lucide-react"
 import api from "../services/api"
 
 // Popular areas in Bengaluru with coordinates
@@ -33,6 +28,7 @@ function Dashboard() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedVehicle, setSelectedVehicle] = useState(null)
+  const [selectedArea, setSelectedArea] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -41,15 +37,10 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      
-      // Fetch only bookings for dashboard stats
       const bookingsResult = await api.get("/bookings").catch(() => ({ data: [] }))
-      
       if (bookingsResult.data) {
-        console.log("✅ Bookings loaded:", bookingsResult.data.length)
         setBookings(Array.isArray(bookingsResult.data) ? bookingsResult.data : [])
       }
-      
     } catch (error) {
       console.error("❌ Failed to fetch data:", error)
       setBookings([])
@@ -60,13 +51,30 @@ function Dashboard() {
 
   const handleVehicleSelect = (vehicleType) => {
     setSelectedVehicle(vehicleType)
-    // Navigate to Find Parking page with vehicle filter
-    navigate(`/slots?vehicleType=${vehicleType}`)
+    toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected! Now choose your area below.`)
   }
 
   const handleAreaSelect = (area) => {
-    // Navigate to Find Parking page with area location
-    navigate(`/slots?area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
+    setSelectedArea(area)
+    // Navigate with both vehicle and area if vehicle is selected
+    if (selectedVehicle) {
+      navigate(`/slots?vehicleType=${selectedVehicle}&area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
+    } else {
+      navigate(`/slots?area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
+    }
+  }
+
+  const handleFindParking = () => {
+    let url = "/slots"
+    const params = []
+    if (selectedVehicle) params.push(`vehicleType=${selectedVehicle}`)
+    if (selectedArea) {
+      params.push(`area=${encodeURIComponent(selectedArea.name)}`)
+      params.push(`lat=${selectedArea.lat}`)
+      params.push(`lng=${selectedArea.lng}`)
+    }
+    if (params.length > 0) url += `?${params.join("&")}`
+    navigate(url)
   }
 
   const stats = {
@@ -81,36 +89,15 @@ function Dashboard() {
         <ParticleBackground />
         <Navbar />
         <main className="relative z-10 container mx-auto px-4 py-8 space-y-8">
-          {/* Hero Skeleton */}
           <div className="bg-gradient-to-r from-purple-400/20 to-purple-600/20 rounded-2xl p-8 backdrop-blur-sm">
             <Skeleton className="h-10 w-64 mb-4 bg-white/50" />
             <Skeleton className="h-6 w-48 bg-white/40" />
           </div>
-          
-          {/* Stats Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-6"
-              >
-                <Skeleton className="h-4 w-24 mb-4" />
-                <Skeleton className="h-8 w-16" />
-              </motion.div>
-            ))}
-          </div>
-          
-          {/* Vehicle Selection Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-xl bg-white/60" />
+              <Skeleton key={i} className="h-48 w-full rounded-xl bg-white/60" />
             ))}
           </div>
-          
-          {/* Areas Grid Skeleton */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <Skeleton key={i} className="h-24 w-full rounded-xl bg-white/60" />
@@ -126,226 +113,280 @@ function Dashboard() {
       <ParticleBackground />
       <Navbar />
 
-      <main className="relative z-10 container mx-auto px-4 py-8 space-y-8">
-        {/* Enhanced Hero Section with gradient mesh */}
+      <main className="relative z-10 container mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 1: HERO BANNER (with "Start Here" arrow)
+        ═══════════════════════════════════════════════════════ */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl overflow-hidden"
+          className="relative bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 rounded-2xl p-6 sm:p-8 text-white shadow-2xl overflow-hidden"
         >
-          {/* Mesh pattern overlay */}
           <div className="absolute inset-0 opacity-10" style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
             backgroundSize: '40px 40px'
           }} />
           
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <motion.h1 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2"
-              >
-                Welcome back, {user?.fullName}! 👋
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-white/90 text-sm sm:text-base lg:text-lg"
-              >
-                Find and book your perfect parking spot in Bengaluru
-              </motion.p>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="w-full sm:w-auto"
+          <div className="relative z-10 text-center">
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2"
             >
-              <Button
-                onClick={() => navigate("/slots")}
-                variant="secondary"
-                size="lg"
-                className="gap-2 shadow-lg w-full sm:w-auto min-h-[44px]"
-              >
-                <MapPin className="h-4 w-4" />
-                Find Parking Now
-              </Button>
+              Welcome back, {user?.fullName || "User"}! 👋
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-white/90 text-base sm:text-lg mb-4"
+            >
+              Find and book your perfect parking spot in Bengaluru
+            </motion.p>
+            
+            {/* Animated Arrow Pointing Down */}
+            <motion.div 
+              animate={{ y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              className="flex flex-col items-center gap-1 mt-4"
+            >
+              <span className="text-white/80 text-sm font-medium">👇 Start Here</span>
+              <ChevronDown className="h-6 w-6 text-white/80" />
             </motion.div>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 2: STEP 1 - CHOOSE YOUR VEHICLE (PRIMARY ACTION)
+        ═══════════════════════════════════════════════════════ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-100"
         >
-          <StatsCard
-            title="My Bookings"
-            value={stats.myBookings}
-            icon={Calendar}
-            gradient="from-purple-500 to-pink-500"
-            index={0}
-          />
-          <StatsCard
-            title="Active Bookings"
-            value={stats.activeBookings}
-            icon={Clock}
-            gradient="from-green-500 to-emerald-500"
-            index={1}
-          />
-          <StatsCard
-            title="Total Spent"
-            value={stats.totalSpent}
-            icon={DollarSign}
-            gradient="from-orange-500 to-red-500"
-            index={2}
-            prefix="₹ "
-            decimals={0}
-          />
+          {/* Section Header */}
+          <div className="flex items-center gap-3 mb-5 sm:mb-6">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
+              1
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Choose Your Vehicle</h2>
+              <p className="text-slate-500 text-sm sm:text-base">Select what you're parking today</p>
+            </div>
+          </div>
+
+          {/* Vehicle Cards - BIG and Prominent */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* Bike Card */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleVehicleSelect("TWO_WHEELER")}
+              className={`group relative border-4 rounded-2xl p-6 sm:p-8 transition-all duration-300 text-left
+                ${selectedVehicle === "TWO_WHEELER" 
+                  ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-100 shadow-xl shadow-green-200/50" 
+                  : "border-transparent bg-gradient-to-br from-green-50 to-green-100 hover:border-green-400 hover:shadow-lg"}`}
+            >
+              {/* Badge */}
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-8 h-8 sm:w-10 sm:h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base shadow-md">
+                1A
+              </div>
+              
+              {/* Selected Checkmark */}
+              {selectedVehicle === "TWO_WHEELER" && (
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center">
+                  ✓
+                </div>
+              )}
+
+              <div className="flex flex-col items-center gap-3 sm:gap-4 pt-4 sm:pt-6">
+                <div className="text-5xl sm:text-7xl">🏍️</div>
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Bike / Scooter</h3>
+                <p className="text-slate-600 text-sm sm:text-lg text-center">Two-wheeler parking spots</p>
+                <span className="text-lg sm:text-xl font-semibold text-green-600">Starting from ₹10/hr</span>
+                <div className={`mt-2 sm:mt-4 px-5 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all
+                  ${selectedVehicle === "TWO_WHEELER" 
+                    ? "bg-green-500 text-white" 
+                    : "bg-purple-600 text-white group-hover:scale-105"}`}>
+                  {selectedVehicle === "TWO_WHEELER" ? "✓ Selected" : "Select Bike →"}
+                </div>
+              </div>
+            </motion.button>
+
+            {/* Car Card */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleVehicleSelect("FOUR_WHEELER")}
+              className={`group relative border-4 rounded-2xl p-6 sm:p-8 transition-all duration-300 text-left
+                ${selectedVehicle === "FOUR_WHEELER" 
+                  ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-100 shadow-xl shadow-blue-200/50" 
+                  : "border-transparent bg-gradient-to-br from-blue-50 to-blue-100 hover:border-blue-400 hover:shadow-lg"}`}
+            >
+              {/* Badge */}
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-8 h-8 sm:w-10 sm:h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base shadow-md">
+                1B
+              </div>
+              
+              {/* Selected Checkmark */}
+              {selectedVehicle === "FOUR_WHEELER" && (
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                  ✓
+                </div>
+              )}
+
+              <div className="flex flex-col items-center gap-3 sm:gap-4 pt-4 sm:pt-6">
+                <div className="text-5xl sm:text-7xl">🚗</div>
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Car / SUV</h3>
+                <p className="text-slate-600 text-sm sm:text-lg text-center">Four-wheeler parking spots</p>
+                <span className="text-lg sm:text-xl font-semibold text-blue-600">Starting from ₹20/hr</span>
+                <div className={`mt-2 sm:mt-4 px-5 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all
+                  ${selectedVehicle === "FOUR_WHEELER" 
+                    ? "bg-blue-500 text-white" 
+                    : "bg-purple-600 text-white group-hover:scale-105"}`}>
+                  {selectedVehicle === "FOUR_WHEELER" ? "✓ Selected" : "Select Car →"}
+                </div>
+              </div>
+            </motion.button>
+          </div>
         </motion.div>
 
-        {/* Vehicle Type Selection */}
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 3: STEP 2 - CHOOSE YOUR AREA
+        ═══════════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+          className="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-100"
         >
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-purple-600" />
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">What are you parking?</h2>
+          {/* Section Header */}
+          <div className="flex items-center gap-3 mb-5 sm:mb-6">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
+              2
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Choose Your Area</h2>
+              <p className="text-slate-500 text-sm sm:text-base">Where do you need parking?</p>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            {/* Bike Option */}
-            <motion.div
-              whileHover={{ scale: 1.02, y: -4 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleVehicleSelect("TWO_WHEELER")}
-              className={`cursor-pointer relative overflow-hidden rounded-2xl p-4 sm:p-6 border-2 transition-all duration-300 min-h-[100px]
-                ${selectedVehicle === "TWO_WHEELER" 
-                  ? "border-green-500 bg-gradient-to-br from-green-50 to-emerald-100 shadow-lg shadow-green-200" 
-                  : "border-slate-200 bg-white hover:border-green-300 hover:shadow-lg"}`}
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                  <Bike className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg sm:text-2xl font-bold text-slate-900">Bike / Scooter</h3>
-                  <p className="text-slate-500 text-sm sm:text-base">Two-wheeler parking spots</p>
-                  <p className="text-green-600 font-semibold mt-1 text-sm sm:text-base">Starting from ₹10/hr</p>
-                </div>
-                <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400 flex-shrink-0" />
-              </div>
-              {/* Decorative element */}
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-green-200/30 rounded-full blur-2xl" />
-            </motion.div>
 
-            {/* Car Option */}
-            <motion.div
-              whileHover={{ scale: 1.02, y: -4 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleVehicleSelect("FOUR_WHEELER")}
-              className={`cursor-pointer relative overflow-hidden rounded-2xl p-4 sm:p-6 border-2 transition-all duration-300 min-h-[100px]
-                ${selectedVehicle === "FOUR_WHEELER" 
-                  ? "border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-100 shadow-lg shadow-blue-200" 
-                  : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg"}`}
+          {/* Area Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {popularAreas.map((area, index) => (
+              <motion.button
+                key={area.name}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * index }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleAreaSelect(area)}
+                className={`relative border-2 rounded-xl p-4 sm:p-5 transition-all duration-300 text-left
+                  ${selectedArea?.name === area.name 
+                    ? "border-purple-500 bg-purple-50 shadow-lg" 
+                    : "border-slate-200 bg-white hover:border-purple-400 hover:shadow-md"}`}
+              >
+                {/* Number Badge */}
+                <div className="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">
+                  {index + 1}
+                </div>
+                
+                <div className="text-3xl sm:text-4xl mb-2">{area.icon}</div>
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base">{area.name}</h3>
+                <p className="text-xs sm:text-sm text-slate-500">{area.slots}+ spots</p>
+              </motion.button>
+            ))}
+          </div>
+
+          {/* BIG Search Button */}
+          <div className="mt-6 sm:mt-8 text-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleFindParking}
+              className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full text-lg sm:text-xl font-bold shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-2"
             >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                  <Car className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg sm:text-2xl font-bold text-slate-900">Car / SUV</h3>
-                  <p className="text-slate-500 text-sm sm:text-base">Four-wheeler parking spots</p>
-                  <p className="text-blue-600 font-semibold mt-1 text-sm sm:text-base">Starting from ₹20/hr</p>
-                </div>
-                <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400 flex-shrink-0" />
-              </div>
-              {/* Decorative element */}
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-200/30 rounded-full blur-2xl" />
-            </motion.div>
+              <Search className="h-5 w-5 sm:h-6 sm:w-6" />
+              Find Parking Now
+            </motion.button>
+            {selectedVehicle && (
+              <p className="mt-3 text-sm text-slate-500">
+                Searching for <span className="font-semibold text-purple-600">{selectedVehicle === "TWO_WHEELER" ? "Bike" : "Car"}</span> parking
+                {selectedArea && <> near <span className="font-semibold text-purple-600">{selectedArea.name}</span></>}
+              </p>
+            )}
           </div>
         </motion.div>
 
-        {/* Popular Areas Section */}
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 4: YOUR STATS (Secondary - Bottom)
+        ═══════════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="pt-4"
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-purple-600" />
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Popular Areas in Bengaluru</h2>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/slots")}
-              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 min-h-[44px]"
-            >
-              View All <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-slate-400 text-sm font-medium">📊 Your Stats</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {popularAreas.map((area, index) => (
-              <motion.div
-                key={area.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                whileHover={{ scale: 1.05, y: -4 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleAreaSelect(area)}
-                className="cursor-pointer bg-white rounded-xl p-3 sm:p-4 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 min-h-[80px]"
-              >
-                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">{area.icon}</div>
-                <h3 className="font-semibold text-slate-900 text-sm sm:text-base">{area.name}</h3>
-                <p className="text-xs sm:text-sm text-slate-500">{area.slots}+ spots</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4 sm:p-6"
-        >
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-            <Button
-              onClick={() => navigate("/slots")}
-              className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto min-h-[44px]"
-            >
-              <MapPin className="mr-2 h-4 w-4" />
-              Explore All Parking
-            </Button>
-            <Button
-              variant="outline"
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <motion.div 
+              whileHover={{ y: -2 }}
               onClick={() => navigate("/bookings")}
-              className="border-purple-300 text-purple-700 hover:bg-purple-50 w-full sm:w-auto min-h-[44px]"
+              className="cursor-pointer bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
             >
-              <Calendar className="mr-2 h-4 w-4" />
-              My Bookings
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/vehicles")}
-              className="border-purple-300 text-purple-700 hover:bg-purple-50 w-full sm:w-auto min-h-[44px]"
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">My Bookings</p>
+                  <p className="text-xl font-bold text-slate-900">{stats.myBookings}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -2 }}
+              onClick={() => navigate("/bookings")}
+              className="cursor-pointer bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
             >
-              <Car className="mr-2 h-4 w-4" />
-              Manage Vehicles
-            </Button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Active Bookings</p>
+                  <p className="text-xl font-bold text-slate-900">{stats.activeBookings}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -2 }}
+              className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Total Spent</p>
+                  <p className="text-xl font-bold text-slate-900">₹{stats.totalSpent}</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </motion.div>
 
-        {/* Analytics Section */}
-        <AnalyticsSection bookings={bookings} />
+        {/* Bottom Spacer for Mobile Nav */}
+        <div className="h-20 md:h-0" />
       </main>
     </PageTransition>
   )
