@@ -59,10 +59,18 @@ export default function ParkingSlots() {
     const lat = searchParams.get("lat")
     const lng = searchParams.get("lng")
 
-    if (vehicleType) {
-      setFilters(prev => ({ ...prev, vehicleType }))
-      toast.success(`Showing ${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} parking spots`)
+    // ENFORCE: Redirect to dashboard if no vehicle type selected
+    if (!vehicleType) {
+      toast.error("⚠️ Please select your vehicle type first!", {
+        description: "This helps us show only compatible parking slots"
+      })
+      navigate("/dashboard")
+      return
     }
+
+    // Set vehicle type filter
+    setFilters(prev => ({ ...prev, vehicleType }))
+    toast.success(`Showing ${vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"} parking spots only`)
 
     if (area && lat && lng) {
       const location = {
@@ -72,9 +80,8 @@ export default function ParkingSlots() {
       }
       setSelectedLocation(location)
       setOpenSearchPopup(true)
-      toast.success(`Showing parking near ${area}`)
     }
-  }, [searchParams])
+  }, [searchParams, navigate])
 
   useEffect(() => {
     // Auto-detect user location
@@ -325,7 +332,7 @@ export default function ParkingSlots() {
       {/* MOBILE HEADER (< 768px) */}
       <div className="md:hidden bg-white border-b border-gray-200 shadow-sm">
         <div className="p-3">
-          {/* Row 1: Back + Title + Avatar */}
+          {/* Row 1: Back + Title + Vehicle Badge */}
           <div className="flex items-center gap-3 mb-3">
             <button 
               onClick={() => navigate('/dashboard')}
@@ -334,9 +341,16 @@ export default function ParkingSlots() {
               <span className="text-xl text-gray-600">←</span>
             </button>
             <h1 className="text-lg font-bold text-gray-900 flex-1">Find Parking</h1>
-            <button className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-              U
-            </button>
+            
+            {/* VEHICLE TYPE BADGE - Prominent */}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold ${
+              filters.vehicleType === "TWO_WHEELER" 
+                ? "bg-green-100 text-green-700 border-2 border-green-300" 
+                : "bg-blue-100 text-blue-700 border-2 border-blue-300"
+            }`}>
+              <span className="text-base">{filters.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
+              <span className="hidden sm:inline">{filters.vehicleType === "TWO_WHEELER" ? "Bike" : "Car"}</span>
+            </div>
           </div>
           
           {/* Row 2: Search Bar */}
@@ -480,10 +494,24 @@ export default function ParkingSlots() {
               </button>
             </div>
             
-            {/* User Avatar */}
-            <button className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold hover:bg-purple-700 transition-colors">
-              U
-            </button>
+            {/* VEHICLE TYPE BADGE - Prominent (Desktop) */}
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold shadow-sm ${
+              filters.vehicleType === "TWO_WHEELER" 
+                ? "bg-green-100 text-green-700 border-2 border-green-300" 
+                : "bg-blue-100 text-blue-700 border-2 border-blue-300"
+            }`}>
+              <span className="text-xl">{filters.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
+              <div>
+                <div className="text-xs text-gray-500 font-normal">Selected</div>
+                <div className="text-sm">{filters.vehicleType === "TWO_WHEELER" ? "Two Wheeler" : "Four Wheeler"}</div>
+              </div>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="ml-2 px-2 py-1 bg-white/70 hover:bg-white rounded text-xs font-semibold text-purple-600 transition-colors"
+              >
+                Change
+              </button>
+            </div>
           </div>
           
           {/* Results Count + Real-time Status */}

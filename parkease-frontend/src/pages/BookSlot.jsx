@@ -11,11 +11,12 @@ import BookingConfirmationModal from "../components/BookingConfirmationModal"
 import { toast } from 'sonner'
 import api from "../services/api"
 
-// Demo vehicles for when API returns empty
+// Demo vehicles for when API returns empty - include both types
 const DEMO_VEHICLES = [
-  { id: 1, vehicleNumber: "KA-01-AB-1234", vehicleType: "Car", brand: "Honda City" },
-  { id: 2, vehicleNumber: "KA-05-CD-5678", vehicleType: "Bike", brand: "Honda Activa" },
-  { id: 3, vehicleNumber: "KA-03-EF-9012", vehicleType: "Car", brand: "Maruti Swift" },
+  { id: 1, vehicleNumber: "KA-01-AB-1234", vehicleType: "FOUR_WHEELER", brand: "Honda City" },
+  { id: 2, vehicleNumber: "KA-05-CD-5678", vehicleType: "TWO_WHEELER", brand: "Honda Activa" },
+  { id: 3, vehicleNumber: "KA-03-EF-9012", vehicleType: "FOUR_WHEELER", brand: "Maruti Swift" },
+  { id: 4, vehicleNumber: "KA-02-GH-3456", vehicleType: "TWO_WHEELER", brand: "TVS Jupiter" },
 ]
 
 // Quick duration options (popular choices)
@@ -259,7 +260,7 @@ export default function BookSlot() {
               </div>
             </Card>
 
-            {/* Vehicle Selection - Improved */}
+            {/* Vehicle Selection - Improved with Type Matching */}
             <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
               <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -272,8 +273,31 @@ export default function BookSlot() {
                   </button>
                 </div>
                 
+                {/* Show slot vehicle type requirement */}
+                <div className={`mb-4 p-3 rounded-lg border ${
+                  slot.vehicleType === "TWO_WHEELER" 
+                    ? "bg-green-500/10 border-green-500/30" 
+                    : "bg-blue-500/10 border-blue-500/30"
+                }`}>
+                  <p className="text-sm text-white/80">
+                    <span className="text-lg mr-2">{slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
+                    This slot is for <span className="font-bold text-white">{slot.vehicleType === "TWO_WHEELER" ? "Two Wheelers (Bike/Scooter)" : "Four Wheelers (Car/SUV)"}</span>
+                  </p>
+                </div>
+                
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {vehicles.map((vehicle) => (
+                  {vehicles.filter(vehicle => {
+                    // Filter vehicles by slot type to prevent mismatch
+                    const vType = vehicle.vehicleType?.toUpperCase() || ""
+                    const slotType = slot.vehicleType?.toUpperCase() || ""
+                    
+                    if (slotType === "TWO_WHEELER") {
+                      return vType === "TWO_WHEELER" || vType === "BIKE" || vType.includes("BIKE") || vType.includes("SCOOTER")
+                    } else if (slotType === "FOUR_WHEELER") {
+                      return vType === "FOUR_WHEELER" || vType === "CAR" || vType.includes("CAR") || vType.includes("SUV")
+                    }
+                    return true
+                  }).map((vehicle) => (
                     <button
                       key={vehicle.id}
                       onClick={() => setFormData({ ...formData, vehicleId: String(vehicle.id) })}

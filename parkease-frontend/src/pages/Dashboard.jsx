@@ -58,17 +58,29 @@ function Dashboard() {
   }
 
   const handleAreaSelect = (area) => {
-    setSelectedArea(area)
-    // Navigate with both vehicle and area if vehicle is selected
-    if (selectedVehicle) {
-      navigate(`/slots?vehicleType=${selectedVehicle}&area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
-    } else {
-      navigate(`/slots?area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
+    // ENFORCE: Vehicle type must be selected first
+    if (!selectedVehicle) {
+      toast.error("⚠️ Please select your vehicle type first!", {
+        description: "This helps us show only compatible parking slots"
+      })
+      return
     }
+    
+    setSelectedArea(area)
+    // Navigate with both vehicle and area
+    navigate(`/slots?vehicleType=${selectedVehicle}&area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
   }
 
   // GPS Auto-detect location
   const detectLocation = () => {
+    // ENFORCE: Vehicle type must be selected first
+    if (!selectedVehicle) {
+      toast.error("⚠️ Please select your vehicle type first!", {
+        description: "Select Bike or Car before searching for parking"
+      })
+      return
+    }
+    
     setLocationLoading(true)
     
     if ('geolocation' in navigator) {
@@ -79,10 +91,8 @@ function Dashboard() {
           setLocationLoading(false)
           toast.success("Location detected! Redirecting to nearby parking...")
           
-          // Redirect to parking slots page with location
-          let url = `/slots?lat=${latitude}&lng=${longitude}`
-          if (selectedVehicle) url += `&vehicleType=${selectedVehicle}`
-          navigate(url)
+          // Redirect to parking slots page with location AND vehicle type
+          navigate(`/slots?lat=${latitude}&lng=${longitude}&vehicleType=${selectedVehicle}`)
         },
         (error) => {
           setLocationLoading(false)
@@ -104,6 +114,15 @@ function Dashboard() {
   // Handle search submit
   const handleSearchSubmit = (e) => {
     e?.preventDefault()
+    
+    // ENFORCE: Vehicle type must be selected first
+    if (!selectedVehicle) {
+      toast.error("⚠️ Please select your vehicle type first!", {
+        description: "Select Bike or Car before searching for parking"
+      })
+      return
+    }
+    
     if (searchQuery.trim()) {
       // Find matching area
       const matchingArea = popularAreas.find(a => 
@@ -112,26 +131,31 @@ function Dashboard() {
       if (matchingArea) {
         handleAreaSelect(matchingArea)
       } else {
-        // Navigate with search query
-        let url = `/slots?search=${encodeURIComponent(searchQuery)}`
-        if (selectedVehicle) url += `&vehicleType=${selectedVehicle}`
-        navigate(url)
+        // Navigate with search query AND vehicle type
+        navigate(`/slots?search=${encodeURIComponent(searchQuery)}&vehicleType=${selectedVehicle}`)
       }
     } else {
-      navigate("/slots")
+      navigate(`/slots?vehicleType=${selectedVehicle}`)
     }
   }
 
   const handleFindParking = () => {
+    // ENFORCE: Vehicle type must be selected first
+    if (!selectedVehicle) {
+      toast.error("⚠️ Please select your vehicle type first!", {
+        description: "Select Bike or Car to see compatible parking spots"
+      })
+      return
+    }
+    
     let url = "/slots"
-    const params = []
-    if (selectedVehicle) params.push(`vehicleType=${selectedVehicle}`)
+    const params = [`vehicleType=${selectedVehicle}`]
     if (selectedArea) {
       params.push(`area=${encodeURIComponent(selectedArea.name)}`)
       params.push(`lat=${selectedArea.lat}`)
       params.push(`lng=${selectedArea.lng}`)
     }
-    if (params.length > 0) url += `?${params.join("&")}`
+    url += `?${params.join("&")}`
     navigate(url)
   }
 
