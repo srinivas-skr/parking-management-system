@@ -51,6 +51,16 @@ public class BookingServiceImpl implements BookingService {
         if (!vehicle.getUser().getId().equals(userId)) {
             throw new BadRequestException("Vehicle does not belong to you");
         }
+        
+        // CHECK: Vehicle must not have any active booking (BOOKED or ACTIVE status)
+        List<Booking> activeBookingsForVehicle = bookingRepository.findByVehicleIdAndStatusIn(
+            vehicle.getId(), 
+            List.of(Booking.BookingStatus.BOOKED, Booking.BookingStatus.ACTIVE)
+        );
+        if (!activeBookingsForVehicle.isEmpty()) {
+            throw new BadRequestException("Vehicle " + vehicle.getVehicleNumber() + 
+                " already has an active booking. Please checkout first before making a new booking.");
+        }
 
         ParkingSlot slot = slotService.getSlotById(request.getSlotId());
 

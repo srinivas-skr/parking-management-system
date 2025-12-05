@@ -22,6 +22,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     List<Booking> findBySlotIdAndStatus(Long slotId, BookingStatus status);
     
+    // Find active bookings for a specific vehicle (to prevent duplicate bookings)
+    List<Booking> findByVehicleIdAndStatusIn(Long vehicleId, List<BookingStatus> statuses);
+    
     @Query("SELECT b FROM Booking b LEFT JOIN FETCH b.vehicle LEFT JOIN FETCH b.slot WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
     List<Booking> findUserBookingsOrderByDate(@Param("userId") Long userId);
     

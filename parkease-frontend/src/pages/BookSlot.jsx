@@ -27,6 +27,40 @@ const saveDemoBooking = (booking) => {
   localStorage.setItem('demoBookings', JSON.stringify(bookings));
 };
 
+// Check if vehicle already has an active booking (BOOKED, ACTIVE, CONFIRMED)
+const isVehicleAlreadyBooked = (vehicleNumber) => {
+  const demoBookings = getDemoBookings();
+  const activeStatuses = ['BOOKED', 'ACTIVE', 'CONFIRMED', 'booked', 'active', 'confirmed'];
+  
+  return demoBookings.some(booking => {
+    const bookingVehicle = booking.vehicleNumber?.toUpperCase();
+    const checkVehicle = vehicleNumber?.toUpperCase();
+    const isActive = activeStatuses.includes(booking.status);
+    
+    // Check if booking is still valid (not expired)
+    const endTime = new Date(booking.expectedCheckOut || booking.endTime);
+    const isNotExpired = endTime > new Date();
+    
+    return bookingVehicle === checkVehicle && isActive && isNotExpired;
+  });
+};
+
+// Get the active booking for a vehicle (if any)
+const getActiveBookingForVehicle = (vehicleNumber) => {
+  const demoBookings = getDemoBookings();
+  const activeStatuses = ['BOOKED', 'ACTIVE', 'CONFIRMED', 'booked', 'active', 'confirmed'];
+  
+  return demoBookings.find(booking => {
+    const bookingVehicle = booking.vehicleNumber?.toUpperCase();
+    const checkVehicle = vehicleNumber?.toUpperCase();
+    const isActive = activeStatuses.includes(booking.status);
+    const endTime = new Date(booking.expectedCheckOut || booking.endTime);
+    const isNotExpired = endTime > new Date();
+    
+    return bookingVehicle === checkVehicle && isActive && isNotExpired;
+  });
+};
+
 // Demo vehicles for when API returns empty - include both types
 const DEMO_VEHICLES = [
   { id: 1, vehicleNumber: "KA-01-AB-1234", vehicleType: "FOUR_WHEELER", brand: "Honda City" },
@@ -171,6 +205,18 @@ export default function BookSlot() {
       toast.error("Please select booking time")
       return
     }
+    
+    // CHECK: Is vehicle already booked?
+    const selectedVehicle = vehicles.find(v => v.id === parseInt(formData.vehicleId));
+    if (selectedVehicle && isVehicleAlreadyBooked(selectedVehicle.vehicleNumber)) {
+      const existingBooking = getActiveBookingForVehicle(selectedVehicle.vehicleNumber);
+      toast.error(`Vehicle ${selectedVehicle.vehicleNumber} is already booked!`, {
+        description: existingBooking 
+          ? `Active booking at ${existingBooking.location || existingBooking.slotNumber}` 
+          : "Please check out first before making a new booking."
+      });
+      return;
+    }
 
     setShowConfirmModal(true)
   }
@@ -182,6 +228,16 @@ export default function BookSlot() {
       // Check if this is a demo slot (from OSM data) or a real backend slot
       const isDemoSlot = slot.dataSource === 'OpenStreetMap';
       const selectedVehicle = vehicles.find(v => v.id === parseInt(formData.vehicleId));
+      
+      // DOUBLE-CHECK: Vehicle not already booked (in case of race condition)
+      if (selectedVehicle && isVehicleAlreadyBooked(selectedVehicle.vehicleNumber)) {
+        toast.error(`Vehicle ${selectedVehicle.vehicleNumber} is already booked!`, {
+          description: "Cannot create duplicate booking. Please check out first."
+        });
+        setShowConfirmModal(false);
+        setSubmitting(false);
+        return;
+      }
       
       if (isDemoSlot) {
         // For demo slots, save to localStorage and simulate successful booking
