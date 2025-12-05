@@ -46,6 +46,8 @@ export default function ParkingSlots() {
   const [selectedListArea, setSelectedListArea] = useState(null) // For list view area-based navigation
   const [lastUpdated, setLastUpdated] = useState(null) // Real-time update timestamp
   const refreshIntervalRef = useRef(null)
+  const [searchQuery, setSearchQuery] = useState("") // Search input text
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false) // Show/hide area dropdown
   const [filters, setFilters] = useState({
     vehicleType: "all",
     priceRange: "all",
@@ -74,6 +76,17 @@ export default function ParkingSlots() {
       setOpenSearchPopup(true)
     }
   }, [searchParams])
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showSearchDropdown && !e.target.closest('.search-container')) {
+        setShowSearchDropdown(false)
+      }
+    }
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showSearchDropdown])
 
   useEffect(() => {
     // Auto-detect user location
@@ -407,20 +420,55 @@ export default function ParkingSlots() {
           </div>
           
           {/* Row 2: Search Bar */}
-          <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200 mb-2">
-            <Search className="h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search location..."
-              className="flex-1 bg-transparent outline-none text-sm text-gray-800"
-              value={selectedLocation?.name || ""}
-              readOnly
-              onClick={() => document.querySelector('.location-search-input')?.focus()}
-            />
-            {selectedLocation && (
-              <button onClick={() => setSelectedLocation(null)} className="p-1">
-                <X className="h-4 w-4 text-gray-400" />
-              </button>
+          <div className="relative search-container">
+            <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200 mb-2">
+              <Search className="h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search Koramangala, MG Road..."
+                className="flex-1 bg-transparent outline-none text-sm text-gray-800"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setShowSearchDropdown(true)
+                }}
+                onFocus={() => setShowSearchDropdown(true)}
+              />
+              {(searchQuery || selectedLocation) && (
+                <button onClick={() => {
+                  setSearchQuery("")
+                  setSelectedLocation(null)
+                  setShowSearchDropdown(false)
+                }} className="p-1">
+                  <X className="h-4 w-4 text-gray-400" />
+                </button>
+              )}
+            </div>
+            
+            {/* Search Dropdown - Mobile */}
+            {showSearchDropdown && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                {popularAreas
+                  .filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map(area => (
+                    <button
+                      key={area.name}
+                      onClick={() => {
+                        setSelectedLocation(area)
+                        setSearchQuery(area.name)
+                        setShowSearchDropdown(false)
+                        toast.success(`Showing parking near ${area.name}`)
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-50 text-left border-b border-gray-100 last:border-0"
+                    >
+                      <span className="text-xl">{area.icon}</span>
+                      <span className="font-medium text-gray-800">{area.name}</span>
+                    </button>
+                  ))}
+                {popularAreas.filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                  <div className="px-4 py-3 text-sm text-gray-500">No areas found</div>
+                )}
+              </div>
             )}
           </div>
           
@@ -482,24 +530,32 @@ export default function ParkingSlots() {
             </button>
             
             {/* Search Bar with Inline Filters */}
-            <div className="flex-1 flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white focus-within:shadow-md transition-all">
-              <Search className="h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search parking near Koramangala, MG Road..."
-                className="flex-1 bg-transparent outline-none text-gray-800"
-                value={selectedLocation?.name || ""}
-                readOnly
-                onClick={() => document.querySelector('.location-search-input')?.focus()}
-              />
-              {selectedLocation && (
-                <button onClick={() => setSelectedLocation(null)} className="p-1 hover:bg-gray-200 rounded-full">
-                  <X className="h-4 w-4 text-gray-500" />
-                </button>
-              )}
-              
-              {/* Inline Filters (Desktop only) */}
-              <div className="flex items-center gap-3 border-l border-gray-300 pl-4">
+            <div className="relative flex-1 search-container">
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus-within:border-purple-500 focus-within:bg-white focus-within:shadow-md transition-all">
+                <Search className="h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search parking near Koramangala, MG Road..."
+                  className="flex-1 bg-transparent outline-none text-gray-800"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    setShowSearchDropdown(true)
+                  }}
+                  onFocus={() => setShowSearchDropdown(true)}
+                />
+                {(searchQuery || selectedLocation) && (
+                  <button onClick={() => {
+                    setSearchQuery("")
+                    setSelectedLocation(null)
+                    setShowSearchDropdown(false)
+                  }} className="p-1 hover:bg-gray-200 rounded-full">
+                    <X className="h-4 w-4 text-gray-500" />
+                  </button>
+                )}
+                
+                {/* Inline Filters (Desktop only) */}
+                <div className="flex items-center gap-3 border-l border-gray-300 pl-4">
                 <select 
                   value={freeFilter}
                   onChange={(e) => setFreeFilter(e.target.value)}
@@ -528,7 +584,34 @@ export default function ParkingSlots() {
                   <option value="price-low">Cheapest First</option>
                   <option value="price-high">Highest Price</option>
                 </select>
+                </div>
               </div>
+              
+              {/* Search Dropdown - Desktop */}
+              {showSearchDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                  {popularAreas
+                    .filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map(area => (
+                      <button
+                        key={area.name}
+                        onClick={() => {
+                          setSelectedLocation(area)
+                          setSearchQuery(area.name)
+                          setShowSearchDropdown(false)
+                          toast.success(`Showing parking near ${area.name}`)
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-50 text-left border-b border-gray-100 last:border-0 transition-colors"
+                      >
+                        <span className="text-2xl">{area.icon}</span>
+                        <span className="font-medium text-gray-800">{area.name}</span>
+                      </button>
+                    ))}
+                  {popularAreas.filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                    <div className="px-4 py-3 text-sm text-gray-500">No areas found matching "{searchQuery}"</div>
+                  )}
+                </div>
+              )}
             </div>
             
             {/* View Toggle (Desktop only) */}
