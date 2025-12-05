@@ -145,8 +145,10 @@ export default function ParkingSlots() {
       console.log(`🅿️ Total slots from backend: ${slotsData.length}`)
       
       // Filter to show only AVAILABLE slots to prevent user confusion
+      // Backend uses "status" field, normalize to check both
       const availableSlots = slotsData.filter(slot => 
-        slot.slotStatus === 'AVAILABLE' || slot.slotStatus === 'available'
+        slot.status === 'AVAILABLE' || slot.slotStatus === 'AVAILABLE' ||
+        slot.status === 'available' || slot.slotStatus === 'available'
       )
       
       console.log(`✅ Available slots after filter: ${availableSlots.length}`)
@@ -159,9 +161,15 @@ export default function ParkingSlots() {
         setFilteredSlots(fallbackData)
         toast.info(`Using ${fallbackData.length} demo parking locations (backend has no available slots)`)
       } else {
-        setSlots(availableSlots)
-        setFilteredSlots(availableSlots)
-        toast.success(`Loaded ${availableSlots.length} available parking slots`)
+        // Normalize slots to have consistent field names
+        const normalizedSlots = availableSlots.map(slot => ({
+          ...slot,
+          slotStatus: slot.status || slot.slotStatus,
+          pricePerHour: slot.pricePerHour || 0
+        }))
+        setSlots(normalizedSlots)
+        setFilteredSlots(normalizedSlots)
+        toast.success(`Loaded ${normalizedSlots.length} available parking slots from backend`)
       }
       
       setLastUpdated(new Date())
