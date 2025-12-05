@@ -61,9 +61,12 @@ export default function ParkingSlots() {
     const lat = searchParams.get("lat")
     const lng = searchParams.get("lng")
 
-    // Set vehicle type filter if provided
+    console.log(`🚗 URL params - vehicleType: ${vehicleType}, area: ${area}`)
+
+    // Set vehicle type filter if provided - STRICT ENFORCEMENT
     if (vehicleType) {
-      setFilters(prev => ({ ...prev, vehicleType }))
+      console.log(`✅ Setting vehicle type filter to: ${vehicleType}`)
+      setFilters(prev => ({ ...prev, vehicleType: vehicleType.toUpperCase() }))
     }
 
     if (area && lat && lng) {
@@ -244,18 +247,27 @@ export default function ParkingSlots() {
       })
     }
 
-    // Filter by vehicle type FIRST (before other filters)
-    if (filters.vehicleType !== "all") {
-      // Support both backend enums (TWO_WHEELER/FOUR_WHEELER) and frontend labels (Bike/Car)
+    // Filter by vehicle type FIRST AND STRICTLY (before other filters)
+    if (filters.vehicleType && filters.vehicleType !== "all") {
+      const filterType = filters.vehicleType.toUpperCase()
+      console.log(`🔍 Filtering by vehicle type: ${filterType}`)
+      
       filtered = filtered.filter((slot) => {
-        const vt = (slot.vehicleType || "").toString().toUpperCase()
-        const filterType = filters.vehicleType.toUpperCase()
-        return (
-          vt === filterType ||
-          (filterType === "TWO_WHEELER" && (vt === "BIKE" || vt === "TWO_WHEELER")) ||
-          (filterType === "FOUR_WHEELER" && (vt === "CAR" || vt === "FOUR_WHEELER"))
-        )
+        const slotVehicleType = (slot.vehicleType || "").toString().toUpperCase()
+        
+        // Strict matching - TWO_WHEELER only shows bikes, FOUR_WHEELER only shows cars
+        if (filterType === "TWO_WHEELER") {
+          const isBike = slotVehicleType === "TWO_WHEELER" || slotVehicleType === "BIKE" || slotVehicleType === "TWO WHEELER"
+          return isBike
+        } else if (filterType === "FOUR_WHEELER") {
+          const isCar = slotVehicleType === "FOUR_WHEELER" || slotVehicleType === "CAR" || slotVehicleType === "FOUR WHEELER"
+          return isCar
+        }
+        
+        return slotVehicleType === filterType
       })
+      
+      console.log(`✅ After vehicle filter: ${filtered.length} slots`)
     }
 
     // Filter by free/paid selection
