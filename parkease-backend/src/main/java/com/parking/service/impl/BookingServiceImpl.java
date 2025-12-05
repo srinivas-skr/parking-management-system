@@ -58,7 +58,7 @@ public class BookingServiceImpl implements BookingService {
             List.of(Booking.BookingStatus.BOOKED, Booking.BookingStatus.ACTIVE)
         );
         if (!activeBookingsForVehicle.isEmpty()) {
-            throw new BadRequestException("Vehicle " + vehicle.getVehicleNumber() + 
+            throw new BadRequestException("Vehicle " + vehicle.getLicensePlate() + 
                 " already has an active booking. Please checkout first before making a new booking.");
         }
 
