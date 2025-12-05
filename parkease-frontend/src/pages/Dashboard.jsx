@@ -445,9 +445,91 @@ function Dashboard() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 5: STEP 2 - CHOOSE YOUR AREA (Only shows after vehicle is selected)
+            SECTION 4B: STEP 2 - ENTER VEHICLE DETAILS (Shows after vehicle type selected)
         ═══════════════════════════════════════════════════════ */}
-        {selectedVehicle && (
+        {selectedVehicle && currentStep === 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
+            className="bg-gradient-to-br from-purple-50 to-indigo-100 rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-purple-200"
+          >
+            {/* Section Header */}
+            <div className="flex items-center gap-3 mb-5 sm:mb-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
+                2
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Enter Vehicle Details</h2>
+                <p className="text-slate-500 text-sm sm:text-base">
+                  Add your {selectedVehicle === "TWO_WHEELER" ? "🏍️ Bike/Scooter" : "🚗 Car/SUV"} details
+                </p>
+              </div>
+            </div>
+
+            {/* Vehicle Form */}
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-inner">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Vehicle Number */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Vehicle Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={vehicleNumber}
+                    onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+                    placeholder="e.g., KA-01-AB-1234"
+                    className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base font-medium uppercase transition-colors"
+                  />
+                </div>
+
+                {/* Vehicle Brand/Name */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Brand / Model (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={vehicleBrand}
+                    onChange={(e) => setVehicleBrand(e.target.value)}
+                    placeholder={selectedVehicle === "TWO_WHEELER" ? "e.g., Honda Activa" : "e.g., Maruti Swift"}
+                    className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Add Vehicle Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAddVehicle}
+                disabled={addingVehicle || !vehicleNumber.trim()}
+                className="mt-6 w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {addingVehicle ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Adding Vehicle...
+                  </>
+                ) : (
+                  <>
+                    <span>Continue to Select Location →</span>
+                  </>
+                )}
+              </motion.button>
+
+              <p className="mt-3 text-center text-sm text-slate-500">
+                Your vehicle will be saved to "My Vehicles" for future bookings
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════
+            SECTION 5: STEP 3 - CHOOSE YOUR AREA (Only shows after vehicle details entered)
+        ═══════════════════════════════════════════════════════ */}
+        {selectedVehicle && currentStep >= 3 && (
         <motion.div
           id="area-selection-section"
           initial={{ opacity: 0, y: 20 }}
@@ -457,8 +539,8 @@ function Dashboard() {
         >
           {/* Section Header */}
           <div className="flex items-center gap-3 mb-5 sm:mb-6">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
-              2
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
+              3
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Choose Your Area</h2>
@@ -474,22 +556,32 @@ function Dashboard() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 * index }}
-                whileHover={{ scale: 1.05, y: -2 }}
+                whileHover={{ scale: 1.08, y: -5, boxShadow: "0 20px 25px -5px rgba(147, 51, 234, 0.2), 0 10px 10px -5px rgba(147, 51, 234, 0.1)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleAreaSelect(area)}
-                className={`relative border-2 rounded-xl p-4 sm:p-5 transition-all duration-300 text-left
+                className={`group relative border-2 rounded-xl p-4 sm:p-5 transition-all duration-300 text-left cursor-pointer overflow-hidden
                   ${selectedArea?.name === area.name 
-                    ? "border-purple-500 bg-purple-50 shadow-lg" 
-                    : "border-slate-200 bg-white hover:border-purple-400 hover:shadow-md"}`}
+                    ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-100 shadow-xl shadow-purple-200/50" 
+                    : "border-slate-200 bg-white hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-white"}`}
               >
+                {/* Hover Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/0 via-purple-400/10 to-indigo-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
                 {/* Number Badge */}
-                <div className="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">
+                <div className="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
                   {index + 1}
                 </div>
                 
-                <div className="text-3xl sm:text-4xl mb-2">{area.icon}</div>
-                <h3 className="font-bold text-slate-900 text-sm sm:text-base">{area.name}</h3>
-                <p className="text-xs sm:text-sm text-slate-500">{area.slots}+ spots</p>
+                <div className="relative z-10">
+                  <div className="text-3xl sm:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">{area.icon}</div>
+                  <h3 className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-purple-700 transition-colors">{area.name}</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 group-hover:text-purple-500 transition-colors">{area.slots}+ spots</p>
+                </div>
+                
+                {/* Arrow indicator on hover */}
+                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                  <span className="text-purple-600 font-bold">→</span>
+                </div>
               </motion.button>
             ))}
           </div>
