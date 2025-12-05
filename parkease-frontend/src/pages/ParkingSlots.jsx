@@ -213,30 +213,34 @@ export default function ParkingSlots() {
       filtered = filtered.filter((slot) => slot.distance <= maxDistance)
     }
 
-    // Filter by location (if selected)
+    // STRICT location filter - only show slots within 3km of selected area
     if (selectedLocation) {
       filtered = filtered.filter((slot) => {
         const slotLat = parseFloat(slot.latitude)
         const slotLng = parseFloat(slot.longitude)
+        // Skip slots without valid coordinates
+        if (isNaN(slotLat) || isNaN(slotLng)) return false
+        
         const distance = calculateDistance(
           selectedLocation.lat,
           selectedLocation.lng,
           slotLat,
           slotLng
         )
-        return distance <= 5 // Within 5km
+        return distance <= 3 // Strict: Within 3km only
       })
     }
 
-    // Filter by vehicle type
+    // Filter by vehicle type FIRST (before other filters)
     if (filters.vehicleType !== "all") {
       // Support both backend enums (TWO_WHEELER/FOUR_WHEELER) and frontend labels (Bike/Car)
       filtered = filtered.filter((slot) => {
-        const vt = (slot.vehicleType || "").toString()
+        const vt = (slot.vehicleType || "").toString().toUpperCase()
+        const filterType = filters.vehicleType.toUpperCase()
         return (
-          vt === filters.vehicleType ||
-          (filters.vehicleType === "TWO_WHEELER" && (vt === "Bike" || vt === "TWO_WHEELER")) ||
-          (filters.vehicleType === "FOUR_WHEELER" && (vt === "Car" || vt === "FOUR_WHEELER"))
+          vt === filterType ||
+          (filterType === "TWO_WHEELER" && (vt === "BIKE" || vt === "TWO_WHEELER")) ||
+          (filterType === "FOUR_WHEELER" && (vt === "CAR" || vt === "FOUR_WHEELER"))
         )
       })
     }
