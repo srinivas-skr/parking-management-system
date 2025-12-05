@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import { UserPlus, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react"
+import { UserPlus, Mail, Lock, User, ArrowLeft } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
@@ -12,11 +12,9 @@ export default function Register() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
-    fullName: "",
-    phoneNumber: ""
+    fullName: ""
   })
 
   const handleChange = (e) => {
@@ -30,7 +28,7 @@ export default function Register() {
     e.preventDefault()
     
     // Basic validation
-    if (!formData.username || !formData.email || !formData.password || !formData.fullName) {
+    if (!formData.email || !formData.password || !formData.fullName) {
       toast.error("Please fill in all required fields")
       return
     }
@@ -44,7 +42,13 @@ export default function Register() {
       setLoading(true)
       toast.loading("Creating your account...", { id: "register" })
 
-      await api.post("/auth/register", formData)
+      // Generate username from email (part before @)
+      const username = formData.email.split('@')[0]
+      
+      await api.post("/auth/register", {
+        ...formData,
+        username: username
+      })
       
       toast.success("Account created! Please login.", { id: "register" })
       
@@ -116,26 +120,6 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Username */}
-            <div>
-              <Label htmlFor="username" className="text-gray-700 font-medium">
-                Username *
-              </Label>
-              <div className="relative mt-2">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  placeholder="johndoe"
-                />
-              </div>
-            </div>
-
             {/* Email */}
             <div>
               <Label htmlFor="email" className="text-gray-700 font-medium">
@@ -152,25 +136,6 @@ export default function Register() {
                   onChange={handleChange}
                   className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                   placeholder="john@example.com"
-                />
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div>
-              <Label htmlFor="phoneNumber" className="text-gray-700 font-medium">
-                Phone Number
-              </Label>
-              <div className="relative mt-2">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  placeholder="1234567890"
                 />
               </div>
             </div>
