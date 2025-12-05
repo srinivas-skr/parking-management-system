@@ -203,6 +203,7 @@ const rawOsmData = [
 
 /**
  * Generate realistic dynamic availability and pricing
+ * RULE: Every location must have at least some slots available (minimum 5-15)
  */
 const generateDynamicData = (spot) => {
   // Simulate realistic capacity (20-500 based on type)
@@ -218,9 +219,11 @@ const generateDynamicData = (spot) => {
   const typeConfig = capacityByType[spot.type] || capacityByType.default;
   const capacity = spot.capacity || Math.floor(Math.random() * (typeConfig.max - typeConfig.min) + typeConfig.min);
   
-  // Simulate current availability (40-95% of capacity)
-  const occupancyRate = 0.4 + Math.random() * 0.55;
-  const available = Math.floor(capacity * (1 - occupancyRate));
+  // RULE: Always keep minimum 5-15 slots available (never fully booked)
+  // This ensures every location has at least some availability
+  const minAvailable = Math.max(5, Math.floor(capacity * 0.05)); // At least 5% or 5 slots
+  const maxAvailable = Math.floor(capacity * 0.6); // Max 60% available
+  const available = Math.floor(Math.random() * (maxAvailable - minAvailable) + minAvailable);
   
   // Determine if free based on OSM data or random (15% free)
   const isFree = spot.fee === false || (spot.fee === null && Math.random() < 0.15);
@@ -246,26 +249,17 @@ const generateDynamicData = (spot) => {
     }
   }
   
-  // Determine vehicle type (70% four-wheeler for structured parking, 60% two-wheeler for street)
-  const isTwoWheeler = spot.type === 'street' || spot.type === 'lane' 
-    ? Math.random() < 0.6 
-    : Math.random() < 0.3;
-  
-  // Availability status
-  const availableSpots = available;
+  // Availability status - since we always have minimum slots, never FULL
   let availability = 'AVAILABLE';
-  if (availableSpots === 0) {
-    availability = 'FULL';
-  } else if (availableSpots < capacity * 0.1) {
+  if (available < capacity * 0.1) {
     availability = 'LIMITED';
   }
   
   return {
     capacity,
-    available: availableSpots,
+    available,
     pricePerHour,
     isFree,
-    vehicleType: isTwoWheeler ? 'TWO_WHEELER' : 'FOUR_WHEELER',
     availability,
     parkingType: spot.type || 'surface',
     operator: spot.operator,
