@@ -55,7 +55,10 @@ export default function BookingCard({ booking, onCheckIn, onCheckOut, onCancel }
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100">
                 <MapPin className="h-4 w-4 text-purple-600" />
               </div>
-              <span className="font-medium">{booking.location || booking.slot?.location || "Location not available"}</span>
+              <span className="font-medium">
+                {booking.location || booking.areaName || booking.slot?.location || booking.slot?.address || 
+                 (booking.slotNumber ? `Near ${booking.slotNumber.split('-')[0]}` : "Bengaluru")}
+              </span>
             </div>
 
             <div className="flex items-center gap-3 text-sm text-gray-700">

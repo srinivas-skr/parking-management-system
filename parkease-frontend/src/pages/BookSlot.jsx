@@ -245,13 +245,18 @@ export default function BookSlot() {
         
         const cost = calculateCost();
         
+        // Build proper location string from available data
+        const locationString = slot.address || slot.location || slot.areaName || 
+          (slot.name ? slot.name.split(' - ')[0] : 'Bengaluru');
+        
         // Create demo booking object with ALL field names for compatibility
         const demoBooking = {
           id: Date.now(), // Unique ID
           bookingCode: `DEMO-${Date.now().toString(36).toUpperCase()}`,
           slotId: slot.id,
           slotNumber: slot.slotNumber || slot.name,
-          location: slot.location || slot.address || slot.name,
+          location: locationString,
+          areaName: slot.areaName || locationString,
           vehicleNumber: selectedVehicle?.vehicleNumber || 'N/A',
           vehicleType: slot.vehicleType,
           // Include BOTH field name formats for BookingCard compatibility
@@ -299,12 +304,16 @@ export default function BookSlot() {
         console.log("Backend slot check failed, treating as demo booking:", checkError)
         
         const cost = calculateCost();
+        const locationString = slot.address || slot.location || slot.areaName || 
+          (slot.name ? slot.name.split(' - ')[0] : 'Bengaluru');
+        
         const demoBooking = {
           id: Date.now(),
           bookingCode: `BK-${Date.now().toString(36).toUpperCase()}`,
           slotId: slot.id,
           slotNumber: slot.slotNumber || slot.name,
-          location: slot.location || slot.address || slot.name,
+          location: locationString,
+          areaName: slot.areaName || locationString,
           vehicleNumber: selectedVehicle?.vehicleNumber || 'N/A',
           vehicleType: slot.vehicleType,
           checkInTime: formData.checkInTime,
