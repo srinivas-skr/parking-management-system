@@ -230,15 +230,45 @@ export default function BookSlot() {
         const slotCheckRes = await api.get(`/slots/${slotId}`)
         const currentSlot = slotCheckRes.data.data || slotCheckRes.data
         
-        if (currentSlot.slotStatus !== 'AVAILABLE') {
+        // Backend uses "status" field, not "slotStatus"
+        const slotStatus = currentSlot.status || currentSlot.slotStatus
+        if (slotStatus !== 'AVAILABLE') {
           toast.error("Sorry! This slot was just booked by someone else.")
           setShowConfirmModal(false)
           navigate('/slots', { replace: true })
           return
         }
       } catch (checkError) {
-        // If check fails, proceed with booking anyway for demo purposes
-        console.log("Slot check failed, proceeding with booking...");
+        // If check fails, treat as demo booking (save to localStorage)
+        console.log("Backend slot check failed, treating as demo booking:", checkError)
+        
+        const cost = calculateCost();
+        const demoBooking = {
+          id: Date.now(),
+          bookingCode: `BK-${Date.now().toString(36).toUpperCase()}`,
+          slotId: slot.id,
+          slotNumber: slot.slotNumber || slot.name,
+          location: slot.location || slot.address || slot.name,
+          vehicleNumber: selectedVehicle?.vehicleNumber || 'N/A',
+          vehicleType: slot.vehicleType,
+          checkInTime: formData.checkInTime,
+          expectedCheckOut: formData.checkOutTime,
+          startTime: formData.checkInTime,
+          endTime: formData.checkOutTime,
+          totalCost: cost,
+          totalAmount: cost,
+          status: 'BOOKED',
+          createdAt: new Date().toISOString(),
+          isDemo: true
+        };
+        
+        saveDemoBooking(demoBooking);
+        toast.success("Booking created successfully! 🎉", {
+          description: `Slot ${slot.slotNumber || slot.name} reserved for ${selectedDuration} hours`,
+        });
+        setShowConfirmModal(false);
+        navigate("/bookings");
+        return;
       }
       
       await api.post("/bookings", {
