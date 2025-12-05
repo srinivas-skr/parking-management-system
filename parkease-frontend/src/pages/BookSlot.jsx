@@ -12,6 +12,21 @@ import { toast } from 'sonner'
 import api from "../services/api"
 import { getRealtimeParkingData } from "../data/osmParkingData"
 
+// Helper to get/save demo bookings from localStorage
+const getDemoBookings = () => {
+  try {
+    return JSON.parse(localStorage.getItem('demoBookings') || '[]');
+  } catch {
+    return [];
+  }
+};
+
+const saveDemoBooking = (booking) => {
+  const bookings = getDemoBookings();
+  bookings.push(booking);
+  localStorage.setItem('demoBookings', JSON.stringify(bookings));
+};
+
 // Demo vehicles for when API returns empty - include both types
 const DEMO_VEHICLES = [
   { id: 1, vehicleNumber: "KA-01-AB-1234", vehicleType: "FOUR_WHEELER", brand: "Honda City" },
@@ -166,10 +181,37 @@ export default function BookSlot() {
       
       // Check if this is a demo slot (from OSM data) or a real backend slot
       const isDemoSlot = slot.dataSource === 'OpenStreetMap';
+      const selectedVehicle = vehicles.find(v => v.id === parseInt(formData.vehicleId));
       
       if (isDemoSlot) {
-        // For demo slots, simulate successful booking
+        // For demo slots, save to localStorage and simulate successful booking
         console.log("📌 Demo booking for OSM slot:", slot.id);
+        
+        const cost = calculateCost();
+        
+        // Create demo booking object with ALL field names for compatibility
+        const demoBooking = {
+          id: Date.now(), // Unique ID
+          bookingCode: `DEMO-${Date.now().toString(36).toUpperCase()}`,
+          slotId: slot.id,
+          slotNumber: slot.slotNumber || slot.name,
+          location: slot.location || slot.address || slot.name,
+          vehicleNumber: selectedVehicle?.vehicleNumber || 'N/A',
+          vehicleType: slot.vehicleType,
+          // Include BOTH field name formats for BookingCard compatibility
+          checkInTime: formData.checkInTime,
+          expectedCheckOut: formData.checkOutTime,
+          startTime: formData.checkInTime,   // Alias for BookingCard
+          endTime: formData.checkOutTime,    // Alias for BookingCard
+          totalCost: cost,
+          totalAmount: cost,                  // Alias for BookingCard
+          status: 'BOOKED',
+          createdAt: new Date().toISOString(),
+          isDemo: true
+        };
+        
+        // Save to localStorage
+        saveDemoBooking(demoBooking);
         
         // Simulate a brief delay
         await new Promise(resolve => setTimeout(resolve, 800));

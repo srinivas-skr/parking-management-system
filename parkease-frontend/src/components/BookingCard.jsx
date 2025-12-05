@@ -23,6 +23,11 @@ export default function BookingCard({ booking, onCheckIn, onCheckOut, onCancel }
   const canCheckIn = booking.status === "BOOKED"
   const canCheckOut = booking.status === "ACTIVE"
   const canCancel = booking.status === "BOOKED"
+  
+  // Handle both backend format (startTime/endTime) and demo format (checkInTime/expectedCheckOut)
+  const startTime = booking.startTime || booking.checkInTime;
+  const endTime = booking.endTime || booking.expectedCheckOut;
+  const totalAmount = booking.totalAmount || booking.totalCost || 0;
 
   return (
     <motion.div
@@ -36,7 +41,9 @@ export default function BookingCard({ booking, onCheckIn, onCheckOut, onCancel }
           <div className="mb-4 flex items-start justify-between">
             <div>
               <h3 className="mb-1 text-lg font-bold text-gray-900">{booking.slotNumber || booking.slot?.name || "Parking Slot"}</h3>
-              <p className="text-sm font-medium text-gray-500">Code: {booking.bookingCode || `#${booking.id}`}</p>
+              <p className="text-sm font-medium text-gray-500">
+                {booking.isDemo ? "🎯 Demo" : ""} Code: {booking.bookingCode || `#${booking.id}`}
+              </p>
             </div>
             <Badge className={`${statusColors[booking.status] || statusColors.BOOKED} font-semibold px-3 py-1`}>
               {booking.status}
@@ -55,14 +62,16 @@ export default function BookingCard({ booking, onCheckIn, onCheckOut, onCancel }
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100">
                 <Car className="h-4 w-4 text-blue-600" />
               </div>
-              <span className="font-medium">{booking.vehicleNumber || booking.vehicle?.vehicleNumber || "Vehicle not available"}</span>
+              <span className="font-medium">
+                {booking.vehicleType === 'TWO_WHEELER' ? '🏍️' : '🚗'} {booking.vehicleNumber || booking.vehicle?.vehicleNumber || "Vehicle not available"}
+              </span>
             </div>
 
             <div className="flex items-center gap-3 text-sm text-gray-700">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100">
                 <Calendar className="h-4 w-4 text-indigo-600" />
               </div>
-              <span className="font-medium">{booking.startTime ? format(new Date(booking.startTime), "MMM dd, yyyy") : "N/A"}</span>
+              <span className="font-medium">{startTime ? format(new Date(startTime), "MMM dd, yyyy") : "N/A"}</span>
             </div>
 
             <div className="flex items-center gap-3 text-sm text-gray-700">
@@ -70,8 +79,8 @@ export default function BookingCard({ booking, onCheckIn, onCheckOut, onCancel }
                 <Clock className="h-4 w-4 text-cyan-600" />
               </div>
               <span className="font-medium">
-                {booking.startTime ? format(new Date(booking.startTime), "hh:mm a") : "N/A"} -{" "}
-                {booking.endTime ? format(new Date(booking.endTime), "hh:mm a") : "N/A"}
+                {startTime ? format(new Date(startTime), "hh:mm a") : "N/A"} -{" "}
+                {endTime ? format(new Date(endTime), "hh:mm a") : "N/A"}
               </span>
             </div>
 
@@ -79,7 +88,7 @@ export default function BookingCard({ booking, onCheckIn, onCheckOut, onCancel }
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-green-100 to-emerald-100">
                 <IndianRupee className="h-4 w-4 text-green-600" />
               </div>
-              <span className="text-xl font-bold text-green-600">₹ {booking.totalAmount?.toFixed(2) || booking.totalCost?.toFixed(2) || "0.00"}</span>
+              <span className="text-xl font-bold text-green-600">₹ {Number(totalAmount).toFixed(2)}</span>
             </div>
           </div>
 

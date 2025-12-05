@@ -10,6 +10,29 @@ import Skeleton from "../components/ui/skeleton"
 import { toast } from 'sonner'
 import api from "../services/api"
 
+// Helper to get demo bookings from localStorage
+const getDemoBookings = () => {
+  try {
+    return JSON.parse(localStorage.getItem('demoBookings') || '[]');
+  } catch {
+    return [];
+  }
+};
+
+// Helper to remove demo booking
+const removeDemoBooking = (bookingId) => {
+  const bookings = getDemoBookings().filter(b => b.id !== bookingId);
+  localStorage.setItem('demoBookings', JSON.stringify(bookings));
+};
+
+// Helper to update demo booking status
+const updateDemoBookingStatus = (bookingId, newStatus) => {
+  const bookings = getDemoBookings().map(b => 
+    b.id === bookingId ? { ...b, status: newStatus } : b
+  );
+  localStorage.setItem('demoBookings', JSON.stringify(bookings));
+};
+
 export default function Bookings() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
@@ -21,18 +44,40 @@ export default function Bookings() {
 
   const fetchBookings = async () => {
     try {
-      const response = await api.get("/bookings")
-      // Backend returns List<BookingResponse> directly, not wrapped in ApiResponse
-      setBookings(response.data || [])
+      // Get demo bookings from localStorage
+      const demoBookings = getDemoBookings();
+      
+      // Try to get real bookings from backend
+      let backendBookings = [];
+      try {
+        const response = await api.get("/bookings");
+        backendBookings = response.data || [];
+      } catch (error) {
+        console.log("Backend bookings not available, using demo bookings only");
+      }
+      
+      // Combine both, demo bookings first (most recent)
+      const allBookings = [...demoBookings.reverse(), ...backendBookings];
+      setBookings(allBookings);
     } catch (error) {
       console.error("Failed to fetch bookings:", error)
-      toast.error(error.response?.data?.message || "Failed to fetch bookings")
+      // Still show demo bookings even if there's an error
+      setBookings(getDemoBookings().reverse());
     } finally {
       setLoading(false)
     }
   }
 
   const handleCheckIn = async (bookingId) => {
+    // Check if it's a demo booking
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking?.isDemo) {
+      updateDemoBookingStatus(bookingId, 'ACTIVE');
+      toast.success("Checked in successfully");
+      fetchBookings();
+      return;
+    }
+    
     try {
       // Backend uses POST, not PATCH
       await api.post(`/bookings/${bookingId}/checkin`)
@@ -45,6 +90,15 @@ export default function Bookings() {
   }
 
   const handleCheckOut = async (bookingId) => {
+    // Check if it's a demo booking
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking?.isDemo) {
+      updateDemoBookingStatus(bookingId, 'COMPLETED');
+      toast.success("Checked out successfully");
+      fetchBookings();
+      return;
+    }
+    
     try {
       // Backend uses POST, not PATCH
       await api.post(`/bookings/${bookingId}/checkout`)
@@ -58,6 +112,15 @@ export default function Bookings() {
 
   const handleCancel = async (bookingId) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return
+
+    // Check if it's a demo booking
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking?.isDemo) {
+      removeDemoBooking(bookingId);
+      toast.success("Booking cancelled successfully");
+      fetchBookings();
+      return;
+    }
 
     try {
       await api.delete(`/bookings/${bookingId}`)
