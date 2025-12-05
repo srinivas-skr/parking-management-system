@@ -99,21 +99,15 @@ function Dashboard() {
     toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected!`)
   }
   
-  // Select existing vehicle and move to location
+  // Select existing vehicle and go directly to Find Parking
   const handleSelectExistingVehicle = (vehicle) => {
     setSelectedExistingVehicle(vehicle)
     setVehicleNumber(vehicle.vehicleNumber)
     setVehicleBrand(vehicle.brand || "")
-    setCurrentStep(3) // Move to location selection
     toast.success(`Selected ${vehicle.vehicleNumber}`)
     
-    // Scroll to location section
-    setTimeout(() => {
-      const locationSection = document.getElementById('location-selection-section')
-      if (locationSection) {
-        locationSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 300)
+    // Go directly to Find Parking page with vehicle info
+    navigate(`/slots?vehicleType=${selectedVehicle}&vehicleNumber=${encodeURIComponent(vehicle.vehicleNumber)}`)
   }
   
   // NEW: Add vehicle and move to location selection
@@ -144,15 +138,13 @@ function Dashboard() {
     }
     
     setAddingVehicle(false)
-    setCurrentStep(3) // Move to location selection
     
-    // Scroll to location section
+    // Go directly to Find Parking page with vehicle info
+    navigate(`/slots?vehicleType=${selectedVehicle}&vehicleNumber=${encodeURIComponent(vehicleNumber.toUpperCase())}`)
+    
+    // Remove scroll - we're navigating away
+    /*
     setTimeout(() => {
-      const locationSection = document.getElementById('location-selection-section')
-      if (locationSection) {
-        locationSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 300)
   }
 
   const handleAreaSelect = (area) => {
@@ -682,89 +674,7 @@ function Dashboard() {
           </motion.div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════
-            SECTION 5: STEP 2 - CHOOSE YOUR AREA (Only shows after vehicle details entered in popup)
-        ═══════════════════════════════════════════════════════ */}
-        {selectedVehicle && currentStep >= 3 && (
-        <motion.div
-          id="location-selection-section"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-100"
-        >
-          {/* Section Header */}
-          <div className="flex items-center gap-3 mb-5 sm:mb-6">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
-              2
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Choose Your Area</h2>
-              <p className="text-slate-500 text-sm sm:text-base">
-                Parking for <span className="font-semibold text-purple-600">{vehicleNumber}</span> 
-                {selectedVehicle === "TWO_WHEELER" ? " 🏍️" : " 🚗"}
-              </p>
-            </div>
-          </div>
-
-          {/* Area Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {popularAreas.map((area, index) => (
-              <motion.button
-                key={area.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * index }}
-                whileHover={{ scale: 1.08, y: -5, boxShadow: "0 20px 25px -5px rgba(147, 51, 234, 0.2), 0 10px 10px -5px rgba(147, 51, 234, 0.1)" }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleAreaSelect(area)}
-                className={`group relative border-2 rounded-xl p-4 sm:p-5 transition-all duration-300 text-left cursor-pointer overflow-hidden
-                  ${selectedArea?.name === area.name 
-                    ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-100 shadow-xl shadow-purple-200/50" 
-                    : "border-slate-200 bg-white hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-50 hover:to-white"}`}
-              >
-                {/* Hover Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/0 via-purple-400/10 to-indigo-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                {/* Number Badge */}
-                <div className="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
-                  {index + 1}
-                </div>
-                
-                <div className="relative z-10">
-                  <div className="text-3xl sm:text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">{area.icon}</div>
-                  <h3 className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-purple-700 transition-colors">{area.name}</h3>
-                  <p className="text-xs sm:text-sm text-slate-500 group-hover:text-purple-500 transition-colors">{area.slots}+ spots</p>
-                </div>
-                
-                {/* Arrow indicator on hover */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                  <span className="text-purple-600 font-bold">→</span>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          {/* BIG Search Button */}
-          <div className="mt-6 sm:mt-8 text-center">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleFindParking}
-              className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full text-lg sm:text-xl font-bold shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-2"
-            >
-              <Search className="h-5 w-5 sm:h-6 sm:w-6" />
-              Find Parking Now
-            </motion.button>
-            {selectedVehicle && (
-              <p className="mt-3 text-sm text-slate-500">
-                Searching for <span className="font-semibold text-purple-600">{selectedVehicle === "TWO_WHEELER" ? "Bike" : "Car"}</span> parking
-                {selectedArea && <> near <span className="font-semibold text-purple-600">{selectedArea.name}</span></>}
-              </p>
-            )}
-          </div>
-        </motion.div>
-        )}
+        {/* REMOVED: Area selection step - now goes directly to Find Parking page with map search */}
 
         {/* Bottom Spacer for Mobile Nav */}
         <div className="h-20 md:h-0" />

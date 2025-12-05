@@ -419,14 +419,14 @@ export default function ParkingSlots() {
             )}
           </div>
           
-          {/* Row 2: Search Bar */}
+          {/* Row 2: PROMINENT Search Bar with Location Suggestions */}
           <div className="relative search-container">
-            <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200 mb-2">
-              <Search className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl px-4 py-3 border-2 border-purple-200 shadow-sm mb-2">
+              <MapPin className="h-5 w-5 text-purple-500" />
               <input
                 type="text"
-                placeholder="Search Koramangala, MG Road..."
-                className="flex-1 bg-transparent outline-none text-sm text-gray-800"
+                placeholder="📍 Search area: Koramangala, MG Road..."
+                className="flex-1 bg-transparent outline-none text-sm text-gray-800 font-medium placeholder:text-gray-500"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
@@ -445,35 +445,69 @@ export default function ParkingSlots() {
               )}
             </div>
             
-            {/* Search Dropdown - Mobile */}
+            {/* Search Dropdown - Mobile - ENHANCED with better styling */}
             {showSearchDropdown && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 bg-white border-2 border-purple-100 rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto mt-1">
+                <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100">
+                  <span className="text-xs font-semibold text-purple-600">📍 Popular Locations</span>
+                </div>
                 {popularAreas
                   .filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map(area => (
+                  .map((area, index) => (
                     <button
                       key={area.name}
                       onClick={() => {
                         setSelectedLocation(area)
                         setSearchQuery(area.name)
                         setShowSearchDropdown(false)
+                        setOpenSearchPopup(true)
                         toast.success(`Showing parking near ${area.name}`)
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-50 text-left border-b border-gray-100 last:border-0"
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 text-left border-b border-gray-100 last:border-0 transition-colors"
                     >
-                      <span className="text-xl">{area.icon}</span>
-                      <span className="font-medium text-gray-800">{area.name}</span>
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-xl">{area.icon}</span>
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-semibold text-gray-800">{area.name}</span>
+                        <p className="text-xs text-gray-500">Bengaluru</p>
+                      </div>
+                      <span className="text-purple-500 text-sm">→</span>
                     </button>
                   ))}
                 {popularAreas.filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
-                  <div className="px-4 py-3 text-sm text-gray-500">No areas found</div>
+                  <div className="px-4 py-3 text-sm text-gray-500 text-center">No areas found matching "{searchQuery}"</div>
                 )}
+              </div>
+            )}
+            
+            {/* SHOW AREA SUGGESTIONS INLINE when no location selected and not searching */}
+            {!selectedLocation && !showSearchDropdown && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-500 mb-2">Quick select area:</p>
+                <div className="flex flex-wrap gap-2">
+                  {popularAreas.slice(0, 6).map(area => (
+                    <button
+                      key={area.name}
+                      onClick={() => {
+                        setSelectedLocation(area)
+                        setSearchQuery(area.name)
+                        setOpenSearchPopup(true)
+                        toast.success(`Showing parking near ${area.name}`)
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-purple-200 rounded-full text-xs font-medium text-gray-700 hover:bg-purple-50 hover:border-purple-400 transition-colors"
+                    >
+                      <span>{area.icon}</span>
+                      <span>{area.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
           
           {/* Row 3: Filters (Horizontal scroll) */}
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 mt-3">
             <select 
               value={freeFilter}
               onChange={(e) => setFreeFilter(e.target.value)}
@@ -587,29 +621,65 @@ export default function ParkingSlots() {
                 </div>
               </div>
               
-              {/* Search Dropdown - Desktop */}
+              {/* Search Dropdown - Desktop - ENHANCED */}
               {showSearchDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
-                  {popularAreas
-                    .filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                    .map(area => (
-                      <button
-                        key={area.name}
-                        onClick={() => {
-                          setSelectedLocation(area)
-                          setSearchQuery(area.name)
-                          setShowSearchDropdown(false)
-                          toast.success(`Showing parking near ${area.name}`)
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-50 text-left border-b border-gray-100 last:border-0 transition-colors"
-                      >
-                        <span className="text-2xl">{area.icon}</span>
-                        <span className="font-medium text-gray-800">{area.name}</span>
-                      </button>
-                    ))}
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-purple-100 rounded-2xl shadow-2xl z-50 max-h-96 overflow-y-auto">
+                  <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100 rounded-t-2xl">
+                    <span className="text-sm font-semibold text-purple-700">📍 Select Location in Bengaluru</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1 p-2">
+                    {popularAreas
+                      .filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .map((area, index) => (
+                        <button
+                          key={area.name}
+                          onClick={() => {
+                            setSelectedLocation(area)
+                            setSearchQuery(area.name)
+                            setShowSearchDropdown(false)
+                            setOpenSearchPopup(true)
+                            toast.success(`Showing parking near ${area.name}`)
+                          }}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 rounded-xl text-left transition-all hover:scale-[1.02]"
+                        >
+                          <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl flex items-center justify-center shadow-sm">
+                            <span className="text-2xl">{area.icon}</span>
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-semibold text-gray-800">{area.name}</span>
+                            <p className="text-xs text-gray-500">Bengaluru</p>
+                          </div>
+                        </button>
+                      ))}
+                  </div>
                   {popularAreas.filter(area => area.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
-                    <div className="px-4 py-3 text-sm text-gray-500">No areas found matching "{searchQuery}"</div>
+                    <div className="px-4 py-6 text-center text-gray-500">
+                      <span className="text-3xl mb-2 block">🔍</span>
+                      No areas found matching "{searchQuery}"
+                    </div>
                   )}
+                </div>
+              )}
+              
+              {/* INLINE AREA CHIPS - Show when no location selected (Desktop) */}
+              {!selectedLocation && !showSearchDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 flex flex-wrap gap-2 bg-white/90 backdrop-blur-sm rounded-xl p-3 border border-purple-100 shadow-md">
+                  <span className="text-xs text-gray-500 w-full mb-1">📍 Quick select:</span>
+                  {popularAreas.slice(0, 8).map(area => (
+                    <button
+                      key={area.name}
+                      onClick={() => {
+                        setSelectedLocation(area)
+                        setSearchQuery(area.name)
+                        setOpenSearchPopup(true)
+                        toast.success(`Showing parking near ${area.name}`)
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-purple-100 rounded-full text-sm font-medium text-gray-700 hover:bg-purple-50 hover:border-purple-400 hover:scale-105 transition-all shadow-sm"
+                    >
+                      <span>{area.icon}</span>
+                      <span>{area.name}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
