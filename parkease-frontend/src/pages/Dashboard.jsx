@@ -141,10 +141,6 @@ function Dashboard() {
     
     // Go directly to Find Parking page with vehicle info
     navigate(`/slots?vehicleType=${selectedVehicle}&vehicleNumber=${encodeURIComponent(vehicleNumber.toUpperCase())}`)
-    
-    // Remove scroll - we're navigating away
-    /*
-    setTimeout(() => {
   }
 
   const handleAreaSelect = (area) => {
