@@ -26,6 +26,7 @@ function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [bookings, setBookings] = useState([])
+  const [vehicles, setVehicles] = useState([]) // User's vehicles
   const [loading, setLoading] = useState(true)
   const [selectedVehicle, setSelectedVehicle] = useState(null)
   const [selectedArea, setSelectedArea] = useState(null)
@@ -38,6 +39,8 @@ function Dashboard() {
   const [vehicleNumber, setVehicleNumber] = useState("")
   const [vehicleBrand, setVehicleBrand] = useState("")
   const [addingVehicle, setAddingVehicle] = useState(false)
+  const [showAddNew, setShowAddNew] = useState(false) // Toggle between list and add new form
+  const [selectedExistingVehicle, setSelectedExistingVehicle] = useState(null) // Selected from existing list
 
   useEffect(() => {
     fetchData()
@@ -46,22 +49,71 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       setLoading(true)
+      
+      // Fetch bookings
       const bookingsResult = await api.get("/bookings").catch(() => ({ data: [] }))
       if (bookingsResult.data) {
         setBookings(Array.isArray(bookingsResult.data) ? bookingsResult.data : [])
       }
+      
+      // Fetch user's vehicles
+      const vehiclesResult = await api.get("/vehicles").catch(() => ({ data: [] }))
+      if (vehiclesResult.data) {
+        setVehicles(Array.isArray(vehiclesResult.data) ? vehiclesResult.data : [])
+      }
     } catch (error) {
       console.error("❌ Failed to fetch data:", error)
       setBookings([])
+      setVehicles([])
     } finally {
       setLoading(false)
     }
+  }
+  
+  // Get available vehicles (not currently parked) filtered by vehicle type
+  const getAvailableVehicles = () => {
+    // Get vehicle numbers that are currently in active bookings
+    const parkedVehicleNumbers = bookings
+      .filter(b => b.status === "ACTIVE" || b.status === "CONFIRMED" || b.status === "active" || b.status === "confirmed")
+      .map(b => b.vehicleNumber?.toUpperCase())
+      .filter(Boolean)
+    
+    // Filter user's vehicles: match type AND not currently parked
+    return vehicles.filter(v => {
+      const vehicleType = v.vehicleType?.toUpperCase()
+      const matchesType = selectedVehicle === "TWO_WHEELER" 
+        ? (vehicleType === "TWO_WHEELER" || vehicleType === "BIKE" || vehicleType === "SCOOTER")
+        : (vehicleType === "FOUR_WHEELER" || vehicleType === "CAR" || vehicleType === "SUV")
+      const isNotParked = !parkedVehicleNumbers.includes(v.vehicleNumber?.toUpperCase())
+      return matchesType && isNotParked
+    })
   }
 
   const handleVehicleSelect = (vehicleType) => {
     setSelectedVehicle(vehicleType)
     setCurrentStep(2) // Move to vehicle details step
-    toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected! Now enter your vehicle details.`)
+    setShowAddNew(false) // Reset to show existing vehicles first
+    setSelectedExistingVehicle(null)
+    setVehicleNumber("")
+    setVehicleBrand("")
+    toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected!`)
+  }
+  
+  // Select existing vehicle and move to location
+  const handleSelectExistingVehicle = (vehicle) => {
+    setSelectedExistingVehicle(vehicle)
+    setVehicleNumber(vehicle.vehicleNumber)
+    setVehicleBrand(vehicle.brand || "")
+    setCurrentStep(3) // Move to location selection
+    toast.success(`Selected ${vehicle.vehicleNumber}`)
+    
+    // Scroll to location section
+    setTimeout(() => {
+      const locationSection = document.getElementById('location-selection-section')
+      if (locationSection) {
+        locationSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 300)
   }
   
   // NEW: Add vehicle and move to location selection
@@ -81,6 +133,11 @@ function Dashboard() {
         brand: vehicleBrand || (selectedVehicle === "TWO_WHEELER" ? "Bike" : "Car")
       })
       toast.success("Vehicle added successfully!")
+      // Refresh vehicles list
+      const vehiclesResult = await api.get("/vehicles").catch(() => ({ data: [] }))
+      if (vehiclesResult.data) {
+        setVehicles(Array.isArray(vehiclesResult.data) ? vehiclesResult.data : [])
+      }
     } catch (error) {
       // Even if backend fails, continue (for demo mode)
       console.log("Backend vehicle add failed, continuing in demo mode")
@@ -445,7 +502,7 @@ function Dashboard() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            POPUP MODAL: ENTER VEHICLE DETAILS (Appears after vehicle selection, disappears after submit)
+            POPUP MODAL: SELECT OR ADD VEHICLE (Appears after vehicle type selection)
         ═══════════════════════════════════════════════════════ */}
         {selectedVehicle && currentStep === 2 && (
           <motion.div
@@ -458,6 +515,7 @@ function Dashboard() {
               if (e.target === e.currentTarget) {
                 setCurrentStep(1)
                 setSelectedVehicle(null)
+                setShowAddNew(false)
               }
             }}
           >
@@ -466,7 +524,7 @@ function Dashboard() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-md mx-auto relative"
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-md mx-auto relative max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
@@ -474,6 +532,7 @@ function Dashboard() {
                 onClick={() => {
                   setCurrentStep(1)
                   setSelectedVehicle(null)
+                  setShowAddNew(false)
                 }}
                 className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors"
               >
@@ -485,65 +544,140 @@ function Dashboard() {
                 <div className="text-5xl mb-3">
                   {selectedVehicle === "TWO_WHEELER" ? "🏍️" : "🚗"}
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900">Enter Vehicle Details</h2>
+                <h2 className="text-2xl font-bold text-slate-900">
+                  {showAddNew ? "Add New Vehicle" : "Select Vehicle"}
+                </h2>
                 <p className="text-slate-500 mt-1">
-                  Add your {selectedVehicle === "TWO_WHEELER" ? "Bike/Scooter" : "Car/SUV"} info
+                  {showAddNew 
+                    ? `Add your ${selectedVehicle === "TWO_WHEELER" ? "Bike/Scooter" : "Car/SUV"} info`
+                    : `Choose your ${selectedVehicle === "TWO_WHEELER" ? "Bike/Scooter" : "Car/SUV"}`
+                  }
                 </p>
               </div>
 
-              {/* Vehicle Form */}
-              <div className="space-y-4">
-                {/* Vehicle Number */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Vehicle Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={vehicleNumber}
-                    onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                    placeholder="e.g., KA-01-AB-1234"
-                    autoFocus
-                    className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base font-medium uppercase transition-colors"
-                  />
-                </div>
-
-                {/* Vehicle Brand/Name */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Brand / Model (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={vehicleBrand}
-                    onChange={(e) => setVehicleBrand(e.target.value)}
-                    placeholder={selectedVehicle === "TWO_WHEELER" ? "e.g., Honda Activa" : "e.g., Maruti Swift"}
-                    className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base transition-colors"
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleAddVehicle}
-                  disabled={addingVehicle || !vehicleNumber.trim()}
-                  className="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {addingVehicle ? (
+              {/* ═══ EXISTING VEHICLES LIST ═══ */}
+              {!showAddNew && (
+                <div className="space-y-3">
+                  {getAvailableVehicles().length > 0 ? (
                     <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Adding...
+                      <p className="text-sm font-medium text-slate-600 mb-3">Your available vehicles:</p>
+                      {getAvailableVehicles().map((vehicle, index) => (
+                        <motion.button
+                          key={vehicle.id || index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          onClick={() => handleSelectExistingVehicle(vehicle)}
+                          className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 hover:from-purple-50 hover:to-indigo-50 border-2 border-slate-200 hover:border-purple-400 rounded-xl transition-all group"
+                        >
+                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform">
+                            {selectedVehicle === "TWO_WHEELER" ? "🏍️" : "🚗"}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="font-bold text-slate-900 text-lg">{vehicle.vehicleNumber}</p>
+                            <p className="text-sm text-slate-500">{vehicle.brand || (selectedVehicle === "TWO_WHEELER" ? "Two Wheeler" : "Four Wheeler")}</p>
+                          </div>
+                          <div className="text-purple-600 font-semibold group-hover:translate-x-1 transition-transform">
+                            Select →
+                          </div>
+                        </motion.button>
+                      ))}
                     </>
                   ) : (
-                    <>Continue to Select Location →</>
+                    <div className="text-center py-6 bg-slate-50 rounded-xl">
+                      <div className="text-4xl mb-3">📭</div>
+                      <p className="text-slate-600 font-medium">No available {selectedVehicle === "TWO_WHEELER" ? "bikes" : "cars"}</p>
+                      <p className="text-sm text-slate-400 mt-1">All vehicles are currently parked or none added yet</p>
+                    </div>
                   )}
-                </motion.button>
 
-                <p className="text-center text-xs text-slate-400">
-                  Vehicle will be saved to "My Vehicles"
-                </p>
-              </div>
+                  {/* Divider */}
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-3 bg-white text-slate-500">or</span>
+                    </div>
+                  </div>
+
+                  {/* Add New Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowAddNew(true)}
+                    className="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">+</span> Add New Vehicle
+                  </motion.button>
+                </div>
+              )}
+
+              {/* ═══ ADD NEW VEHICLE FORM ═══ */}
+              {showAddNew && (
+                <div className="space-y-4">
+                  {/* Back button */}
+                  {getAvailableVehicles().length > 0 && (
+                    <button
+                      onClick={() => setShowAddNew(false)}
+                      className="flex items-center gap-2 text-slate-500 hover:text-purple-600 transition-colors mb-2"
+                    >
+                      <span>←</span> Back to vehicle list
+                    </button>
+                  )}
+
+                  {/* Vehicle Number */}
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Vehicle Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={vehicleNumber}
+                      onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+                      placeholder="e.g., KA-01-AB-1234"
+                      autoFocus
+                      className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base font-medium uppercase transition-colors"
+                    />
+                  </div>
+
+                  {/* Vehicle Brand/Name */}
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Brand / Model (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={vehicleBrand}
+                      onChange={(e) => setVehicleBrand(e.target.value)}
+                      placeholder={selectedVehicle === "TWO_WHEELER" ? "e.g., Honda Activa" : "e.g., Maruti Swift"}
+                      className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base transition-colors"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleAddVehicle}
+                    disabled={addingVehicle || !vehicleNumber.trim()}
+                    className="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {addingVehicle ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      <>Continue to Select Location →</>
+                    )}
+                  </motion.button>
+
+                  <p className="text-center text-xs text-slate-400">
+                    Vehicle will be saved to "My Vehicles"
+                  </p>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
