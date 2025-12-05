@@ -48,10 +48,16 @@ export default function ParkingSlots() {
   const refreshIntervalRef = useRef(null)
   const [searchQuery, setSearchQuery] = useState("") // Search input text
   const [showSearchDropdown, setShowSearchDropdown] = useState(false) // Show/hide area dropdown
-  const [filters, setFilters] = useState({
-    vehicleType: "all",
-    priceRange: "all",
-    status: "AVAILABLE",
+  const [filters, setFilters] = useState(() => {
+    // Initialize filters from URL params immediately
+    const urlParams = new URLSearchParams(window.location.search)
+    const vehicleType = urlParams.get("vehicleType")
+    console.log(`🚀 Initial vehicleType from URL: ${vehicleType}`)
+    return {
+      vehicleType: vehicleType ? vehicleType.toUpperCase() : "all",
+      priceRange: "all",
+      status: "AVAILABLE",
+    }
   })
 
   // Handle URL parameters from Dashboard
@@ -184,8 +190,11 @@ export default function ParkingSlots() {
       // This ensures every location has slots for both vehicle types
       const combinedSlots = [...backendSlots, ...osmData]
       
+      console.log(`📦 Total combined slots: ${combinedSlots.length}`)
+      console.log(`🔍 Current vehicle filter: ${filters.vehicleType}`)
+      
       setSlots(combinedSlots)
-      setFilteredSlots(combinedSlots)
+      // DON'T set filteredSlots directly - let applyFilters handle it via useEffect
       
       if (backendSlots.length > 0) {
         toast.success(`Loaded ${backendSlots.length} real + ${osmData.length} demo parking spots`)
