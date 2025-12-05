@@ -130,46 +130,51 @@ export default function ParkingSlots() {
   const fetchSlots = async () => {
     try {
       setLoading(true)
-      // Fetch real parking slots from backend API
-      const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots'
-      console.log('🔗 Fetching from:', apiUrl)
       
-      const response = await fetch(apiUrl)
+      // Always get OSM data as base (129 locations × 2 vehicle types = 258 slots)
+      const osmData = getRealtimeParkingData()
+      console.log(`📍 OSM data: ${osmData.length} demo slots`)
       
-      if (!response.ok) {
-        throw new Error(`Backend returned ${response.status}`)
+      // Try to fetch real parking slots from backend API
+      let backendSlots = []
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots'
+        console.log('🔗 Fetching from:', apiUrl)
+        
+        const response = await fetch(apiUrl)
+        
+        if (response.ok) {
+          const slotsData = await response.json()
+          console.log(`🅿️ Backend response: ${slotsData.length} slots`)
+          
+          // Filter to show only AVAILABLE slots
+          backendSlots = slotsData.filter(slot => 
+            slot.status === 'AVAILABLE' || slot.slotStatus === 'AVAILABLE' ||
+            slot.status === 'available' || slot.slotStatus === 'available'
+          ).map(slot => ({
+            ...slot,
+            slotStatus: slot.status || slot.slotStatus,
+            pricePerHour: slot.pricePerHour || 0,
+            dataSource: 'Backend'
+          }))
+          
+          console.log(`✅ Available backend slots: ${backendSlots.length}`)
+        }
+      } catch (error) {
+        console.log('⚠️ Backend unavailable, using OSM data only')
       }
       
-      const slotsData = await response.json()
-      console.log(`🅿️ Backend response:`, slotsData)
-      console.log(`🅿️ Total slots from backend: ${slotsData.length}`)
+      // COMBINE: Backend slots (priority) + OSM slots (for coverage)
+      // This ensures every location has slots for both vehicle types
+      const combinedSlots = [...backendSlots, ...osmData]
       
-      // Filter to show only AVAILABLE slots to prevent user confusion
-      // Backend uses "status" field, normalize to check both
-      const availableSlots = slotsData.filter(slot => 
-        slot.status === 'AVAILABLE' || slot.slotStatus === 'AVAILABLE' ||
-        slot.status === 'available' || slot.slotStatus === 'available'
-      )
+      setSlots(combinedSlots)
+      setFilteredSlots(combinedSlots)
       
-      console.log(`✅ Available slots after filter: ${availableSlots.length}`)
-      
-      if (availableSlots.length === 0) {
-        console.warn('⚠️ Backend returned 0 available slots, using OSM fallback')
-        // Fallback to OSM data if no slots available
-        const fallbackData = getRealtimeParkingData()
-        setSlots(fallbackData)
-        setFilteredSlots(fallbackData)
-        toast.info(`Using ${fallbackData.length} demo parking locations (backend has no available slots)`)
+      if (backendSlots.length > 0) {
+        toast.success(`Loaded ${backendSlots.length} real + ${osmData.length} demo parking spots`)
       } else {
-        // Normalize slots to have consistent field names
-        const normalizedSlots = availableSlots.map(slot => ({
-          ...slot,
-          slotStatus: slot.status || slot.slotStatus,
-          pricePerHour: slot.pricePerHour || 0
-        }))
-        setSlots(normalizedSlots)
-        setFilteredSlots(normalizedSlots)
-        toast.success(`Loaded ${normalizedSlots.length} available parking slots from backend`)
+        toast.info(`Using ${osmData.length} demo parking locations`)
       }
       
       setLastUpdated(new Date())
