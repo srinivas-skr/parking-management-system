@@ -32,6 +32,12 @@ function Dashboard() {
   const [userLocation, setUserLocation] = useState(null)
   const [locationLoading, setLocationLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  
+  // NEW: Step-based flow
+  const [currentStep, setCurrentStep] = useState(1) // 1=vehicle type, 2=vehicle details, 3=location
+  const [vehicleNumber, setVehicleNumber] = useState("")
+  const [vehicleBrand, setVehicleBrand] = useState("")
+  const [addingVehicle, setAddingVehicle] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -54,26 +60,45 @@ function Dashboard() {
 
   const handleVehicleSelect = (vehicleType) => {
     setSelectedVehicle(vehicleType)
-    toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected! Now choose your area below.`)
+    setCurrentStep(2) // Move to vehicle details step
+    toast.success(`${vehicleType === "TWO_WHEELER" ? "Bike" : "Car"} selected! Now enter your vehicle details.`)
+  }
+  
+  // NEW: Add vehicle and move to location selection
+  const handleAddVehicle = async () => {
+    if (!vehicleNumber.trim()) {
+      toast.error("Please enter your vehicle number")
+      return
+    }
     
-    // Auto-scroll to area selection section
+    setAddingVehicle(true)
+    
+    try {
+      // Try to add vehicle to backend
+      await api.post("/vehicles", {
+        vehicleNumber: vehicleNumber.toUpperCase(),
+        vehicleType: selectedVehicle,
+        brand: vehicleBrand || (selectedVehicle === "TWO_WHEELER" ? "Bike" : "Car")
+      })
+      toast.success("Vehicle added successfully!")
+    } catch (error) {
+      // Even if backend fails, continue (for demo mode)
+      console.log("Backend vehicle add failed, continuing in demo mode")
+    }
+    
+    setAddingVehicle(false)
+    setCurrentStep(3) // Move to location selection
+    
+    // Scroll to location section
     setTimeout(() => {
-      const areaSection = document.getElementById('area-selection-section')
-      if (areaSection) {
-        areaSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const locationSection = document.getElementById('location-selection-section')
+      if (locationSection) {
+        locationSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }, 300)
   }
 
   const handleAreaSelect = (area) => {
-    // ENFORCE: Vehicle type must be selected first
-    if (!selectedVehicle) {
-      toast.error("⚠️ Please select your vehicle type first!", {
-        description: "This helps us show only compatible parking slots"
-      })
-      return
-    }
-    
     setSelectedArea(area)
     // Navigate with both vehicle and area
     navigate(`/slots?vehicleType=${selectedVehicle}&area=${encodeURIComponent(area.name)}&lat=${area.lat}&lng=${area.lng}`)
@@ -81,11 +106,9 @@ function Dashboard() {
 
   // GPS Auto-detect location - WITH IMPROVED ERROR HANDLING
   const detectLocation = () => {
-    // ENFORCE: Vehicle type must be selected first
-    if (!selectedVehicle) {
-      toast.error("⚠️ Please select your vehicle type first!", {
-        description: "Select Bike or Car before searching for parking"
-      })
+    // ENFORCE: Must complete vehicle steps first
+    if (currentStep < 3) {
+      toast.error("⚠️ Please complete vehicle details first!")
       return
     }
     
@@ -151,11 +174,9 @@ function Dashboard() {
   const handleSearchSubmit = (e) => {
     e?.preventDefault()
     
-    // ENFORCE: Vehicle type must be selected first
-    if (!selectedVehicle) {
-      toast.error("⚠️ Please select your vehicle type first!", {
-        description: "Select Bike or Car before searching for parking"
-      })
+    // ENFORCE: Must complete vehicle steps first
+    if (currentStep < 3) {
+      toast.error("⚠️ Please complete vehicle details first!")
       return
     }
     
@@ -176,11 +197,9 @@ function Dashboard() {
   }
 
   const handleFindParking = () => {
-    // ENFORCE: Vehicle type must be selected first
-    if (!selectedVehicle) {
-      toast.error("⚠️ Please select your vehicle type first!", {
-        description: "Select Bike or Car to see compatible parking spots"
-      })
+    // ENFORCE: Must complete vehicle steps first
+    if (currentStep < 3) {
+      toast.error("⚠️ Please complete vehicle details first!")
       return
     }
     
@@ -325,79 +344,9 @@ function Dashboard() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 3: LOCATION SEARCH (NEW)
+            SECTION 3: LOCATION SEARCH - HIDDEN (User selects vehicle first, then area)
         ═══════════════════════════════════════════════════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-100"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <MapPin className="h-7 w-7 sm:h-8 sm:w-8 text-purple-600" />
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Find Parking Near You</h2>
-          </div>
-          
-          <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3 sm:gap-4">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search location (e.g., Koramangala, MG Road)..."
-                className="w-full h-12 sm:h-14 pl-12 pr-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base sm:text-lg transition-colors"
-              />
-            </div>
-            
-            {/* Use My Location Button */}
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={detectLocation}
-              disabled={locationLoading}
-              className="h-12 sm:h-14 px-5 sm:px-8 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 sm:gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-            >
-              {locationLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span className="hidden sm:inline">Detecting...</span>
-                </>
-              ) : (
-                <>
-                  <Navigation className="h-5 w-5" />
-                  <span className="hidden sm:inline">Use My Location</span>
-                  <span className="sm:hidden">GPS</span>
-                </>
-              )}
-            </motion.button>
-            
-            {/* Search Button */}
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="h-12 sm:h-14 px-6 sm:px-8 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 sm:gap-3 transition-all"
-            >
-              <Search className="h-5 w-5" />
-              <span>Search</span>
-            </motion.button>
-          </form>
-          
-          {/* Location Status */}
-          {userLocation && userLocation.lat != null && userLocation.lng != null && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 text-sm text-green-600 flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg"
-            >
-              <span>✅</span>
-              <span>Location detected: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</span>
-            </motion.div>
-          )}
-        </motion.div>
+        {/* Search section removed - users now select vehicle type first, then choose area */}
 
         {/* ═══════════════════════════════════════════════════════
             SECTION 4: STEP 1 - CHOOSE YOUR VEHICLE
@@ -496,8 +445,9 @@ function Dashboard() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 5: STEP 2 - CHOOSE YOUR AREA
+            SECTION 5: STEP 2 - CHOOSE YOUR AREA (Only shows after vehicle is selected)
         ═══════════════════════════════════════════════════════ */}
+        {selectedVehicle && (
         <motion.div
           id="area-selection-section"
           initial={{ opacity: 0, y: 20 }}
@@ -512,7 +462,7 @@ function Dashboard() {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Choose Your Area</h2>
-              <p className="text-slate-500 text-sm sm:text-base">Where do you need parking?</p>
+              <p className="text-slate-500 text-sm sm:text-base">Where do you need parking for your {selectedVehicle === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}?</p>
             </div>
           </div>
 
@@ -563,6 +513,7 @@ function Dashboard() {
             )}
           </div>
         </motion.div>
+        )}
 
         {/* Bottom Spacer for Mobile Nav */}
         <div className="h-20 md:h-0" />
