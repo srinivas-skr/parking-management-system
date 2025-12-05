@@ -445,31 +445,54 @@ function Dashboard() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 4B: STEP 2 - ENTER VEHICLE DETAILS (Shows after vehicle type selected)
+            POPUP MODAL: ENTER VEHICLE DETAILS (Appears after vehicle selection, disappears after submit)
         ═══════════════════════════════════════════════════════ */}
         {selectedVehicle && currentStep === 2 && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
-            className="bg-gradient-to-br from-purple-50 to-indigo-100 rounded-2xl p-5 sm:p-6 shadow-xl border-2 border-purple-200"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={(e) => {
+              // Close if clicking backdrop
+              if (e.target === e.currentTarget) {
+                setCurrentStep(1)
+                setSelectedVehicle(null)
+              }
+            }}
           >
-            {/* Section Header */}
-            <div className="flex items-center gap-3 mb-5 sm:mb-6">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
-                2
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Enter Vehicle Details</h2>
-                <p className="text-slate-500 text-sm sm:text-base">
-                  Add your {selectedVehicle === "TWO_WHEELER" ? "🏍️ Bike/Scooter" : "🚗 Car/SUV"} details
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-md mx-auto relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setCurrentStep(1)
+                  setSelectedVehicle(null)
+                }}
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                ✕
+              </button>
+
+              {/* Modal Header */}
+              <div className="text-center mb-6">
+                <div className="text-5xl mb-3">
+                  {selectedVehicle === "TWO_WHEELER" ? "🏍️" : "🚗"}
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900">Enter Vehicle Details</h2>
+                <p className="text-slate-500 mt-1">
+                  Add your {selectedVehicle === "TWO_WHEELER" ? "Bike/Scooter" : "Car/SUV"} info
                 </p>
               </div>
-            </div>
 
-            {/* Vehicle Form */}
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-inner">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Vehicle Form */}
+              <div className="space-y-4">
                 {/* Vehicle Number */}
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -480,6 +503,7 @@ function Dashboard() {
                     value={vehicleNumber}
                     onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
                     placeholder="e.g., KA-01-AB-1234"
+                    autoFocus
                     className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base font-medium uppercase transition-colors"
                   />
                 </div>
@@ -497,41 +521,39 @@ function Dashboard() {
                     className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:outline-none text-base transition-colors"
                   />
                 </div>
+
+                {/* Submit Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleAddVehicle}
+                  disabled={addingVehicle || !vehicleNumber.trim()}
+                  className="w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {addingVehicle ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>Continue to Select Location →</>
+                  )}
+                </motion.button>
+
+                <p className="text-center text-xs text-slate-400">
+                  Vehicle will be saved to "My Vehicles"
+                </p>
               </div>
-
-              {/* Add Vehicle Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleAddVehicle}
-                disabled={addingVehicle || !vehicleNumber.trim()}
-                className="mt-6 w-full h-14 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {addingVehicle ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Adding Vehicle...
-                  </>
-                ) : (
-                  <>
-                    <span>Continue to Select Location →</span>
-                  </>
-                )}
-              </motion.button>
-
-              <p className="mt-3 text-center text-sm text-slate-500">
-                Your vehicle will be saved to "My Vehicles" for future bookings
-              </p>
-            </div>
+            </motion.div>
           </motion.div>
         )}
 
         {/* ═══════════════════════════════════════════════════════
-            SECTION 5: STEP 3 - CHOOSE YOUR AREA (Only shows after vehicle details entered)
+            SECTION 5: STEP 2 - CHOOSE YOUR AREA (Only shows after vehicle details entered in popup)
         ═══════════════════════════════════════════════════════ */}
         {selectedVehicle && currentStep >= 3 && (
         <motion.div
-          id="area-selection-section"
+          id="location-selection-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -540,11 +562,14 @@ function Dashboard() {
           {/* Section Header */}
           <div className="flex items-center gap-3 mb-5 sm:mb-6">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
-              3
+              2
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Choose Your Area</h2>
-              <p className="text-slate-500 text-sm sm:text-base">Where do you need parking for your {selectedVehicle === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}?</p>
+              <p className="text-slate-500 text-sm sm:text-base">
+                Parking for <span className="font-semibold text-purple-600">{vehicleNumber}</span> 
+                {selectedVehicle === "TWO_WHEELER" ? " 🏍️" : " 🚗"}
+              </p>
             </div>
           </div>
 
