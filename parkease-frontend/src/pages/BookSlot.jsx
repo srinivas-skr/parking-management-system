@@ -10,6 +10,7 @@ import Navbar from "../components/Navbar"
 import BookingConfirmationModal from "../components/BookingConfirmationModal"
 import { toast } from 'sonner'
 import api from "../services/api"
+import { getRealtimeParkingData } from "../data/osmParkingData"
 
 // Demo vehicles for when API returns empty - include both types
 const DEMO_VEHICLES = [
@@ -60,18 +61,43 @@ export default function BookSlot() {
 
   const fetchSlotAndVehicles = async () => {
     try {
-      const [slotRes, vehiclesRes] = await Promise.all([api.get(`/slots/${slotId}`), api.get("/vehicles")])
-      const slotData = slotRes.data.data || slotRes.data
+      // First try to get slot from backend API
+      let slotData = null;
+      
+      try {
+        const slotRes = await api.get(`/slots/${slotId}`);
+        slotData = slotRes.data.data || slotRes.data;
+      } catch (slotError) {
+        console.log("Backend slot not found, checking OSM demo data...");
+        // Fallback to OSM demo data if backend doesn't have the slot
+        const osmData = getRealtimeParkingData();
+        slotData = osmData.find(s => String(s.id) === String(slotId));
+        
+        if (!slotData) {
+          toast.error("Slot not found");
+          navigate('/slots', { replace: true });
+          return;
+        }
+      }
       
       // Check if slot is available before allowing booking
-      if (slotData.slotStatus !== 'AVAILABLE') {
+      if (slotData.slotStatus !== 'AVAILABLE' && slotData.status !== 'AVAILABLE') {
         toast.error("This parking slot is no longer available")
         navigate('/slots', { replace: true })
         return
       }
       
       setSlot(slotData)
-      const vehicleData = vehiclesRes.data || []
+      
+      // Try to fetch user's vehicles
+      let vehicleData = [];
+      try {
+        const vehiclesRes = await api.get("/vehicles");
+        vehicleData = vehiclesRes.data || [];
+      } catch (vehicleError) {
+        console.log("Failed to fetch vehicles, using demo vehicles");
+      }
+      
       console.log("🚗 Vehicles loaded:", vehicleData)
       
       // Use demo vehicles if none returned

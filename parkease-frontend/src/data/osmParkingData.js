@@ -275,31 +275,67 @@ const generateDynamicData = (spot) => {
 
 /**
  * Convert OSM data to app-compatible format
+ * Creates entries for BOTH vehicle types for each location to ensure
+ * filtering works properly regardless of vehicle type selection
+ * Uses numeric IDs for compatibility with booking system
  */
 export const processOsmParkingData = () => {
-  return rawOsmData.map((spot, index) => {
-    const dynamicData = generateDynamicData(spot);
+  const processedSpots = [];
+  let globalId = 1; // Use sequential numeric IDs for booking compatibility
+  
+  rawOsmData.forEach((spot, index) => {
+    // Generate data for FOUR_WHEELER
+    const fourWheelerData = generateDynamicData(spot);
+    fourWheelerData.vehicleType = 'FOUR_WHEELER';
     
-    return {
-      id: index + 1,
+    processedSpots.push({
+      id: globalId++,
       osmId: spot.osmId,
       name: spot.name,
       address: spot.address,
       latitude: spot.lat,
       longitude: spot.lng,
-      ...dynamicData,
-      // Distance will be calculated dynamically based on user location
+      ...fourWheelerData,
+      location: spot.address || spot.name,
+      slotNumber: `P${globalId - 1}`,
       distance: null,
-      // Rating simulation (3.5 - 5.0)
       rating: Number((3.5 + Math.random() * 1.5).toFixed(1)),
-      // Reviews count (10 - 500)
       reviewCount: Math.floor(10 + Math.random() * 490),
-      // Opening hours (most are 24/7, some are limited)
       openingHours: Math.random() < 0.8 ? '24/7' : '6:00 AM - 11:00 PM',
-      // Data source attribution
-      dataSource: 'OpenStreetMap'
-    };
+      dataSource: 'OpenStreetMap',
+      status: 'AVAILABLE',
+      slotStatus: 'AVAILABLE'
+    });
+    
+    // Generate data for TWO_WHEELER (with adjusted capacity/pricing for bikes)
+    const twoWheelerData = generateDynamicData(spot);
+    twoWheelerData.vehicleType = 'TWO_WHEELER';
+    // Bikes typically have more spots and lower prices
+    twoWheelerData.capacity = Math.floor(twoWheelerData.capacity * 1.5);
+    twoWheelerData.available = Math.floor(twoWheelerData.available * 1.5);
+    twoWheelerData.pricePerHour = Math.max(5, Math.floor(twoWheelerData.pricePerHour * 0.5));
+    
+    processedSpots.push({
+      id: globalId++,
+      osmId: spot.osmId + '-bike',
+      name: spot.name,
+      address: spot.address,
+      latitude: spot.lat,
+      longitude: spot.lng,
+      ...twoWheelerData,
+      location: spot.address || spot.name,
+      slotNumber: `P${globalId - 1}`,
+      distance: null,
+      rating: Number((3.5 + Math.random() * 1.5).toFixed(1)),
+      reviewCount: Math.floor(10 + Math.random() * 490),
+      openingHours: Math.random() < 0.8 ? '24/7' : '6:00 AM - 11:00 PM',
+      dataSource: 'OpenStreetMap',
+      status: 'AVAILABLE',
+      slotStatus: 'AVAILABLE'
+    });
   });
+  
+  return processedSpots;
 };
 
 /**

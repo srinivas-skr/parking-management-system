@@ -141,13 +141,13 @@ export default function AddVehicleModal({ open, onClose, onSubmit, editVehicle =
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-white/10 hover:bg-white/5 bg-transparent"
+              className="flex-1 border-purple-500 text-purple-600 hover:bg-purple-50 bg-white"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
+              className="flex-1 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-white"
             >
               {editVehicle ? "Save Changes" : "Add Vehicle"}
             </Button>
