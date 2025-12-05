@@ -481,29 +481,6 @@ export default function ParkingSlots() {
               </div>
             )}
             
-            {/* SHOW AREA SUGGESTIONS INLINE when no location selected and not searching */}
-            {!selectedLocation && !showSearchDropdown && (
-              <div className="mt-2">
-                <p className="text-xs text-gray-500 mb-2">Quick select area:</p>
-                <div className="flex flex-wrap gap-2">
-                  {popularAreas.slice(0, 6).map(area => (
-                    <button
-                      key={area.name}
-                      onClick={() => {
-                        setSelectedLocation(area)
-                        setSearchQuery(area.name)
-                        setOpenSearchPopup(true)
-                        toast.success(`Showing parking near ${area.name}`)
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-purple-200 rounded-full text-xs font-medium text-gray-700 hover:bg-purple-50 hover:border-purple-400 transition-colors"
-                    >
-                      <span>{area.icon}</span>
-                      <span>{area.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
           
           {/* Row 3: Filters (Horizontal scroll) */}
@@ -661,27 +638,6 @@ export default function ParkingSlots() {
                 </div>
               )}
               
-              {/* INLINE AREA CHIPS - Show when no location selected (Desktop) */}
-              {!selectedLocation && !showSearchDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-2 flex flex-wrap gap-2 bg-white/90 backdrop-blur-sm rounded-xl p-3 border border-purple-100 shadow-md">
-                  <span className="text-xs text-gray-500 w-full mb-1">📍 Quick select:</span>
-                  {popularAreas.slice(0, 8).map(area => (
-                    <button
-                      key={area.name}
-                      onClick={() => {
-                        setSelectedLocation(area)
-                        setSearchQuery(area.name)
-                        setOpenSearchPopup(true)
-                        toast.success(`Showing parking near ${area.name}`)
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-white border-2 border-purple-100 rounded-full text-sm font-medium text-gray-700 hover:bg-purple-50 hover:border-purple-400 hover:scale-105 transition-all shadow-sm"
-                    >
-                      <span>{area.icon}</span>
-                      <span>{area.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
             
             {/* View Toggle (Desktop only) */}
