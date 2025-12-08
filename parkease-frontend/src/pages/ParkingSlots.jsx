@@ -260,33 +260,68 @@ export default function ParkingSlots() {
       }))
     }
 
-    // Filter by distance radius
-    if (distanceFilter !== "all" && (userLocation || selectedLocation)) {
+    // 1. STRICT LOCATION FILTERING (Highest Priority)
+    if (selectedLocation) {
+      // A. GPS/Current Location Mode: Use Distance
+      if (selectedLocation.name === "Current Location") {
+        if (distanceFilter !== "all") {
+          const maxDistance = parseInt(distanceFilter)
+          filtered = filtered.filter((slot) => slot.distance <= maxDistance)
+        }
+      } 
+      // B. Named Location Mode: Use Strict Text Matching
+      else {
+        const targetName = selectedLocation.name.toLowerCase()
+        
+        // Define strict keywords for each area
+        let keywords = [targetName]
+        
+        // Clean name for fallback
+        const cleanName = targetName.replace(/layout|road|area|city|block|phase|stage/g, "").trim()
+        if (cleanName.length > 2) keywords.push(cleanName)
+        
+        // HARDCODED OVERRIDES for 100% Accuracy
+        if (targetName.includes("indiranagar")) keywords = ["indiranagar"]
+        if (targetName.includes("koramangala")) keywords = ["koramangala"]
+        if (targetName.includes("whitefield")) keywords = ["whitefield"]
+        if (targetName.includes("hsr")) keywords = ["hsr"]
+        if (targetName.includes("electronic city")) keywords = ["electronic city", "infosys", "wipro"]
+        if (targetName.includes("mg road")) keywords = ["mg road", "m.g. road"]
+        if (targetName.includes("jayanagar")) keywords = ["jayanagar"]
+        if (targetName.includes("malleshwaram")) keywords = ["malleshwaram"]
+        if (targetName.includes("btm")) keywords = ["btm"]
+        if (targetName.includes("yelahanka")) keywords = ["yelahanka"]
+        if (targetName.includes("marathahalli")) keywords = ["marathahalli"]
+        if (targetName.includes("basavanagudi")) keywords = ["basavanagudi"]
+        if (targetName.includes("majestic")) keywords = ["majestic", "railway station", "ksrtc"]
+        if (targetName.includes("banashankari")) keywords = ["banashankari"]
+        if (targetName.includes("bellandur")) keywords = ["bellandur"]
+        if (targetName.includes("airport")) keywords = ["airport", "bial", "devanahalli"]
+        if (targetName.includes("rajajinagar")) keywords = ["rajajinagar"]
+        
+        console.log(`🔍 Strict Filter for ${targetName}:`, keywords)
+        
+        filtered = filtered.filter((slot) => {
+          const slotText = (slot.name + " " + (slot.address || "")).toLowerCase()
+          return keywords.some(k => slotText.includes(k))
+        })
+      }
+    }
+    // C. Search Query Fallback (if no location selected but user typed something)
+    else if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(slot => 
+        slot.name.toLowerCase().includes(query) || 
+        (slot.address && slot.address.toLowerCase().includes(query))
+      )
+    }
+    // D. Default Distance Filter (if no named location selected)
+    else if (distanceFilter !== "all" && userLocation) {
       const maxDistance = parseInt(distanceFilter)
       filtered = filtered.filter((slot) => slot.distance <= maxDistance)
     }
 
-    // STRICT location filter - Text-based matching for named locations
-    if (selectedLocation) {
-      // 1. GPS/Current Location Mode: Use Distance (controlled by dropdown)
-      if (selectedLocation.name === "Current Location") {
-        // No hardcoded filter here - we rely on the distanceFilter block above
-        // which uses the dropdown value (defaulted to 2km by detectLocation)
-      } 
-      // 2. Named Location Mode: Use Strict Text Matching
-      // This ensures "HSR Layout" ONLY shows slots with "HSR" in them, ignoring nearby Koramangala slots
-      else {
-        const normalize = (str) => str.toLowerCase().replace(/layout|road|area|city|block|phase|stage/g, "").trim()
-        const targetTerm = normalize(selectedLocation.name)
-        
-        console.log(`🔍 Strict Filter: Searching for "${targetTerm}" in slots`)
-        
-        filtered = filtered.filter((slot) => {
-          const slotText = (slot.name + " " + (slot.address || "")).toLowerCase()
-          return slotText.includes(targetTerm)
-        })
-      }
-    }
+    // Filter by vehicle type FIRST AND STRICTLY (before other filters)
 
     // Filter by vehicle type FIRST AND STRICTLY (before other filters)
     if (filters.vehicleType && filters.vehicleType !== "all") {
