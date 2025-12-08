@@ -313,7 +313,23 @@ export default function ParkingSlots() {
       // Check if distance is available on slots
       const hasDistance = filtered.some(s => s.distance !== undefined)
       if (hasDistance) {
-        filtered.sort((a, b) => (a.distance || 999) - (b.distance || 999))
+        filtered.sort((a, b) => {
+          // PRIMARY SORT: Exact location match boost
+          // If a location is selected, prioritize slots that match that location name
+          if (selectedLocation) {
+            const locationName = selectedLocation.name.toLowerCase()
+            const aMatch = (a.name + " " + a.address).toLowerCase().includes(locationName)
+            const bMatch = (b.name + " " + b.address).toLowerCase().includes(locationName)
+            
+            // If 'a' matches but 'b' doesn't, 'a' comes first
+            if (aMatch && !bMatch) return -1
+            // If 'b' matches but 'a' doesn't, 'b' comes first
+            if (!aMatch && bMatch) return 1
+          }
+          
+          // SECONDARY SORT: Distance
+          return (a.distance || 999) - (b.distance || 999)
+        })
       } else {
         // Fallback: sort by price if no distance available
         filtered.sort((a, b) => parseFloat(a.pricePerHour || 0) - parseFloat(b.pricePerHour || 0))
