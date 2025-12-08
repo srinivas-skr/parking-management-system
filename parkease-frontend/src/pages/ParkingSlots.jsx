@@ -27,6 +27,12 @@ const popularAreas = [
   { name: "Yelahanka", lat: 13.0690, lng: 77.5857, icon: "✈️" },
   { name: "Marathahalli", lat: 12.9591, lng: 77.6974, icon: "🚗" },
   { name: "Basavanagudi", lat: 12.9428, lng: 77.5693, icon: "🐂" },
+  { name: "Cubbon Park", lat: 12.9762, lng: 77.5929, icon: "🌳" },
+  { name: "Majestic", lat: 12.9763, lng: 77.5713, icon: "🚌" },
+  { name: "Banashankari", lat: 12.9260, lng: 77.5400, icon: "🛕" },
+  { name: "Bellandur", lat: 12.9258, lng: 77.6742, icon: "🏢" },
+  { name: "Airport", lat: 13.1986, lng: 77.7066, icon: "✈️" },
+  { name: "Rajajinagar", lat: 12.9991, lng: 77.5560, icon: "🏭" },
 ]
 
 export default function ParkingSlots() {
