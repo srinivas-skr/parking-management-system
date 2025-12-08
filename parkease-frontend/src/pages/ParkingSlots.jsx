@@ -105,19 +105,40 @@ export default function ParkingSlots() {
     return () => document.removeEventListener('click', handleClickOutside)
   }, [showSearchDropdown])
 
-  useEffect(() => {
-    // Auto-detect user location
+  const detectLocation = () => {
     if (navigator.geolocation) {
+      toast.info("Detecting your location...")
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation({
+          const userPos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          })
+          }
+          setUserLocation(userPos)
+          
+          const currentLocationObj = {
+            name: "Current Location",
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            icon: "📍"
+          }
+          setSelectedLocation(currentLocationObj)
+          setShowLocationDropdown(false)
+          toast.success("Location detected successfully")
         },
-        (error) => console.log("Location not available")
+        (error) => {
+          console.log("Location not available", error)
+          toast.error("Could not detect location. Please enable location services.")
+        }
       )
+    } else {
+      toast.error("Geolocation is not supported by your browser")
     }
+  }
+
+  useEffect(() => {
+    // Auto-detect removed - now manual only via button
+    
     fetchSlots()
     
     // Set up real-time refresh every 30 seconds
@@ -785,9 +806,18 @@ export default function ParkingSlots() {
       ) : !selectedLocation && showLocationDropdown ? (
         <div className="flex-1 p-4 overflow-auto bg-gray-50">
           <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Select a Location</h2>
-              <p className="text-gray-600">Choose an area in Bengaluru to find parking spots nearby</p>
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Select a Location</h2>
+                <p className="text-gray-600">Choose an area in Bengaluru to find parking spots nearby</p>
+              </div>
+              <button
+                onClick={detectLocation}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium whitespace-nowrap"
+              >
+                <Navigation className="w-4 h-4" />
+                Auto-detect my location
+              </button>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
