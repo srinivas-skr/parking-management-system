@@ -323,9 +323,16 @@ export default function ParkingSlots() {
           // PRIMARY SORT: Exact location match boost
           // If a location is selected, prioritize slots that match that location name
           if (selectedLocation) {
-            const locationName = selectedLocation.name.toLowerCase()
-            const aMatch = (a.name + " " + a.address).toLowerCase().includes(locationName)
-            const bMatch = (b.name + " " + b.address).toLowerCase().includes(locationName)
+            // Normalize strings for better matching (e.g. "HSR Layout" matches "HSR BDA Complex")
+            const normalize = (str) => str.toLowerCase().replace(/layout|road|area|city|block|phase|stage/g, "").trim()
+            const searchTerms = normalize(selectedLocation.name).split(" ").filter(t => t.length > 1)
+            
+            const slotAText = (a.name + " " + a.address).toLowerCase()
+            const slotBText = (b.name + " " + b.address).toLowerCase()
+            
+            // Check if ANY significant term matches
+            const aMatch = searchTerms.some(term => slotAText.includes(term))
+            const bMatch = searchTerms.some(term => slotBText.includes(term))
             
             // If 'a' matches but 'b' doesn't, 'a' comes first
             if (aMatch && !bMatch) return -1
