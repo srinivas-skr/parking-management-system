@@ -44,15 +44,20 @@ function Dashboard() {
 
   useEffect(() => {
     fetchData()
-    
-    // Auto-scroll to vehicle selection section on page load
-    setTimeout(() => {
-      const vehicleSection = document.querySelector('[data-section="vehicle-selection"]')
-      if (vehicleSection) {
-        vehicleSection.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }, 500)
   }, [])
+
+  // Auto-scroll to vehicle selection section when content is fully loaded
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => {
+        const vehicleSection = document.querySelector('[data-section="vehicle-selection"]')
+        if (vehicleSection) {
+          console.log("🚗 Auto-scrolling to vehicle selection...")
+          vehicleSection.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 500)
+    }
+  }, [loading])
 
   const fetchData = async () => {
     try {
