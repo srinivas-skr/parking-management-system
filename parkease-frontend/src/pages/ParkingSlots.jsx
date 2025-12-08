@@ -123,6 +123,7 @@ export default function ParkingSlots() {
             icon: "📍"
           }
           setSelectedLocation(currentLocationObj)
+          setDistanceFilter("2") // Default to 2km for current location
           setShowLocationDropdown(false)
           toast.success("Location detected successfully")
         },
@@ -267,21 +268,10 @@ export default function ParkingSlots() {
 
     // STRICT location filter - Text-based matching for named locations
     if (selectedLocation) {
-      // 1. GPS/Current Location Mode: Use Distance
+      // 1. GPS/Current Location Mode: Use Distance (controlled by dropdown)
       if (selectedLocation.name === "Current Location") {
-        filtered = filtered.filter((slot) => {
-          const slotLat = parseFloat(slot.latitude)
-          const slotLng = parseFloat(slot.longitude)
-          if (isNaN(slotLat) || isNaN(slotLng)) return false
-          
-          const distance = calculateDistance(
-            selectedLocation.lat,
-            selectedLocation.lng,
-            slotLat,
-            slotLng
-          )
-          return distance <= 2.0
-        })
+        // No hardcoded filter here - we rely on the distanceFilter block above
+        // which uses the dropdown value (defaulted to 2km by detectLocation)
       } 
       // 2. Named Location Mode: Use Strict Text Matching
       // This ensures "HSR Layout" ONLY shows slots with "HSR" in them, ignoring nearby Koramangala slots
