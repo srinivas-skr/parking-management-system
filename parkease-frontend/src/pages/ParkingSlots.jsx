@@ -265,7 +265,7 @@ export default function ParkingSlots() {
       filtered = filtered.filter((slot) => slot.distance <= maxDistance)
     }
 
-    // STRICT location filter - only show slots within 3km of selected area
+    // STRICT location filter - only show slots within 2km of selected area
     if (selectedLocation) {
       filtered = filtered.filter((slot) => {
         const slotLat = parseFloat(slot.latitude)
@@ -279,7 +279,7 @@ export default function ParkingSlots() {
           slotLat,
           slotLng
         )
-        return distance <= 3 // Strict: Within 3km only
+        return distance <= 2.0 // Strict: Within 2km only (reduced from 3km to avoid overlap)
       })
     }
 
@@ -341,27 +341,41 @@ export default function ParkingSlots() {
       const hasDistance = filtered.some(s => s.distance !== undefined)
       if (hasDistance) {
         filtered.sort((a, b) => {
-          // PRIMARY SORT: Exact location match boost
-          // If a location is selected, prioritize slots that match that location name
+          // PRIMARY SORT: Match Score (High priority for name/address matches)
           if (selectedLocation) {
-            // Normalize strings for better matching (e.g. "HSR Layout" matches "HSR BDA Complex")
-            const normalize = (str) => str.toLowerCase().replace(/layout|road|area|city|block|phase|stage/g, "").trim()
-            const searchTerms = normalize(selectedLocation.name).split(" ").filter(t => t.length > 1)
+            const getMatchScore = (slot) => {
+              const text = (slot.name + " " + (slot.address || "")).toLowerCase()
+              const targetName = selectedLocation.name.toLowerCase()
+              
+              // 1. Exact/Strong Match (100 pts)
+              // e.g. "HSR Layout" in "HSR Layout Sector 1"
+              if (text.includes(targetName)) return 100
+              
+              // 2. Partial Term Match (50 pts)
+              // e.g. "HSR" in "HSR BDA Complex"
+              const terms = targetName
+                .replace(/layout|road|area|city|block|phase|stage/g, "")
+                .trim()
+                .split(" ")
+                .filter(t => t.length > 1)
+                
+              if (terms.length > 0 && terms.some(term => text.includes(term))) {
+                return 50
+              }
+              
+              return 0
+            }
             
-            const slotAText = (a.name + " " + a.address).toLowerCase()
-            const slotBText = (b.name + " " + b.address).toLowerCase()
+            const scoreA = getMatchScore(a)
+            const scoreB = getMatchScore(b)
             
-            // Check if ANY significant term matches
-            const aMatch = searchTerms.some(term => slotAText.includes(term))
-            const bMatch = searchTerms.some(term => slotBText.includes(term))
-            
-            // If 'a' matches but 'b' doesn't, 'a' comes first
-            if (aMatch && !bMatch) return -1
-            // If 'b' matches but 'a' doesn't, 'b' comes first
-            if (!aMatch && bMatch) return 1
+            // If scores are different, higher score wins
+            if (scoreA !== scoreB) {
+              return scoreB - scoreA
+            }
           }
           
-          // SECONDARY SORT: Distance
+          // SECONDARY SORT: Distance (Nearest first)
           return (a.distance || 999) - (b.distance || 999)
         })
       } else {
