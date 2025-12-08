@@ -44,6 +44,14 @@ function Dashboard() {
 
   useEffect(() => {
     fetchData()
+    
+    // Auto-scroll to vehicle selection section on page load
+    setTimeout(() => {
+      const vehicleSection = document.querySelector('[data-section="vehicle-selection"]')
+      if (vehicleSection) {
+        vehicleSection.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 500)
   }, [])
 
   const fetchData = async () => {
@@ -397,6 +405,7 @@ function Dashboard() {
             SECTION 4: STEP 1 - CHOOSE YOUR VEHICLE
         ═══════════════════════════════════════════════════════ */}
         <motion.div
+          data-section="vehicle-selection"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}

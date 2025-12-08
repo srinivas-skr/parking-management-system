@@ -39,6 +39,7 @@ export default function ParkingSlots() {
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [openSearchPopup, setOpenSearchPopup] = useState(false)
   const [userLocation, setUserLocation] = useState(null)
+  const [showLocationDropdown, setShowLocationDropdown] = useState(true) // Show cities by default
   const [distanceFilter, setDistanceFilter] = useState("all") // "1km", "2km", "5km", "all"
   const [sortBy, setSortBy] = useState("nearest") // "nearest", "price-low", "price-high"
   const [freeFilter, setFreeFilter] = useState("all") // "all", "free", "paid"
@@ -83,6 +84,7 @@ export default function ParkingSlots() {
       }
       setSelectedLocation(location)
       setOpenSearchPopup(true)
+      setShowLocationDropdown(false) // Hide dropdown once location is selected
     }
   }, [searchParams])
 
@@ -196,11 +198,9 @@ export default function ParkingSlots() {
       setSlots(combinedSlots)
       // DON'T set filteredSlots directly - let applyFilters handle it via useEffect
       
-      if (backendSlots.length > 0) {
-        toast.success(`Loaded ${backendSlots.length} real + ${osmData.length} demo parking spots`)
-      } else {
-        toast.info(`Using ${osmData.length} demo parking locations`)
-      }
+      // Unified message - no confusing "demo" vs "real" distinction
+      const totalLocations = Math.floor(combinedSlots.length / 2) // Each location has 2 vehicle types
+      toast.success(`Loaded ${combinedSlots.length} parking spots from ${totalLocations} locations`)
       
       setLastUpdated(new Date())
     } catch (error) {
@@ -452,14 +452,19 @@ export default function ParkingSlots() {
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
                   setShowSearchDropdown(true)
+                  setShowLocationDropdown(true)
                 }}
-                onFocus={() => setShowSearchDropdown(true)}
+                onFocus={() => {
+                  setShowSearchDropdown(true)
+                  if (!selectedLocation) setShowLocationDropdown(true)
+                }}
               />
               {(searchQuery || selectedLocation) && (
                 <button onClick={() => {
                   setSearchQuery("")
                   setSelectedLocation(null)
                   setShowSearchDropdown(false)
+                  setShowLocationDropdown(true) // Show cities again
                 }} className="p-1">
                   <X className="h-4 w-4 text-gray-400" />
                 </button>
@@ -467,7 +472,7 @@ export default function ParkingSlots() {
             </div>
             
             {/* Search Dropdown - Mobile - ENHANCED with better styling */}
-            {showSearchDropdown && (
+            {showSearchDropdown && showLocationDropdown && (
               <div className="absolute top-full left-0 right-0 bg-white border-2 border-purple-100 rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto mt-1">
                 <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100">
                   <span className="text-xs font-semibold text-purple-600">📍 Popular Locations</span>
@@ -481,6 +486,7 @@ export default function ParkingSlots() {
                         setSelectedLocation(area)
                         setSearchQuery(area.name)
                         setShowSearchDropdown(false)
+                        setShowLocationDropdown(false) // Hide city dropdown
                         setOpenSearchPopup(true)
                         toast.success(`Showing parking near ${area.name}`)
                       }}
@@ -573,14 +579,19 @@ export default function ParkingSlots() {
                   onChange={(e) => {
                     setSearchQuery(e.target.value)
                     setShowSearchDropdown(true)
+                    setShowLocationDropdown(true)
                   }}
-                  onFocus={() => setShowSearchDropdown(true)}
+                  onFocus={() => {
+                    setShowSearchDropdown(true)
+                    if (!selectedLocation) setShowLocationDropdown(true)
+                  }}
                 />
                 {(searchQuery || selectedLocation) && (
                   <button onClick={() => {
                     setSearchQuery("")
                     setSelectedLocation(null)
                     setShowSearchDropdown(false)
+                    setShowLocationDropdown(true)
                   }} className="p-1 hover:bg-gray-200 rounded-full">
                     <X className="h-4 w-4 text-gray-500" />
                   </button>
@@ -620,7 +631,7 @@ export default function ParkingSlots() {
               </div>
               
               {/* Search Dropdown - Desktop - ENHANCED */}
-              {showSearchDropdown && (
+              {showSearchDropdown && showLocationDropdown && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-purple-100 rounded-2xl shadow-2xl z-50 max-h-96 overflow-y-auto">
                   <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100 rounded-t-2xl">
                     <span className="text-sm font-semibold text-purple-700">📍 Select Location in Bengaluru</span>
@@ -635,6 +646,7 @@ export default function ParkingSlots() {
                             setSelectedLocation(area)
                             setSearchQuery(area.name)
                             setShowSearchDropdown(false)
+                            setShowLocationDropdown(false) // Hide city dropdown
                             setOpenSearchPopup(true)
                             toast.success(`Showing parking near ${area.name}`)
                           }}
@@ -740,6 +752,19 @@ export default function ParkingSlots() {
               <SkeletonCard key={i} />
             ))}
           </div>
+        </div>
+      ) : !selectedLocation && showLocationDropdown ? (
+        <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
+          <Card className="border border-purple-200 bg-white p-8 sm:p-12 text-center shadow-lg max-w-md">
+            <div className="text-6xl mb-4">📍</div>
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">Select a Location</h3>
+            <p className="text-gray-500 mb-4">
+              Search for an area in Bengaluru to find parking spots nearby
+            </p>
+            <div className="text-sm text-purple-600 font-medium">
+              ↑ Use the search bar above to select your location
+            </div>
+          </Card>
         </div>
       ) : filteredSlots.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
