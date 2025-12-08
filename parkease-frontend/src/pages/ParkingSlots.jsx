@@ -265,22 +265,37 @@ export default function ParkingSlots() {
       filtered = filtered.filter((slot) => slot.distance <= maxDistance)
     }
 
-    // STRICT location filter - only show slots within 2km of selected area
+    // STRICT location filter - Text-based matching for named locations
     if (selectedLocation) {
-      filtered = filtered.filter((slot) => {
-        const slotLat = parseFloat(slot.latitude)
-        const slotLng = parseFloat(slot.longitude)
-        // Skip slots without valid coordinates
-        if (isNaN(slotLat) || isNaN(slotLng)) return false
+      // 1. GPS/Current Location Mode: Use Distance
+      if (selectedLocation.name === "Current Location") {
+        filtered = filtered.filter((slot) => {
+          const slotLat = parseFloat(slot.latitude)
+          const slotLng = parseFloat(slot.longitude)
+          if (isNaN(slotLat) || isNaN(slotLng)) return false
+          
+          const distance = calculateDistance(
+            selectedLocation.lat,
+            selectedLocation.lng,
+            slotLat,
+            slotLng
+          )
+          return distance <= 2.0
+        })
+      } 
+      // 2. Named Location Mode: Use Strict Text Matching
+      // This ensures "HSR Layout" ONLY shows slots with "HSR" in them, ignoring nearby Koramangala slots
+      else {
+        const normalize = (str) => str.toLowerCase().replace(/layout|road|area|city|block|phase|stage/g, "").trim()
+        const targetTerm = normalize(selectedLocation.name)
         
-        const distance = calculateDistance(
-          selectedLocation.lat,
-          selectedLocation.lng,
-          slotLat,
-          slotLng
-        )
-        return distance <= 2.0 // Strict: Within 2km only (reduced from 3km to avoid overlap)
-      })
+        console.log(`🔍 Strict Filter: Searching for "${targetTerm}" in slots`)
+        
+        filtered = filtered.filter((slot) => {
+          const slotText = (slot.name + " " + (slot.address || "")).toLowerCase()
+          return slotText.includes(targetTerm)
+        })
+      }
     }
 
     // Filter by vehicle type FIRST AND STRICTLY (before other filters)
