@@ -754,17 +754,40 @@ export default function ParkingSlots() {
           </div>
         </div>
       ) : !selectedLocation && showLocationDropdown ? (
-        <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
-          <Card className="border border-purple-200 bg-white p-8 sm:p-12 text-center shadow-lg max-w-md">
-            <div className="text-6xl mb-4">📍</div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">Select a Location</h3>
-            <p className="text-gray-500 mb-4">
-              Search for an area in Bengaluru to find parking spots nearby
-            </p>
-            <div className="text-sm text-purple-600 font-medium">
-              ↑ Use the search bar above to select your location
+        <div className="flex-1 p-4 overflow-auto bg-gray-50">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Select a Location</h2>
+              <p className="text-gray-600">Choose an area in Bengaluru to find parking spots nearby</p>
             </div>
-          </Card>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {popularAreas.map((area) => (
+                <motion.button
+                  key={area.name}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setSelectedLocation(area)
+                    setSearchQuery(area.name)
+                    setShowSearchDropdown(false)
+                    setShowLocationDropdown(false)
+                    setOpenSearchPopup(true)
+                    toast.success(`Showing parking near ${area.name}`)
+                  }}
+                  className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all text-left flex items-center gap-4 group"
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    {area.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-purple-700 transition-colors">{area.name}</h3>
+                    <p className="text-xs text-gray-500">Bengaluru</p>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </div>
         </div>
       ) : filteredSlots.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
