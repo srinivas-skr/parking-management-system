@@ -35,6 +35,27 @@ const popularAreas = [
   { name: "Rajajinagar", lat: 12.9991, lng: 77.5560, icon: "🏭" },
 ]
 
+// Strict keyword map per area to avoid cross-city bleed
+const areaKeywordMap = {
+  koramangala: ["koramangala", "kora"],
+  indiranagar: ["indiranagar", "12th main", "100ft"],
+  whitefield: ["whitefield", "itpl", "vydehi", "hope farm"],
+  "mg road": ["mg road", "m.g. road", "brigade road", "church street"],
+  "hsr": ["hsr", "sector"],
+  "electronic city": ["electronic city", "infosys", "wipro", "ecity"],
+  jayanagar: ["jayanagar"],
+  malleshwaram: ["malleshwaram", "malleswaram"],
+  "btm": ["btm"],
+  yelahanka: ["yelahanka"],
+  marathahalli: ["marathahalli", "marthahalli"],
+  basavanagudi: ["basavanagudi", "basava"],
+  majestic: ["majestic", "ksrtc", "railway station"],
+  banashankari: ["banashankari", "bsk"],
+  bellandur: ["bellandur"],
+  airport: ["airport", "bial", "devanahalli"],
+  rajajinagar: ["rajajinagar"],
+}
+
 export default function ParkingSlots() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -269,36 +290,19 @@ export default function ParkingSlots() {
           filtered = filtered.filter((slot) => slot.distance <= maxDistance)
         }
       } 
-      // B. Named Location Mode: Use Strict Text Matching
+      // B. Named Location Mode: Use Strict Text Matching only (no distance)
       else {
         const targetName = selectedLocation.name.toLowerCase()
         
-        // Define strict keywords for each area
-        let keywords = [targetName]
-        
-        // Clean name for fallback
-        const cleanName = targetName.replace(/layout|road|area|city|block|phase|stage/g, "").trim()
-        if (cleanName.length > 2) keywords.push(cleanName)
-        
-        // HARDCODED OVERRIDES for 100% Accuracy
-        if (targetName.includes("indiranagar")) keywords = ["indiranagar"]
-        if (targetName.includes("koramangala")) keywords = ["koramangala"]
-        if (targetName.includes("whitefield")) keywords = ["whitefield"]
-        if (targetName.includes("hsr")) keywords = ["hsr"]
-        if (targetName.includes("electronic city")) keywords = ["electronic city", "infosys", "wipro"]
-        if (targetName.includes("mg road")) keywords = ["mg road", "m.g. road"]
-        if (targetName.includes("jayanagar")) keywords = ["jayanagar"]
-        if (targetName.includes("malleshwaram")) keywords = ["malleshwaram"]
-        if (targetName.includes("btm")) keywords = ["btm"]
-        if (targetName.includes("yelahanka")) keywords = ["yelahanka"]
-        if (targetName.includes("marathahalli")) keywords = ["marathahalli"]
-        if (targetName.includes("basavanagudi")) keywords = ["basavanagudi"]
-        if (targetName.includes("majestic")) keywords = ["majestic", "railway station", "ksrtc"]
-        if (targetName.includes("banashankari")) keywords = ["banashankari"]
-        if (targetName.includes("bellandur")) keywords = ["bellandur"]
-        if (targetName.includes("airport")) keywords = ["airport", "bial", "devanahalli"]
-        if (targetName.includes("rajajinagar")) keywords = ["rajajinagar"]
-        
+        const pickKeywords = (name) => {
+          for (const [area, keywords] of Object.entries(areaKeywordMap)) {
+            if (name.includes(area)) return keywords
+          }
+          // fallback: cleaned name tokens
+          const cleaned = name.replace(/layout|road|area|city|block|phase|stage/g, "").trim()
+          return cleaned.length > 2 ? [cleaned] : [name]
+        }
+        const keywords = pickKeywords(targetName)
         console.log(`🔍 Strict Filter for ${targetName}:`, keywords)
         
         filtered = filtered.filter((slot) => {
