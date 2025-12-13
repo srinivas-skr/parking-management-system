@@ -62,6 +62,10 @@ public class ParkingSlot extends AuditableEntity {
     @com.fasterxml.jackson.annotation.JsonProperty("location")
     private String locationDescription;
 
+    @Size(max = 50)
+    @Column(name = "area_name", length = 50)
+    private String areaName;
+
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer = 8, fraction = 2)

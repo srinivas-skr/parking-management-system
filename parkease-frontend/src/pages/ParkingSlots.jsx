@@ -79,11 +79,16 @@ const getSelectedAreaKey = (location) => {
 }
 
 const getSlotAreaKey = (slot) => {
-  // 1. Direct area/areaKey field (OSM data has this)
-  const direct = normalizeAreaKey(slot?.areaKey || slot?.area)
-  if (direct) return direct
+  // 1. Direct area field - check ALL possible field names
+  // Backend uses: areaName
+  // OSM data uses: area, areaKey
+  const directArea = slot?.areaName || slot?.areaKey || slot?.area
+  if (directArea) {
+    const normalized = normalizeAreaKey(directArea)
+    if (normalized) return normalized
+  }
 
-  // 2. Text-based inference from ALL possible text fields
+  // 2. Text-based inference from ALL possible text fields (FALLBACK ONLY)
   // Backend uses: name, location, locationDescription
   // OSM uses: name, address
   const text = `${slot?.name || ""} ${slot?.address || ""} ${slot?.location || ""} ${slot?.locationDescription || ""}`.toLowerCase()
@@ -91,14 +96,14 @@ const getSlotAreaKey = (slot) => {
   // Strict inference: only match strong area indicators
   const strict = {
     koramangala: ["koramangala", "kormangala", "forum mall"],
-    indiranagar: ["indiranagar", "indira nagar"],
+    indiranagar: ["indiranagar", "indira nagar", "100ft road"],
     whitefield: ["whitefield", "itpl", "hope farm", "vydehi"],
     "mg road": ["mg road", "m.g. road", "brigade", "church street"],
-    hsr: ["hsr"],
-    "electronic city": ["electronic city", "ecity"],
+    hsr: ["hsr layout", "hsr sector"],
+    "electronic city": ["electronic city", "ecity", "phase 1", "phase 2"],
     jayanagar: ["jayanagar"],
     malleshwaram: ["malleshwaram", "malleswaram"],
-    btm: ["btm"],
+    btm: ["btm layout", "btm 2nd"],
     yelahanka: ["yelahanka"],
     marathahalli: ["marathahalli", "marthahalli"],
     basavanagudi: ["basavanagudi"],
@@ -107,6 +112,7 @@ const getSlotAreaKey = (slot) => {
     bellandur: ["bellandur"],
     airport: ["airport", "bial", "devanahalli"],
     rajajinagar: ["rajajinagar"],
+    "kalyan nagar": ["kalyan nagar"],
   }
 
   for (const [key, tokens] of Object.entries(strict)) {

@@ -201,7 +201,8 @@ const rawOsmData = [
   { id: "osm-broo-1", osmId: "way/broo001", name: "Brookfield Mall Parking", address: "Brookfield", lat: 12.9680, lng: 77.7300, type: "multi-storey", fee: true, access: "customers", operator: null, capacity: 200 },
 ];
 
-const normalizeAreaKey = (value) => {
+const 
+normalizeAreaKey = (value) => {
   if (!value) return null;
   const normalized = String(value)
     .toLowerCase()

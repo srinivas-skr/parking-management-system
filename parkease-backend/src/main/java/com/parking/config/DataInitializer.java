@@ -83,6 +83,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(20.0))
                         .locationDescription("Koramangala Forum Mall - " + slotNumber)
+                        .areaName("Koramangala")
                         .latitude(new BigDecimal("12.9352"))
                         .longitude(new BigDecimal("77.6245"))
                         .build());
@@ -99,6 +100,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(50.0))
                         .locationDescription("Koramangala Metro Station - " + slotNumber)
+                        .areaName("Koramangala")
                         .latitude(new BigDecimal("12.9348"))
                         .longitude(new BigDecimal("77.6250"))
                         .build());
@@ -115,6 +117,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(25.0))
                         .locationDescription("Indiranagar 100ft Road - " + slotNumber)
+                        .areaName("Indiranagar")
                         .latitude(new BigDecimal("12.9719"))
                         .longitude(new BigDecimal("77.6412"))
                         .build());
@@ -131,6 +134,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(60.0))
                         .locationDescription("Indiranagar Metro - " + slotNumber)
+                        .areaName("Indiranagar")
                         .latitude(new BigDecimal("12.9715"))
                         .longitude(new BigDecimal("77.6408"))
                         .build());
@@ -147,6 +151,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(80.0))
                         .locationDescription("MG Road Brigade Road Junction - " + slotNumber)
+                        .areaName("MG Road")
                         .latitude(new BigDecimal("12.9756"))
                         .longitude(new BigDecimal("77.6066"))
                         .build());
@@ -163,6 +168,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(40.0))
                         .locationDescription("Whitefield ITPL Tech Park - " + slotNumber)
+                        .areaName("Whitefield")
                         .latitude(new BigDecimal("12.9698"))
                         .longitude(new BigDecimal("77.7499"))
                         .build());
@@ -179,6 +185,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(30.0))
                         .locationDescription("Electronic City Phase 1 - " + slotNumber)
+                        .areaName("Electronic City")
                         .latitude(new BigDecimal("12.8451"))
                         .longitude(new BigDecimal("77.6593"))
                         .build());
@@ -195,6 +202,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(15.0))
                         .locationDescription("HSR Layout Sector 1 - " + slotNumber)
+                        .areaName("HSR Layout")
                         .latitude(new BigDecimal("12.9082"))
                         .longitude(new BigDecimal("77.6476"))
                         .build());
@@ -211,6 +219,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(100.0))
                         .locationDescription("Jayanagar Shopping Complex - " + slotNumber)
+                        .areaName("Jayanagar")
                         .latitude(new BigDecimal("12.9250"))
                         .longitude(new BigDecimal("77.5838"))
                         .build());
@@ -227,6 +236,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(45.0))
                         .locationDescription("BTM Layout 2nd Stage - " + slotNumber)
+                        .areaName("BTM Layout")
                         .latitude(new BigDecimal("12.9165"))
                         .longitude(new BigDecimal("77.6101"))
                         .build());
@@ -243,6 +253,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(55.0))
                         .locationDescription("Marathahalli Bridge Junction - " + slotNumber)
+                        .areaName("Marathahalli")
                         .latitude(new BigDecimal("12.9591"))
                         .longitude(new BigDecimal("77.6974"))
                         .build());
@@ -259,6 +270,7 @@ public class DataInitializer {
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(i <= 2 ? 20.0 : 50.0))
                         .locationDescription("Kalyan Nagar Main Road - " + slotNumber)
+                        .areaName("Kalyan Nagar")
                         .latitude(new BigDecimal("13.0280"))
                         .longitude(new BigDecimal("77.6390"))
                         .build());
