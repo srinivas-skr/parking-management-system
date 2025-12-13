@@ -16,88 +16,88 @@ const rawOsmData = [
   // These have actual names from OpenStreetMap data
   
   // WHITEFIELD AREA
-  { id: "osm-2030195", osmId: "relation/2030195", name: "Whitefield TTMC Parking", address: "EPIP Zone, Whitefield", lat: 12.9771687, lng: 77.7264647, type: "multi-storey", fee: true, access: "customers", operator: null, capacity: null },
-  { id: "osm-150593086", osmId: "way/150593086", name: "Whitefield Station Car Parking", address: "Whitefield Railway Station", lat: 12.9968035, lng: 77.7616172, type: "surface", fee: null, access: "customers", operator: null, capacity: null },
-  { id: "osm-152941097", osmId: "way/152941097", name: "Visitors Car Park", address: "Whitefield", lat: 12.9588037, lng: 77.7073577, type: "lane", fee: null, access: null, operator: null, capacity: null },
-  { id: "osm-157858174", osmId: "way/157858174", name: "Bhagini Iris Parking", address: "ITPL Main Road, Whitefield", lat: 12.9554384, lng: 77.7293747, type: "surface", fee: false, access: "customers", operator: null, capacity: null },
+  { id: "osm-2030195", osmId: "relation/2030195", name: "Whitefield TTMC Parking", address: "EPIP Zone, Whitefield", lat: 12.9771687, lng: 77.7264647, type: "multi-storey", fee: true, access: "customers", operator: null, capacity: null, area: "Whitefield" },
+  { id: "osm-150593086", osmId: "way/150593086", name: "Whitefield Station Car Parking", address: "Whitefield Railway Station", lat: 12.9968035, lng: 77.7616172, type: "surface", fee: null, access: "customers", operator: null, capacity: null, area: "Whitefield" },
+  { id: "osm-152941097", osmId: "way/152941097", name: "Visitors Car Park", address: "Whitefield", lat: 12.9588037, lng: 77.7073577, type: "lane", fee: null, access: null, operator: null, capacity: null, area: "Whitefield" },
+  { id: "osm-157858174", osmId: "way/157858174", name: "Bhagini Iris Parking", address: "ITPL Main Road, Whitefield", lat: 12.9554384, lng: 77.7293747, type: "surface", fee: false, access: "customers", operator: null, capacity: null, area: "Whitefield" },
 
   // MG ROAD & BRIGADE ROAD AREA
-  { id: "osm-mg-1", osmId: "way/mg001", name: "MG Road Metro Parking", address: "MG Road Metro Station", lat: 12.9756, lng: 77.6066, type: "underground", fee: true, access: "public", operator: "BMRCL", capacity: 200 },
-  { id: "osm-brig-1", osmId: "way/brig001", name: "Brigade Road Mall Parking", address: "Brigade Road", lat: 12.9759, lng: 77.6050, type: "multi-storey", fee: true, access: "customers", operator: null, capacity: 150 },
+  { id: "osm-mg-1", osmId: "way/mg001", name: "MG Road Metro Parking", address: "MG Road Metro Station", lat: 12.9756, lng: 77.6066, type: "underground", fee: true, access: "public", operator: "BMRCL", capacity: 200, area: "MG Road" },
+  { id: "osm-brig-1", osmId: "way/brig001", name: "Brigade Road Mall Parking", address: "Brigade Road", lat: 12.9759, lng: 77.6050, type: "multi-storey", fee: true, access: "customers", operator: null, capacity: 150, area: "MG Road" },
 
   // KORAMANGALA AREA
-  { id: "osm-kora-1", osmId: "way/kora001", name: "Forum Mall Koramangala Parking", address: "Koramangala 5th Block", lat: 12.9348, lng: 77.6241, type: "multi-storey", fee: true, access: "public", operator: "Forum Mall", capacity: 280 },
-  { id: "osm-kora-2", osmId: "way/kora002", name: "Koramangala Market Parking", address: "Koramangala 4th Block", lat: 12.9352, lng: 77.6245, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 80 },
-  { id: "osm-kora-3", osmId: "way/kora003", name: "Sony World Junction Lot", address: "Sony World Signal, Koramangala", lat: 12.9340, lng: 77.6215, type: "surface", fee: true, access: "public", operator: null, capacity: 45 },
+  { id: "osm-kora-1", osmId: "way/kora001", name: "Forum Mall Koramangala Parking", address: "Koramangala 5th Block", lat: 12.9348, lng: 77.6241, type: "multi-storey", fee: true, access: "public", operator: "Forum Mall", capacity: 280, area: "Koramangala" },
+  { id: "osm-kora-2", osmId: "way/kora002", name: "Koramangala Market Parking", address: "Koramangala 4th Block", lat: 12.9352, lng: 77.6245, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 80, area: "Koramangala" },
+  { id: "osm-kora-3", osmId: "way/kora003", name: "Sony World Junction Lot", address: "Sony World Signal, Koramangala", lat: 12.9340, lng: 77.6215, type: "surface", fee: true, access: "public", operator: null, capacity: 45, area: "Koramangala" },
 
   // INDIRANAGAR AREA
-  { id: "osm-indi-1", osmId: "way/indi001", name: "Indiranagar 100ft Road Parking", address: "100 Feet Road, Indiranagar", lat: 12.9719, lng: 77.6412, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 100 },
-  { id: "osm-indi-2", osmId: "way/indi002", name: "Indiranagar Metro Station Parking", address: "Indiranagar Metro", lat: 12.9784, lng: 77.6408, type: "surface", fee: true, access: "public", operator: "BMRCL", capacity: 75 },
-  { id: "osm-indi-3", osmId: "way/indi003", name: "12th Main Indiranagar Lot", address: "12th Main Road, Indiranagar", lat: 12.9695, lng: 77.6380, type: "street", fee: false, access: "public", operator: null, capacity: 30 },
+  { id: "osm-indi-1", osmId: "way/indi001", name: "Indiranagar 100ft Road Parking", address: "100 Feet Road, Indiranagar", lat: 12.9719, lng: 77.6412, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 100, area: "Indiranagar" },
+  { id: "osm-indi-2", osmId: "way/indi002", name: "Indiranagar Metro Station Parking", address: "Indiranagar Metro", lat: 12.9784, lng: 77.6408, type: "surface", fee: true, access: "public", operator: "BMRCL", capacity: 75, area: "Indiranagar" },
+  { id: "osm-indi-3", osmId: "way/indi003", name: "12th Main Indiranagar Lot", address: "12th Main Road, Indiranagar", lat: 12.9695, lng: 77.6380, type: "street", fee: false, access: "public", operator: null, capacity: 30, area: "Indiranagar" },
 
   // JAYANAGAR AREA
-  { id: "osm-jaya-1", osmId: "way/jaya001", name: "Jayanagar 4th Block Complex", address: "Jayanagar 4th Block", lat: 12.9250, lng: 77.5838, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 120 },
-  { id: "osm-jaya-2", osmId: "way/jaya002", name: "Jayanagar Shopping Complex Parking", address: "Jayanagar 9th Block", lat: 12.9180, lng: 77.5910, type: "multi-storey", fee: true, access: "public", operator: null, capacity: 200 },
+  { id: "osm-jaya-1", osmId: "way/jaya001", name: "Jayanagar 4th Block Complex", address: "Jayanagar 4th Block", lat: 12.9250, lng: 77.5838, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 120, area: "Jayanagar" },
+  { id: "osm-jaya-2", osmId: "way/jaya002", name: "Jayanagar Shopping Complex Parking", address: "Jayanagar 9th Block", lat: 12.9180, lng: 77.5910, type: "multi-storey", fee: true, access: "public", operator: null, capacity: 200, area: "Jayanagar" },
 
   // HSR LAYOUT
-  { id: "osm-hsr-1", osmId: "way/hsr001", name: "HSR BDA Complex Parking", address: "HSR Layout Sector 1", lat: 12.9082, lng: 77.6476, type: "surface", fee: true, access: "public", operator: "BDA", capacity: 150 },
-  { id: "osm-hsr-2", osmId: "way/hsr002", name: "HSR 27th Main Parking", address: "27th Main Road, HSR Layout", lat: 12.9120, lng: 77.6410, type: "street", fee: false, access: "public", operator: null, capacity: 40 },
+  { id: "osm-hsr-1", osmId: "way/hsr001", name: "HSR BDA Complex Parking", address: "HSR Layout Sector 1", lat: 12.9082, lng: 77.6476, type: "surface", fee: true, access: "public", operator: "BDA", capacity: 150, area: "HSR Layout" },
+  { id: "osm-hsr-2", osmId: "way/hsr002", name: "HSR 27th Main Parking", address: "27th Main Road, HSR Layout", lat: 12.9120, lng: 77.6410, type: "street", fee: false, access: "public", operator: null, capacity: 40, area: "HSR Layout" },
 
   // ELECTRONIC CITY
-  { id: "osm-ec-1", osmId: "way/ec001", name: "Infosys Campus Parking", address: "Electronic City Phase 1", lat: 12.8426, lng: 77.6598, type: "surface", fee: true, access: "employees", operator: "Infosys", capacity: 500 },
-  { id: "osm-ec-2", osmId: "way/ec002", name: "Wipro Campus Parking", address: "Electronic City Phase 2", lat: 12.8390, lng: 77.6650, type: "surface", fee: true, access: "employees", operator: "Wipro", capacity: 400 },
-  { id: "osm-ec-3", osmId: "way/ec003", name: "Electronic City Flyover Lot", address: "Electronic City Toll Plaza", lat: 12.8450, lng: 77.6620, type: "surface", fee: true, access: "public", operator: null, capacity: 60 },
+  { id: "osm-ec-1", osmId: "way/ec001", name: "Infosys Campus Parking", address: "Electronic City Phase 1", lat: 12.8426, lng: 77.6598, type: "surface", fee: true, access: "employees", operator: "Infosys", capacity: 500, area: "Electronic City" },
+  { id: "osm-ec-2", osmId: "way/ec002", name: "Wipro Campus Parking", address: "Electronic City Phase 2", lat: 12.8390, lng: 77.6650, type: "surface", fee: true, access: "employees", operator: "Wipro", capacity: 400, area: "Electronic City" },
+  { id: "osm-ec-3", osmId: "way/ec003", name: "Electronic City Flyover Lot", address: "Electronic City Toll Plaza", lat: 12.8450, lng: 77.6620, type: "surface", fee: true, access: "public", operator: null, capacity: 60, area: "Electronic City" },
 
   // MARATHAHALLI / ORR
-  { id: "osm-mara-1", osmId: "way/mara001", name: "Marathahalli Bridge Parking", address: "Marathahalli Junction", lat: 12.9591, lng: 77.6974, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 80 },
-  { id: "osm-mara-2", osmId: "way/mara002", name: "Outer Ring Road Phoenix Mall Parking", address: "ORR, Marathahalli", lat: 12.9580, lng: 77.6950, type: "multi-storey", fee: true, access: "customers", operator: "Phoenix Mall", capacity: 350 },
-  { id: "osm-mara-3", osmId: "way/mara003", name: "Kalamandir Marathahalli Lot", address: "Marathahalli", lat: 12.9565, lng: 77.7010, type: "surface", fee: false, access: "public", operator: null, capacity: 25 },
+  { id: "osm-mara-1", osmId: "way/mara001", name: "Marathahalli Bridge Parking", address: "Marathahalli Junction", lat: 12.9591, lng: 77.6974, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 80, area: "Marathahalli" },
+  { id: "osm-mara-2", osmId: "way/mara002", name: "Outer Ring Road Phoenix Mall Parking", address: "ORR, Marathahalli", lat: 12.9580, lng: 77.6950, type: "multi-storey", fee: true, access: "customers", operator: "Phoenix Mall", capacity: 350, area: "Marathahalli" },
+  { id: "osm-mara-3", osmId: "way/mara003", name: "Kalamandir Marathahalli Lot", address: "Marathahalli", lat: 12.9565, lng: 77.7010, type: "surface", fee: false, access: "public", operator: null, capacity: 25, area: "Marathahalli" },
 
   // CUBBON PARK / CBD
-  { id: "osm-cubb-1", osmId: "way/cubb001", name: "Cubbon Park East Gate Parking", address: "Cubbon Park", lat: 12.9762, lng: 77.5929, type: "street", fee: false, access: "public", operator: null, capacity: 50 },
-  { id: "osm-cubb-2", osmId: "way/cubb002", name: "Vidhana Soudha Parking", address: "Dr. Ambedkar Veedhi", lat: 12.9795, lng: 77.5913, type: "surface", fee: true, access: "visitors", operator: "Karnataka Govt", capacity: 100 },
-  { id: "osm-cubb-3", osmId: "way/cubb003", name: "High Court Parking", address: "Cubbon Park Area", lat: 12.9780, lng: 77.5890, type: "surface", fee: true, access: "visitors", operator: null, capacity: 80 },
+  { id: "osm-cubb-1", osmId: "way/cubb001", name: "Cubbon Park East Gate Parking", address: "Cubbon Park", lat: 12.9762, lng: 77.5929, type: "street", fee: false, access: "public", operator: null, capacity: 50, area: "Cubbon Park" },
+  { id: "osm-cubb-2", osmId: "way/cubb002", name: "Vidhana Soudha Parking", address: "Dr. Ambedkar Veedhi", lat: 12.9795, lng: 77.5913, type: "surface", fee: true, access: "visitors", operator: "Karnataka Govt", capacity: 100, area: "Cubbon Park" },
+  { id: "osm-cubb-3", osmId: "way/cubb003", name: "High Court Parking", address: "Cubbon Park Area", lat: 12.9780, lng: 77.5890, type: "surface", fee: true, access: "visitors", operator: null, capacity: 80, area: "Cubbon Park" },
 
   // MAJESTIC / RAILWAY STATION
-  { id: "osm-maj-1", osmId: "way/maj001", name: "Majestic KSRTC Bus Stand Parking", address: "Kempegowda Bus Station", lat: 12.9763, lng: 77.5713, type: "surface", fee: true, access: "public", operator: "KSRTC", capacity: 300 },
-  { id: "osm-maj-2", osmId: "way/maj002", name: "Bangalore City Railway Station Parking", address: "KSR City Railway Station", lat: 12.9719, lng: 77.5950, type: "multi-storey", fee: true, access: "public", operator: "Indian Railways", capacity: 250 },
-  { id: "osm-maj-3", osmId: "way/maj003", name: "Anand Rao Circle Parking", address: "Anand Rao Circle", lat: 12.9745, lng: 77.5680, type: "street", fee: true, access: "public", operator: "BBMP", capacity: 60 },
+  { id: "osm-maj-1", osmId: "way/maj001", name: "Majestic KSRTC Bus Stand Parking", address: "Kempegowda Bus Station", lat: 12.9763, lng: 77.5713, type: "surface", fee: true, access: "public", operator: "KSRTC", capacity: 300, area: "Majestic" },
+  { id: "osm-maj-2", osmId: "way/maj002", name: "Bangalore City Railway Station Parking", address: "KSR City Railway Station", lat: 12.9719, lng: 77.5950, type: "multi-storey", fee: true, access: "public", operator: "Indian Railways", capacity: 250, area: "Majestic" },
+  { id: "osm-maj-3", osmId: "way/maj003", name: "Anand Rao Circle Parking", address: "Anand Rao Circle", lat: 12.9745, lng: 77.5680, type: "street", fee: true, access: "public", operator: "BBMP", capacity: 60, area: "Majestic" },
 
   // MALLESHWARAM
-  { id: "osm-mall-1", osmId: "way/mall001", name: "Malleshwaram 8th Cross Parking", address: "Malleshwaram 8th Cross", lat: 13.0096, lng: 77.5679, type: "street", fee: false, access: "public", operator: null, capacity: 40 },
-  { id: "osm-mall-2", osmId: "way/mall002", name: "Mantri Square Mall Parking", address: "Sampige Road, Malleshwaram", lat: 13.0110, lng: 77.5705, type: "multi-storey", fee: true, access: "customers", operator: "Mantri Mall", capacity: 400 },
-  { id: "osm-mall-3", osmId: "way/mall003", name: "Sankey Road Surface Lot", address: "Sankey Road", lat: 13.0070, lng: 77.5750, type: "surface", fee: true, access: "public", operator: null, capacity: 55 },
+  { id: "osm-mall-1", osmId: "way/mall001", name: "Malleshwaram 8th Cross Parking", address: "Malleshwaram 8th Cross", lat: 13.0096, lng: 77.5679, type: "street", fee: false, access: "public", operator: null, capacity: 40, area: "Malleshwaram" },
+  { id: "osm-mall-2", osmId: "way/mall002", name: "Mantri Square Mall Parking", address: "Sampige Road, Malleshwaram", lat: 13.0110, lng: 77.5705, type: "multi-storey", fee: true, access: "customers", operator: "Mantri Mall", capacity: 400, area: "Malleshwaram" },
+  { id: "osm-mall-3", osmId: "way/mall003", name: "Sankey Road Surface Lot", address: "Sankey Road", lat: 13.0070, lng: 77.5750, type: "surface", fee: true, access: "public", operator: null, capacity: 55, area: "Malleshwaram" },
 
   // BANASHANKARI
-  { id: "osm-bana-1", osmId: "way/bana001", name: "Banashankari Temple Parking", address: "Banashankari Temple Road", lat: 12.9260, lng: 77.5400, type: "surface", fee: false, access: "devotees", operator: "Temple Trust", capacity: 150 },
-  { id: "osm-bana-2", osmId: "way/bana002", name: "Banashankari TTMC Parking", address: "Banashankari", lat: 12.9245, lng: 77.5450, type: "multi-storey", fee: true, access: "public", operator: "BMTC", capacity: 200 },
+  { id: "osm-bana-1", osmId: "way/bana001", name: "Banashankari Temple Parking", address: "Banashankari Temple Road", lat: 12.9260, lng: 77.5400, type: "surface", fee: false, access: "devotees", operator: "Temple Trust", capacity: 150, area: "Banashankari" },
+  { id: "osm-bana-2", osmId: "way/bana002", name: "Banashankari TTMC Parking", address: "Banashankari", lat: 12.9245, lng: 77.5450, type: "multi-storey", fee: true, access: "public", operator: "BMTC", capacity: 200, area: "Banashankari" },
 
   // BTM LAYOUT
-  { id: "osm-btm-1", osmId: "way/btm001", name: "BTM 2nd Stage Parking", address: "BTM Layout 2nd Stage", lat: 12.9165, lng: 77.6101, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 70 },
-  { id: "osm-btm-2", osmId: "way/btm002", name: "Silk Board Junction Lot", address: "Silk Board", lat: 12.9279, lng: 77.6606, type: "surface", fee: true, access: "public", operator: null, capacity: 90 },
+  { id: "osm-btm-1", osmId: "way/btm001", name: "BTM 2nd Stage Parking", address: "BTM Layout 2nd Stage", lat: 12.9165, lng: 77.6101, type: "surface", fee: true, access: "public", operator: "BBMP", capacity: 70, area: "BTM Layout" },
+  { id: "osm-btm-2", osmId: "way/btm002", name: "Silk Board Junction Lot", address: "Silk Board", lat: 12.9279, lng: 77.6606, type: "surface", fee: true, access: "public", operator: null, capacity: 90, area: "BTM Layout" },
 
   // BELLANDUR / SARJAPUR ROAD
-  { id: "osm-bell-1", osmId: "way/bell001", name: "Bellandur ORR Parking", address: "Bellandur Junction", lat: 12.9258, lng: 77.6742, type: "surface", fee: true, access: "public", operator: null, capacity: 100 },
-  { id: "osm-bell-2", osmId: "way/bell002", name: "Prestige Shantiniketan Parking", address: "Whitefield Road", lat: 12.9300, lng: 77.6800, type: "underground", fee: true, access: "residents", operator: "Prestige Group", capacity: 180 },
-  { id: "osm-bell-3", osmId: "way/bell003", name: "Sarjapur Road Signal Lot", address: "Sarjapur Main Road", lat: 12.9141, lng: 77.6799, type: "street", fee: false, access: "public", operator: null, capacity: 35 },
+  { id: "osm-bell-1", osmId: "way/bell001", name: "Bellandur ORR Parking", address: "Bellandur Junction", lat: 12.9258, lng: 77.6742, type: "surface", fee: true, access: "public", operator: null, capacity: 100, area: "Bellandur" },
+  { id: "osm-bell-2", osmId: "way/bell002", name: "Prestige Shantiniketan Parking", address: "Whitefield Road", lat: 12.9300, lng: 77.6800, type: "underground", fee: true, access: "residents", operator: "Prestige Group", capacity: 180, area: "Bellandur" },
+  { id: "osm-bell-3", osmId: "way/bell003", name: "Sarjapur Road Signal Lot", address: "Sarjapur Main Road", lat: 12.9141, lng: 77.6799, type: "street", fee: false, access: "public", operator: null, capacity: 35, area: "Bellandur" },
 
   // YELAHANKA / NORTH BANGALORE
-  { id: "osm-yela-1", osmId: "way/yela001", name: "Yelahanka New Town Parking", address: "Yelahanka New Town", lat: 13.0690, lng: 77.5857, type: "surface", fee: false, access: "public", operator: null, capacity: 50 },
-  { id: "osm-yela-2", osmId: "way/yela002", name: "Yelahanka Old Town Market Lot", address: "Yelahanka Old Town", lat: 13.1000, lng: 77.5960, type: "street", fee: false, access: "public", operator: null, capacity: 30 },
+  { id: "osm-yela-1", osmId: "way/yela001", name: "Yelahanka New Town Parking", address: "Yelahanka New Town", lat: 13.0690, lng: 77.5857, type: "surface", fee: false, access: "public", operator: null, capacity: 50, area: "Yelahanka" },
+  { id: "osm-yela-2", osmId: "way/yela002", name: "Yelahanka Old Town Market Lot", address: "Yelahanka Old Town", lat: 13.1000, lng: 77.5960, type: "street", fee: false, access: "public", operator: null, capacity: 30, area: "Yelahanka" },
 
   // AIRPORT AREA
-  { id: "osm-air-1", osmId: "way/air001", name: "BIAL Terminal 1 Parking", address: "Kempegowda International Airport", lat: 13.1986, lng: 77.7066, type: "multi-storey", fee: true, access: "public", operator: "BIAL", capacity: 2000 },
-  { id: "osm-air-2", osmId: "way/air002", name: "BIAL Long Term Parking", address: "Airport Road, Devanahalli", lat: 13.1950, lng: 77.7100, type: "surface", fee: true, access: "public", operator: "BIAL", capacity: 1500 },
-  { id: "osm-air-3", osmId: "way/air003", name: "Devanahalli Town Lot", address: "Devanahalli", lat: 13.2500, lng: 77.7150, type: "street", fee: false, access: "public", operator: null, capacity: 25 },
+  { id: "osm-air-1", osmId: "way/air001", name: "BIAL Terminal 1 Parking", address: "Kempegowda International Airport", lat: 13.1986, lng: 77.7066, type: "multi-storey", fee: true, access: "public", operator: "BIAL", capacity: 2000, area: "Airport" },
+  { id: "osm-air-2", osmId: "way/air002", name: "BIAL Long Term Parking", address: "Airport Road, Devanahalli", lat: 13.1950, lng: 77.7100, type: "surface", fee: true, access: "public", operator: "BIAL", capacity: 1500, area: "Airport" },
+  { id: "osm-air-3", osmId: "way/air003", name: "Devanahalli Town Lot", address: "Devanahalli", lat: 13.2500, lng: 77.7150, type: "street", fee: false, access: "public", operator: null, capacity: 25, area: "Airport" },
 
   // RAJAJINAGAR
-  { id: "osm-raja-1", osmId: "way/raja001", name: "Rajajinagar Industrial Area Parking", address: "Rajajinagar 1st Block", lat: 12.9991, lng: 77.5560, type: "surface", fee: true, access: "public", operator: null, capacity: 80 },
-  { id: "osm-raja-2", osmId: "way/raja002", name: "Navrang Theatre Parking", address: "Rajajinagar 4th Block", lat: 13.0020, lng: 77.5590, type: "surface", fee: true, access: "customers", operator: null, capacity: 60 },
+  { id: "osm-raja-1", osmId: "way/raja001", name: "Rajajinagar Industrial Area Parking", address: "Rajajinagar 1st Block", lat: 12.9991, lng: 77.5560, type: "surface", fee: true, access: "public", operator: null, capacity: 80, area: "Rajajinagar" },
+  { id: "osm-raja-2", osmId: "way/raja002", name: "Navrang Theatre Parking", address: "Rajajinagar 4th Block", lat: 13.0020, lng: 77.5590, type: "surface", fee: true, access: "customers", operator: null, capacity: 60, area: "Rajajinagar" },
 
   // BASAVANAGUDI / SOUTH BANGALORE
-  { id: "osm-basa-1", osmId: "way/basa001", name: "Bull Temple Parking", address: "Basavanagudi", lat: 12.9428, lng: 77.5693, type: "surface", fee: false, access: "devotees", operator: "Temple Trust", capacity: 80 },
-  { id: "osm-basa-2", osmId: "way/basa002", name: "DVG Road Surface Parking", address: "DVG Road, Basavanagudi", lat: 12.9450, lng: 77.5720, type: "street", fee: true, access: "public", operator: "BBMP", capacity: 40 },
-  { id: "osm-basa-3", osmId: "way/basa003", name: "National College Parking", address: "Basavanagudi", lat: 12.9410, lng: 77.5680, type: "surface", fee: true, access: "visitors", operator: "National College", capacity: 100 },
+  { id: "osm-basa-1", osmId: "way/basa001", name: "Bull Temple Parking", address: "Basavanagudi", lat: 12.9428, lng: 77.5693, type: "surface", fee: false, access: "devotees", operator: "Temple Trust", capacity: 80, area: "Basavanagudi" },
+  { id: "osm-basa-2", osmId: "way/basa002", name: "DVG Road Surface Parking", address: "DVG Road, Basavanagudi", lat: 12.9450, lng: 77.5720, type: "street", fee: true, access: "public", operator: "BBMP", capacity: 40, area: "Basavanagudi" },
+  { id: "osm-basa-3", osmId: "way/basa003", name: "National College Parking", address: "Basavanagudi", lat: 12.9410, lng: 77.5680, type: "surface", fee: true, access: "visitors", operator: "National College", capacity: 100, area: "Basavanagudi" },
 
   // LALBAGH
   { id: "osm-lalb-1", osmId: "way/lalb001", name: "Lalbagh West Gate Parking", address: "Lalbagh Botanical Garden", lat: 12.9507, lng: 77.5852, type: "surface", fee: true, access: "visitors", operator: "Horticulture Dept", capacity: 80 },
@@ -201,6 +201,46 @@ const rawOsmData = [
   { id: "osm-broo-1", osmId: "way/broo001", name: "Brookfield Mall Parking", address: "Brookfield", lat: 12.9680, lng: 77.7300, type: "multi-storey", fee: true, access: "customers", operator: null, capacity: 200 },
 ];
 
+const normalizeAreaKey = (value) => {
+  if (!value) return null;
+  const normalized = String(value)
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[._-]+/g, " ")
+    .replace(/\b(layout|area)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Canonicalize common variants to the same key used by the UI.
+  if (normalized.startsWith("hsr")) return "hsr";
+  if (normalized.startsWith("btm")) return "btm";
+  if (normalized === "malleswaram") return "malleshwaram";
+  return normalized;
+};
+
+const inferAreaNameFromText = (spot) => {
+  const text = `${spot?.name || ""} ${spot?.address || ""}`.toLowerCase();
+  // Keep these strict to avoid cross-area bleeding.
+  if (text.includes("indiranagar")) return "Indiranagar";
+  if (text.includes("koramangala") || text.includes("kormangala")) return "Koramangala";
+  if (text.includes("whitefield") || text.includes("itpl") || text.includes("hope farm") || text.includes("vydehi")) return "Whitefield";
+  if (text.includes("mg road") || text.includes("m.g. road") || text.includes("brigade") || text.includes("church street")) return "MG Road";
+  if (text.includes("hsr")) return "HSR Layout";
+  if (text.includes("electronic city") || text.includes("ecity")) return "Electronic City";
+  if (text.includes("jayanagar")) return "Jayanagar";
+  if (text.includes("malleshwaram") || text.includes("malleswaram")) return "Malleshwaram";
+  if (text.includes("marathahalli") || text.includes("marthahalli")) return "Marathahalli";
+  if (text.includes("basavanagudi") || text.includes("basava")) return "Basavanagudi";
+  if (text.includes("majestic") || text.includes("ksrtc") || text.includes("kempegowda") || text.includes("ksr")) return "Majestic";
+  if (text.includes("banashankari") || text.includes("bsk")) return "Banashankari";
+  if (text.includes("bellandur")) return "Bellandur";
+  if (text.includes("yelahanka")) return "Yelahanka";
+  if (text.includes("airport") || text.includes("bial") || text.includes("devanahalli")) return "Airport";
+  if (text.includes("rajajinagar")) return "Rajajinagar";
+  return null;
+};
+
 /**
  * Generate realistic dynamic availability and pricing
  * RULE: Every location must have at least some slots available (minimum 5-15)
@@ -278,6 +318,9 @@ export const processOsmParkingData = () => {
   let globalId = 1; // Use sequential numeric IDs for booking compatibility
   
   rawOsmData.forEach((spot, index) => {
+    const area = spot.area || inferAreaNameFromText(spot) || "Bengaluru";
+    const areaKey = normalizeAreaKey(area);
+
     // Generate data for FOUR_WHEELER
     const fourWheelerData = generateDynamicData(spot);
     fourWheelerData.vehicleType = 'FOUR_WHEELER';
@@ -287,6 +330,8 @@ export const processOsmParkingData = () => {
       osmId: spot.osmId,
       name: spot.name,
       address: spot.address,
+      area,
+      areaKey,
       latitude: spot.lat,
       longitude: spot.lng,
       ...fourWheelerData,
@@ -314,6 +359,8 @@ export const processOsmParkingData = () => {
       osmId: spot.osmId + '-bike',
       name: spot.name,
       address: spot.address,
+      area,
+      areaKey,
       latitude: spot.lat,
       longitude: spot.lng,
       ...twoWheelerData,

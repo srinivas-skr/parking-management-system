@@ -19,9 +19,11 @@ export default function SplineBackground() {
   const [is3DReady, setIs3DReady] = useState(false);
 
   useEffect(() => {
-    // 1. Backend Warm-up (same URL as api.js)
-    const backendUrl = "https://parking-management-system-hs2i.onrender.com"; 
-    fetch(`${backendUrl}/api/health`).catch(() => {});
+    // 1. Backend Warm-up (same base as api.js)
+    let apiBase = import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api";
+    if (apiBase.endsWith("/")) apiBase = apiBase.slice(0, -1);
+    if (!apiBase.endsWith("/api")) apiBase += "/api";
+    fetch(`${apiBase}/health`).catch(() => {});
 
     // 2. Hardware Check (Keep Image for weak devices)
     const hardwareConcurrency = window.navigator.hardwareConcurrency || 4;

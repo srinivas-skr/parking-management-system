@@ -34,7 +34,11 @@ export default function AppInitializer({ children }) {
         // Silently ping backend to wake it up (for auth features later)
         // This runs in background without blocking the UI
         try {
-          fetch(`${import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api"}/health`, {
+          let apiBase = import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api"
+          if (apiBase.endsWith("/")) apiBase = apiBase.slice(0, -1)
+          if (!apiBase.endsWith("/api")) apiBase += "/api"
+
+          fetch(`${apiBase}/health`, {
             method: 'GET',
             mode: 'cors',
           }).catch(() => {

@@ -15,24 +15,24 @@ import { motion } from "framer-motion"
 
 // Popular areas in Bengaluru with coordinates
 const popularAreas = [
-  { name: "Koramangala", lat: 12.9352, lng: 77.6245, icon: "🏢" },
-  { name: "Indiranagar", lat: 12.9719, lng: 77.6412, icon: "🎯" },
-  { name: "Whitefield", lat: 12.9771, lng: 77.7265, icon: "💼" },
-  { name: "MG Road", lat: 12.9756, lng: 77.6066, icon: "🛍️" },
-  { name: "HSR Layout", lat: 12.9082, lng: 77.6476, icon: "🏠" },
-  { name: "Electronic City", lat: 12.8426, lng: 77.6598, icon: "🏭" },
-  { name: "Jayanagar", lat: 12.9250, lng: 77.5838, icon: "🌳" },
-  { name: "Malleshwaram", lat: 13.0096, lng: 77.5679, icon: "🏛️" },
-  { name: "BTM Layout", lat: 12.9165, lng: 77.6101, icon: "🏘️" },
-  { name: "Yelahanka", lat: 13.0690, lng: 77.5857, icon: "✈️" },
-  { name: "Marathahalli", lat: 12.9591, lng: 77.6974, icon: "🚗" },
-  { name: "Basavanagudi", lat: 12.9428, lng: 77.5693, icon: "🐂" },
-  { name: "Cubbon Park", lat: 12.9762, lng: 77.5929, icon: "🌳" },
-  { name: "Majestic", lat: 12.9763, lng: 77.5713, icon: "🚌" },
-  { name: "Banashankari", lat: 12.9260, lng: 77.5400, icon: "🛕" },
-  { name: "Bellandur", lat: 12.9258, lng: 77.6742, icon: "🏢" },
-  { name: "Airport", lat: 13.1986, lng: 77.7066, icon: "✈️" },
-  { name: "Rajajinagar", lat: 12.9991, lng: 77.5560, icon: "🏭" },
+  { name: "Koramangala", areaKey: "koramangala", lat: 12.9352, lng: 77.6245, icon: "🏢" },
+  { name: "Indiranagar", areaKey: "indiranagar", lat: 12.9719, lng: 77.6412, icon: "🎯" },
+  { name: "Whitefield", areaKey: "whitefield", lat: 12.9771, lng: 77.7265, icon: "💼" },
+  { name: "MG Road", areaKey: "mg road", lat: 12.9756, lng: 77.6066, icon: "🛍️" },
+  { name: "HSR Layout", areaKey: "hsr", lat: 12.9082, lng: 77.6476, icon: "🏠" },
+  { name: "Electronic City", areaKey: "electronic city", lat: 12.8426, lng: 77.6598, icon: "🏭" },
+  { name: "Jayanagar", areaKey: "jayanagar", lat: 12.9250, lng: 77.5838, icon: "🌳" },
+  { name: "Malleshwaram", areaKey: "malleshwaram", lat: 13.0096, lng: 77.5679, icon: "🏛️" },
+  { name: "BTM Layout", areaKey: "btm", lat: 12.9165, lng: 77.6101, icon: "🏘️" },
+  { name: "Yelahanka", areaKey: "yelahanka", lat: 13.0690, lng: 77.5857, icon: "✈️" },
+  { name: "Marathahalli", areaKey: "marathahalli", lat: 12.9591, lng: 77.6974, icon: "🚗" },
+  { name: "Basavanagudi", areaKey: "basavanagudi", lat: 12.9428, lng: 77.5693, icon: "🐂" },
+  { name: "Cubbon Park", areaKey: "cubbon park", lat: 12.9762, lng: 77.5929, icon: "🌳" },
+  { name: "Majestic", areaKey: "majestic", lat: 12.9763, lng: 77.5713, icon: "🚌" },
+  { name: "Banashankari", areaKey: "banashankari", lat: 12.9260, lng: 77.5400, icon: "🛕" },
+  { name: "Bellandur", areaKey: "bellandur", lat: 12.9258, lng: 77.6742, icon: "🏢" },
+  { name: "Airport", areaKey: "airport", lat: 13.1986, lng: 77.7066, icon: "✈️" },
+  { name: "Rajajinagar", areaKey: "rajajinagar", lat: 12.9991, lng: 77.5560, icon: "🏭" },
 ]
 
 // Strict keyword map per area to avoid cross-city bleed
@@ -54,6 +54,68 @@ const areaKeywordMap = {
   bellandur: ["bellandur"],
   airport: ["airport", "bial", "devanahalli"],
   rajajinagar: ["rajajinagar"],
+}
+
+const normalizeAreaKey = (value) => {
+  if (!value) return null
+  const normalized = String(value)
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[._-]+/g, " ")
+    .replace(/\b(layout|area)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+
+  if (normalized.startsWith("hsr")) return "hsr"
+  if (normalized.startsWith("btm")) return "btm"
+  if (normalized === "malleswaram") return "malleshwaram"
+  return normalized
+}
+
+const getSelectedAreaKey = (location) => {
+  if (!location || location.name === "Current Location") return null
+  return location.areaKey || normalizeAreaKey(location.name)
+}
+
+const getSlotAreaKey = (slot) => {
+  const direct = normalizeAreaKey(slot?.areaKey || slot?.area)
+  if (direct) return direct
+
+  const text = `${slot?.name || ""} ${slot?.address || ""}`.toLowerCase()
+  // Strict inference: only match strong area indicators.
+  const strict = {
+    koramangala: ["koramangala", "kormangala"],
+    indiranagar: ["indiranagar"],
+    whitefield: ["whitefield", "itpl", "hope farm", "vydehi"],
+    "mg road": ["mg road", "m.g. road", "brigade", "church street"],
+    hsr: ["hsr"],
+    "electronic city": ["electronic city", "ecity"],
+    jayanagar: ["jayanagar"],
+    malleshwaram: ["malleshwaram", "malleswaram"],
+    btm: ["btm"],
+    yelahanka: ["yelahanka"],
+    marathahalli: ["marathahalli", "marthahalli"],
+    basavanagudi: ["basavanagudi"],
+    majestic: ["majestic", "ksrtc", "kempegowda", "ksr"],
+    banashankari: ["banashankari", "bsk"],
+    bellandur: ["bellandur"],
+    airport: ["airport", "bial", "devanahalli"],
+    rajajinagar: ["rajajinagar"],
+  }
+
+  for (const [key, tokens] of Object.entries(strict)) {
+    if (tokens.some(t => text.includes(t))) return key
+  }
+  return null
+}
+
+const getApiBaseUrl = () => {
+  // Keep consistent with src/services/api.js default
+  let apiBase = import.meta.env.VITE_API_URL || "https://parking-management-system-hs2i.onrender.com/api"
+  if (apiBase.endsWith("/")) apiBase = apiBase.slice(0, -1)
+  if (!apiBase.endsWith("/api")) apiBase += "/api"
+  return apiBase
 }
 
 export default function ParkingSlots() {
@@ -106,6 +168,7 @@ export default function ParkingSlots() {
     if (area && lat && lng) {
       const location = {
         name: area,
+        areaKey: normalizeAreaKey(area),
         lat: parseFloat(lat),
         lng: parseFloat(lng)
       }
@@ -178,7 +241,7 @@ export default function ParkingSlots() {
   // Quiet refresh - updates slots without loading state
   const refreshSlotsQuietly = useCallback(async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots'
+      const apiUrl = `${getApiBaseUrl()}/slots`
       const response = await fetch(apiUrl)
       if (response.ok) {
         const freshData = await response.json()
@@ -211,7 +274,7 @@ export default function ParkingSlots() {
       // Try to fetch real parking slots from backend API
       let backendSlots = []
       try {
-        const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/api$/, '') + '/api/slots'
+        const apiUrl = `${getApiBaseUrl()}/slots`
         console.log('🔗 Fetching from:', apiUrl)
         
         const response = await fetch(apiUrl)
@@ -292,23 +355,22 @@ export default function ParkingSlots() {
       } 
       // B. Named Location Mode: Use Strict Text Matching only (no distance)
       else {
-        const targetName = selectedLocation.name.toLowerCase()
-        
-        const pickKeywords = (name) => {
-          for (const [area, keywords] of Object.entries(areaKeywordMap)) {
-            if (name.includes(area)) return keywords
-          }
-          // fallback: cleaned name tokens
-          const cleaned = name.replace(/layout|road|area|city|block|phase|stage/g, "").trim()
-          return cleaned.length > 2 ? [cleaned] : [name]
+        const selectedAreaKey = getSelectedAreaKey(selectedLocation)
+
+        // If it's one of our known areas, filter by areaKey only (prevents cross-area bleeding).
+        if (selectedAreaKey && (selectedAreaKey in areaKeywordMap)) {
+          filtered = filtered.filter((slot) => {
+            const slotAreaKey = getSlotAreaKey(slot)
+            return slotAreaKey === selectedAreaKey
+          })
+        } else {
+          // Fallback for ad-hoc searched places: use a conservative contains match.
+          const targetName = selectedLocation.name.toLowerCase()
+          filtered = filtered.filter((slot) => {
+            const slotText = (slot.name + " " + (slot.address || "")).toLowerCase()
+            return slotText.includes(targetName)
+          })
         }
-        const keywords = pickKeywords(targetName)
-        console.log(`🔍 Strict Filter for ${targetName}:`, keywords)
-        
-        filtered = filtered.filter((slot) => {
-          const slotText = (slot.name + " " + (slot.address || "")).toLowerCase()
-          return keywords.some(k => slotText.includes(k))
-        })
       }
     }
     // C. Search Query Fallback (if no location selected but user typed something)
