@@ -1,7 +1,7 @@
 
 
 import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { MapPin, DollarSign, Clock, Car, Bike, Plus, Calendar, Zap } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Card } from "../components/ui/card"
@@ -83,6 +83,7 @@ const DURATION_OPTIONS = [
 export default function BookSlot() {
   const { slotId } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   const [slot, setSlot] = useState(null)
   const [vehicles, setVehicles] = useState([])
@@ -98,6 +99,20 @@ export default function BookSlot() {
     checkInTime: "",
     checkOutTime: "",
   })
+
+  // Auto-select vehicle from URL params (passed from Dashboard)
+  const autoSelectVehicle = (vehicleList) => {
+    const urlVehicleNumber = searchParams.get("vehicleNumber")
+    if (urlVehicleNumber) {
+      const matchingVehicle = vehicleList.find(v => 
+        v.vehicleNumber?.toUpperCase() === urlVehicleNumber.toUpperCase()
+      )
+      if (matchingVehicle) {
+        console.log("🚗 Auto-selecting vehicle from URL:", matchingVehicle.vehicleNumber)
+        setFormData(prev => ({ ...prev, vehicleId: String(matchingVehicle.id) }))
+      }
+    }
+  }
 
   useEffect(() => {
     fetchSlotAndVehicles()
@@ -153,8 +168,12 @@ export default function BookSlot() {
       if (vehicleData.length === 0) {
         console.log("📌 Using demo vehicles")
         setVehicles(DEMO_VEHICLES)
+        // Auto-select vehicle from URL params
+        autoSelectVehicle(DEMO_VEHICLES)
       } else {
         setVehicles(vehicleData)
+        // Auto-select vehicle from URL params
+        autoSelectVehicle(vehicleData)
       }
     } catch (error) {
       console.error("Failed to fetch data:", error)
@@ -397,10 +416,10 @@ export default function BookSlot() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100">
         <Navbar />
         <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-500 border-t-transparent" />
         </div>
       </div>
     )
@@ -408,10 +427,10 @@ export default function BookSlot() {
 
   if (!slot) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100">
         <Navbar />
         <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-          <p className="text-white">Slot not found</p>
+          <p className="text-gray-800">Slot not found</p>
         </div>
       </div>
     )
@@ -420,7 +439,7 @@ export default function BookSlot() {
   const totalCost = calculateCost()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100">
       <Navbar />
       
       <BookingConfirmationModal
@@ -433,34 +452,34 @@ export default function BookSlot() {
 
       <main className="container mx-auto px-4 py-6 sm:py-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-white">Book Parking Slot</h1>
-          <p className="text-white/60 text-sm sm:text-base">Complete your booking details</p>
+          <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-gray-900">Book Parking Slot</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Complete your booking details</p>
         </div>
 
         <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             
             {/* Slot Information Card */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+            <Card className="border-purple-100 bg-white shadow-lg">
               <div className="p-4 sm:p-6">
-                <h2 className="mb-4 text-lg font-semibold text-white">📍 Slot Information</h2>
+                <h2 className="mb-4 text-lg font-semibold text-gray-900">📍 Slot Information</h2>
                 <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-3 text-white/80">
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                      <MapPin className="h-5 w-5 text-purple-400" />
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <MapPin className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-white/50">Location</p>
-                      <p className="font-medium text-white">{slot.location}</p>
+                      <p className="text-xs text-gray-500">Location</p>
+                      <p className="font-medium text-gray-900">{slot.location}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-white/80">
-                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-green-400" />
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-white/50">Price</p>
-                      <p className="font-medium text-white">₹{slot.pricePerHour}/hour</p>
+                      <p className="text-xs text-gray-500">Price</p>
+                      <p className="font-medium text-gray-900">₹{slot.pricePerHour}/hour</p>
                     </div>
                   </div>
                 </div>
@@ -468,13 +487,13 @@ export default function BookSlot() {
             </Card>
 
             {/* Vehicle Selection - Improved with Type Matching */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+            <Card className="border-purple-100 bg-white shadow-lg">
               <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-white">🚗 Select Vehicle</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">🚗 Select Vehicle</h2>
                   <button 
                     onClick={() => navigate('/my-vehicles')}
-                    className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                    className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
                   >
                     <Plus className="h-4 w-4" /> Add New
                   </button>
@@ -483,12 +502,12 @@ export default function BookSlot() {
                 {/* Show slot vehicle type requirement */}
                 <div className={`mb-4 p-3 rounded-lg border ${
                   slot.vehicleType === "TWO_WHEELER" 
-                    ? "bg-green-500/10 border-green-500/30" 
-                    : "bg-blue-500/10 border-blue-500/30"
+                    ? "bg-green-50 border-green-300" 
+                    : "bg-blue-50 border-blue-300"
                 }`}>
-                  <p className="text-sm text-white/80">
+                  <p className="text-sm text-gray-700">
                     <span className="text-lg mr-2">{slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
-                    This slot is for <span className="font-bold text-white">{slot.vehicleType === "TWO_WHEELER" ? "Two Wheelers (Bike/Scooter)" : "Four Wheelers (Car/SUV)"}</span>
+                    This slot is for <span className="font-bold text-gray-900">{slot.vehicleType === "TWO_WHEELER" ? "Two Wheelers (Bike/Scooter)" : "Four Wheelers (Car/SUV)"}</span>
                   </p>
                 </div>
                 
@@ -510,26 +529,26 @@ export default function BookSlot() {
                       onClick={() => setFormData({ ...formData, vehicleId: String(vehicle.id) })}
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
                         formData.vehicleId === String(vehicle.id)
-                          ? "border-purple-500 bg-purple-500/20"
-                          : "border-white/10 bg-white/5 hover:border-white/30"
+                          ? "border-purple-500 bg-purple-100 ring-2 ring-purple-300"
+                          : "border-gray-200 bg-gray-50 hover:border-purple-300 hover:bg-purple-50"
                       }`}
                     >
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        formData.vehicleId === String(vehicle.id) ? "bg-purple-500" : "bg-white/10"
+                        formData.vehicleId === String(vehicle.id) ? "bg-purple-500" : "bg-purple-100"
                       }`}>
                         {vehicle.vehicleType === "Bike" || vehicle.vehicleType === "TWO_WHEELER" ? (
-                          <Bike className="h-6 w-6 text-white" />
+                          <Bike className={`h-6 w-6 ${formData.vehicleId === String(vehicle.id) ? "text-white" : "text-purple-600"}`} />
                         ) : (
-                          <Car className="h-6 w-6 text-white" />
+                          <Car className={`h-6 w-6 ${formData.vehicleId === String(vehicle.id) ? "text-white" : "text-purple-600"}`} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-white truncate">{vehicle.vehicleNumber}</p>
-                        <p className="text-sm text-white/60">{vehicle.brand || vehicle.vehicleType}</p>
+                        <p className="font-bold text-gray-900 truncate">{vehicle.vehicleNumber}</p>
+                        <p className="text-sm text-gray-500">{vehicle.brand || vehicle.vehicleType}</p>
                       </div>
                       {formData.vehicleId === String(vehicle.id) && (
-                        <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-                          <span className="text-white text-sm">✓</span>
+                        <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center shadow-lg">
+                          <span className="text-white text-sm font-bold">✓</span>
                         </div>
                       )}
                     </button>
@@ -539,9 +558,9 @@ export default function BookSlot() {
             </Card>
 
             {/* Time Selection - User Friendly */}
-            <Card className="border-white/10 bg-white/5 backdrop-blur-xl">
+            <Card className="border-purple-100 bg-white shadow-lg">
               <div className="p-4 sm:p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">⏰ When do you want to park?</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">⏰ When do you want to park?</h2>
                 
                 {/* Start Now or Later Toggle */}
                 <div className="flex gap-3 mb-6">
@@ -549,8 +568,8 @@ export default function BookSlot() {
                     onClick={() => setStartOption("now")}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 transition-all ${
                       startOption === "now"
-                        ? "border-green-500 bg-green-500/20 text-green-400"
-                        : "border-white/10 bg-white/5 text-white/70 hover:border-white/30"
+                        ? "border-green-500 bg-green-100 text-green-700"
+                        : "border-gray-200 bg-gray-50 text-gray-600 hover:border-green-300"
                     }`}
                   >
                     <Zap className="h-5 w-5" />
@@ -560,8 +579,8 @@ export default function BookSlot() {
                     onClick={() => setStartOption("later")}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 transition-all ${
                       startOption === "later"
-                        ? "border-blue-500 bg-blue-500/20 text-blue-400"
-                        : "border-white/10 bg-white/5 text-white/70 hover:border-white/30"
+                        ? "border-blue-500 bg-blue-100 text-blue-700"
+                        : "border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-300"
                     }`}
                   >
                     <Calendar className="h-5 w-5" />
@@ -571,32 +590,32 @@ export default function BookSlot() {
 
                 {/* Custom Date/Time for "Later" option */}
                 {startOption === "later" && (
-                  <div className="grid grid-cols-2 gap-4 mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                  <div className="grid grid-cols-2 gap-4 mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200">
                     <div>
-                      <label className="block text-sm text-white/60 mb-2">Date</label>
+                      <label className="block text-sm text-gray-600 mb-2">Date</label>
                       <input
                         type="date"
                         value={customDate}
                         onChange={(e) => setCustomDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-white/60 mb-2">Time</label>
+                      <label className="block text-sm text-gray-600 mb-2">Time</label>
                       <input
                         type="time"
                         value={customTime}
                         onChange={(e) => setCustomTime(e.target.value)}
-                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Duration Selection - Quick Buttons */}
+                {/* Duration Selection - Quick Buttons with Visible Checkmark */}
                 <div className="mb-4">
-                  <label className="block text-sm text-white/60 mb-3">How long do you need?</label>
+                  <label className="block text-sm text-gray-600 mb-3">How long do you need?</label>
                   <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                     {DURATION_OPTIONS.map((option) => (
                       <button
@@ -604,8 +623,8 @@ export default function BookSlot() {
                         onClick={() => setSelectedDuration(option.hours)}
                         className={`relative py-3 px-2 rounded-xl border-2 transition-all text-center ${
                           selectedDuration === option.hours
-                            ? "border-purple-500 bg-purple-500/20"
-                            : "border-white/10 bg-white/5 hover:border-white/30"
+                            ? "border-purple-500 bg-purple-100 ring-2 ring-purple-300"
+                            : "border-gray-200 bg-gray-50 hover:border-purple-300"
                         }`}
                       >
                         {option.popular && (
@@ -613,7 +632,13 @@ export default function BookSlot() {
                             POPULAR
                           </span>
                         )}
-                        <span className={`text-sm font-semibold ${selectedDuration === option.hours ? "text-purple-400" : "text-white"}`}>
+                        {/* Visible checkmark for selected duration */}
+                        {selectedDuration === option.hours && (
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                            ✓
+                          </span>
+                        )}
+                        <span className={`text-sm font-semibold ${selectedDuration === option.hours ? "text-purple-700" : "text-gray-700"}`}>
                           {option.label}
                         </span>
                       </button>
@@ -622,23 +647,23 @@ export default function BookSlot() {
                 </div>
 
                 {/* Time Summary */}
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-100 to-indigo-100 border border-purple-200">
                   <div className="text-center">
-                    <p className="text-xs text-white/50 mb-1">CHECK-IN</p>
-                    <p className="text-lg font-bold text-white">{formatTimeDisplay(formData.checkInTime)}</p>
-                    <p className="text-xs text-white/60">{formatDateDisplay(formData.checkInTime)}</p>
+                    <p className="text-xs text-gray-500 mb-1">CHECK-IN</p>
+                    <p className="text-lg font-bold text-gray-900">{formatTimeDisplay(formData.checkInTime)}</p>
+                    <p className="text-xs text-gray-600">{formatDateDisplay(formData.checkInTime)}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-[2px] bg-white/20"></div>
-                    <div className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-semibold">
+                    <div className="w-8 h-[2px] bg-purple-300"></div>
+                    <div className="px-3 py-1 rounded-full bg-purple-200 text-purple-700 text-sm font-semibold">
                       {selectedDuration}h
                     </div>
-                    <div className="w-8 h-[2px] bg-white/20"></div>
+                    <div className="w-8 h-[2px] bg-purple-300"></div>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-white/50 mb-1">CHECK-OUT</p>
-                    <p className="text-lg font-bold text-white">{formatTimeDisplay(formData.checkOutTime)}</p>
-                    <p className="text-xs text-white/60">{formatDateDisplay(formData.checkOutTime)}</p>
+                    <p className="text-xs text-gray-500 mb-1">CHECK-OUT</p>
+                    <p className="text-lg font-bold text-gray-900">{formatTimeDisplay(formData.checkOutTime)}</p>
+                    <p className="text-xs text-gray-600">{formatDateDisplay(formData.checkOutTime)}</p>
                   </div>
                 </div>
               </div>
@@ -647,44 +672,44 @@ export default function BookSlot() {
 
           {/* Booking Summary - Right Side */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-24 border-white/10 bg-white/5 backdrop-blur-xl">
+            <Card className="sticky top-24 border-purple-100 bg-white shadow-lg">
               <div className="p-4 sm:p-6">
-                <h3 className="mb-4 text-lg font-semibold text-white">📋 Booking Summary</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">📋 Booking Summary</h3>
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-sm">
-                    <span className="text-white/60">Slot</span>
-                    <span className="font-medium text-white">{slot.name || slot.location}</span>
+                    <span className="text-gray-500">Slot</span>
+                    <span className="font-medium text-gray-900">{slot.name || slot.location}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-white/60">Duration</span>
-                    <span className="font-medium text-white">{selectedDuration} hours</span>
+                    <span className="text-gray-500">Duration</span>
+                    <span className="font-medium text-gray-900">{selectedDuration} hours</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-white/60">Rate</span>
-                    <span className="font-medium text-white">₹{slot.pricePerHour}/hr</span>
+                    <span className="text-gray-500">Rate</span>
+                    <span className="font-medium text-gray-900">₹{slot.pricePerHour}/hr</span>
                   </div>
 
                   {formData.vehicleId && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/60">Vehicle</span>
-                      <span className="font-medium text-white">
+                      <span className="text-gray-500">Vehicle</span>
+                      <span className="font-medium text-gray-900">
                         {vehicles.find(v => v.id === parseInt(formData.vehicleId))?.vehicleNumber}
                       </span>
                     </div>
                   )}
 
-                  <div className="border-t border-white/10 pt-4">
+                  <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold text-white">Total</span>
+                      <span className="text-lg font-semibold text-gray-900">Total</span>
                       <div className="text-right">
-                        <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
+                        <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
                           ₹{totalCost}
                         </span>
                         {slot.pricePerHour === 0 && (
-                          <p className="text-xs text-green-400">FREE PARKING! 🎉</p>
+                          <p className="text-xs text-green-600">FREE PARKING! 🎉</p>
                         )}
                       </div>
                     </div>
@@ -694,12 +719,12 @@ export default function BookSlot() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!formData.vehicleId || !formData.checkInTime}
-                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white"
                 >
                   {!formData.vehicleId ? "Select a Vehicle" : "Confirm Booking →"}
                 </Button>
 
-                <p className="text-center text-xs text-white/40 mt-3">
+                <p className="text-center text-xs text-gray-400 mt-3">
                   Free cancellation up to 1 hour before check-in
                 </p>
               </div>

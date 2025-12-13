@@ -490,7 +490,15 @@ export default function ParkingSlots() {
   }
 
   const handleSlotSelect = (slot) => {
-    navigate(`/book/${slot.id}`)
+    // Pass vehicleNumber from URL params to booking page for auto-selection
+    const vehicleNumber = searchParams.get("vehicleNumber")
+    const vehicleType = searchParams.get("vehicleType")
+    let bookUrl = `/book/${slot.id}`
+    const params = []
+    if (vehicleNumber) params.push(`vehicleNumber=${encodeURIComponent(vehicleNumber)}`)
+    if (vehicleType) params.push(`vehicleType=${vehicleType}`)
+    if (params.length > 0) bookUrl += `?${params.join('&')}`
+    navigate(bookUrl)
   }
 
   // Group slots by nearest area for list view
