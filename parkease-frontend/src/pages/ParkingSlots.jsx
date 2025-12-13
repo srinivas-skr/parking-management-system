@@ -375,13 +375,11 @@ export default function ParkingSlots() {
           filtered = filtered.filter((slot) => {
             const slotAreaKey = getSlotAreaKey(slot)
             const match = slotAreaKey === selectedAreaKey
-            if (!match && beforeCount < 20) {
-              // Log mismatches for debugging (only first few)
-              console.log(`❌ Slot "${slot.name}" has areaKey="${slotAreaKey}", wanted="${selectedAreaKey}"`)
-            }
+            // Always log for debugging (remove in production)
+            console.log(`🔎 Slot "${slot.name?.substring(0, 30)}": areaKey="${slotAreaKey}" vs "${selectedAreaKey}" = ${match ? '✅' : '❌'}`)
             return match
           })
-          console.log(`✅ Filtered: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
+          console.log(`🎯 AREA FILTER: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
         } else {
           // Fallback for ad-hoc searched places: use a conservative contains match.
           const targetName = selectedLocation.name.toLowerCase()
@@ -905,6 +903,7 @@ export default function ParkingSlots() {
             <div className="text-sm text-gray-600">
               <span className="font-semibold text-gray-900">{filteredSlots.length}</span> parking spots found
               {selectedLocation && <span> near <span className="font-medium text-purple-600">{selectedLocation.name}</span></span>}
+              {selectedLocation && selectedLocation.areaKey && <span className="text-xs text-purple-400 ml-1">[key: {selectedLocation.areaKey}]</span>}
               {filters.vehicleType !== "all" && <span> • {filters.vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}</span>}
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -1038,17 +1037,19 @@ export default function ParkingSlots() {
                             {(slot.isFree || Number(slot.pricePerHour) === 0) ? (
                               <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold flex-shrink-0">FREE</span>
                             ) : (
-                              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-bold flex-shrink-0">₹{slot.pricePerHour}</span>
+                              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 text-[10px] font-bold flex-shrink-0">PAID</span>
                             )}
                           </div>
                           <p className="text-xs text-gray-500 truncate">{slot.address || slot.location}</p>
+                          {/* DEBUG: Show slot's area info */}
+                          <p className="text-[10px] text-orange-500 font-mono">Area: {slot.areaName || slot.area || slot.areaKey || 'N/A'}</p>
                           <div className="flex items-center gap-3 mt-2 text-xs">
                             <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
                               {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}
                             </span>
                             {slot.distance != null && (
                               <span className="text-gray-500">{Number(slot.distance).toFixed(1)} km</span>
-                            )}
+                            )}}
                             <span className="text-gray-400">{slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
                           </div>
                         </div>
