@@ -79,14 +79,19 @@ const getSelectedAreaKey = (location) => {
 }
 
 const getSlotAreaKey = (slot) => {
+  // 1. Direct area/areaKey field (OSM data has this)
   const direct = normalizeAreaKey(slot?.areaKey || slot?.area)
   if (direct) return direct
 
-  const text = `${slot?.name || ""} ${slot?.address || ""}`.toLowerCase()
-  // Strict inference: only match strong area indicators.
+  // 2. Text-based inference from ALL possible text fields
+  // Backend uses: name, location, locationDescription
+  // OSM uses: name, address
+  const text = `${slot?.name || ""} ${slot?.address || ""} ${slot?.location || ""} ${slot?.locationDescription || ""}`.toLowerCase()
+  
+  // Strict inference: only match strong area indicators
   const strict = {
-    koramangala: ["koramangala", "kormangala"],
-    indiranagar: ["indiranagar"],
+    koramangala: ["koramangala", "kormangala", "forum mall"],
+    indiranagar: ["indiranagar", "indira nagar"],
     whitefield: ["whitefield", "itpl", "hope farm", "vydehi"],
     "mg road": ["mg road", "m.g. road", "brigade", "church street"],
     hsr: ["hsr"],
@@ -356,13 +361,21 @@ export default function ParkingSlots() {
       // B. Named Location Mode: Use Strict Text Matching only (no distance)
       else {
         const selectedAreaKey = getSelectedAreaKey(selectedLocation)
+        console.log(`🎯 Selected area key: "${selectedAreaKey}" from "${selectedLocation.name}"`)
 
         // If it's one of our known areas, filter by areaKey only (prevents cross-area bleeding).
         if (selectedAreaKey && (selectedAreaKey in areaKeywordMap)) {
+          const beforeCount = filtered.length
           filtered = filtered.filter((slot) => {
             const slotAreaKey = getSlotAreaKey(slot)
-            return slotAreaKey === selectedAreaKey
+            const match = slotAreaKey === selectedAreaKey
+            if (!match && beforeCount < 20) {
+              // Log mismatches for debugging (only first few)
+              console.log(`❌ Slot "${slot.name}" has areaKey="${slotAreaKey}", wanted="${selectedAreaKey}"`)
+            }
+            return match
           })
+          console.log(`✅ Filtered: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
         } else {
           // Fallback for ad-hoc searched places: use a conservative contains match.
           const targetName = selectedLocation.name.toLowerCase()
