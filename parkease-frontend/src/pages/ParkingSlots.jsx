@@ -381,9 +381,18 @@ export default function ParkingSlots() {
         // If it's one of our known areas, filter by areaKey only (prevents cross-area bleeding).
         if (selectedAreaKey && (selectedAreaKey in areaKeywordMap)) {
           const beforeCount = filtered.length
+          console.log(`🔍 Filtering for area: "${selectedAreaKey}"`)
+          
+          // DEBUG: Log first 5 slots and their area keys
+          filtered.slice(0, 5).forEach((slot, i) => {
+            const slotKey = getSlotAreaKey(slot)
+            console.log(`  Slot ${i}: "${slot.name?.substring(0, 30)}" → areaName="${slot.areaName}", area="${slot.area}", computed="${slotKey}"`)
+          })
+          
           filtered = filtered.filter((slot) => {
             const slotAreaKey = getSlotAreaKey(slot)
-            return slotAreaKey === selectedAreaKey
+            const match = slotAreaKey === selectedAreaKey
+            return match
           })
           console.log(`🎯 Area filter: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
         } else {
