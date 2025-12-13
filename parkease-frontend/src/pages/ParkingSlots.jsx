@@ -19,11 +19,11 @@ const popularAreas = [
   { name: "Indiranagar", areaKey: "indiranagar", lat: 12.9719, lng: 77.6412, icon: "🎯" },
   { name: "Whitefield", areaKey: "whitefield", lat: 12.9771, lng: 77.7265, icon: "💼" },
   { name: "MG Road", areaKey: "mg road", lat: 12.9756, lng: 77.6066, icon: "🛍️" },
-  { name: "HSR Layout", areaKey: "hsr", lat: 12.9082, lng: 77.6476, icon: "🏠" },
+  { name: "HSR Layout", areaKey: "hsr layout", lat: 12.9082, lng: 77.6476, icon: "🏠" },
   { name: "Electronic City", areaKey: "electronic city", lat: 12.8426, lng: 77.6598, icon: "🏭" },
   { name: "Jayanagar", areaKey: "jayanagar", lat: 12.9250, lng: 77.5838, icon: "🌳" },
   { name: "Malleshwaram", areaKey: "malleshwaram", lat: 13.0096, lng: 77.5679, icon: "🏛️" },
-  { name: "BTM Layout", areaKey: "btm", lat: 12.9165, lng: 77.6101, icon: "🏘️" },
+  { name: "BTM Layout", areaKey: "btm layout", lat: 12.9165, lng: 77.6101, icon: "🏘️" },
   { name: "Yelahanka", areaKey: "yelahanka", lat: 13.0690, lng: 77.5857, icon: "✈️" },
   { name: "Marathahalli", areaKey: "marathahalli", lat: 12.9591, lng: 77.6974, icon: "🚗" },
   { name: "Basavanagudi", areaKey: "basavanagudi", lat: 12.9428, lng: 77.5693, icon: "🐂" },
@@ -33,27 +33,30 @@ const popularAreas = [
   { name: "Bellandur", areaKey: "bellandur", lat: 12.9258, lng: 77.6742, icon: "🏢" },
   { name: "Airport", areaKey: "airport", lat: 13.1986, lng: 77.7066, icon: "✈️" },
   { name: "Rajajinagar", areaKey: "rajajinagar", lat: 12.9991, lng: 77.5560, icon: "🏭" },
+  { name: "Kalyan Nagar", areaKey: "kalyan nagar", lat: 13.0280, lng: 77.6390, icon: "🏘️" },
 ]
 
 // Strict keyword map per area to avoid cross-city bleed
 const areaKeywordMap = {
-  koramangala: ["koramangala", "kora"],
-  indiranagar: ["indiranagar", "12th main", "100ft"],
-  whitefield: ["whitefield", "itpl", "vydehi", "hope farm"],
+  koramangala: ["koramangala", "kora", "forum mall"],
+  indiranagar: ["indiranagar", "12th main", "100ft road"],
+  whitefield: ["whitefield", "itpl", "vydehi", "hope farm", "ttmc"],
   "mg road": ["mg road", "m.g. road", "brigade road", "church street"],
-  "hsr": ["hsr", "sector"],
-  "electronic city": ["electronic city", "infosys", "wipro", "ecity"],
-  jayanagar: ["jayanagar"],
-  malleshwaram: ["malleshwaram", "malleswaram"],
-  "btm": ["btm"],
-  yelahanka: ["yelahanka"],
-  marathahalli: ["marathahalli", "marthahalli"],
-  basavanagudi: ["basavanagudi", "basava"],
-  majestic: ["majestic", "ksrtc", "railway station"],
-  banashankari: ["banashankari", "bsk"],
-  bellandur: ["bellandur"],
-  airport: ["airport", "bial", "devanahalli"],
-  rajajinagar: ["rajajinagar"],
+  "hsr layout": ["hsr layout", "hsr sector", "hsr bda"],
+  "electronic city": ["electronic city", "infosys", "wipro", "ecity", "phase 1", "phase 2"],
+  jayanagar: ["jayanagar", "4th block", "9th block"],
+  malleshwaram: ["malleshwaram", "malleswaram", "mantri mall", "sampige"],
+  "btm layout": ["btm layout", "btm 1st", "btm 2nd"],
+  yelahanka: ["yelahanka", "new town", "old town"],
+  marathahalli: ["marathahalli", "marthahalli", "orr", "phoenix"],
+  basavanagudi: ["basavanagudi", "basava", "bull temple", "dvg road"],
+  majestic: ["majestic", "ksrtc", "ksr", "railway station", "kempegowda"],
+  banashankari: ["banashankari", "bsk", "temple road"],
+  bellandur: ["bellandur", "prestige", "shantiniketan"],
+  airport: ["airport", "bial", "devanahalli", "kempegowda international"],
+  rajajinagar: ["rajajinagar", "navrang"],
+  "cubbon park": ["cubbon park", "cubbon", "vidhana soudha", "high court"],
+  "kalyan nagar": ["kalyan nagar"],
 }
 
 const normalizeAreaKey = (value) => {
@@ -63,13 +66,17 @@ const normalizeAreaKey = (value) => {
     .trim()
     .replace(/\s+/g, " ")
     .replace(/[._-]+/g, " ")
-    .replace(/\b(layout|area)\b/g, "")
-    .replace(/\s+/g, " ")
     .trim()
 
-  if (normalized.startsWith("hsr")) return "hsr"
-  if (normalized.startsWith("btm")) return "btm"
+  // Special case handling for common areas
+  if (normalized.includes("hsr")) return "hsr layout"
+  if (normalized.includes("btm")) return "btm layout"
+  if (normalized.includes("electronic city") || normalized.includes("ecity")) return "electronic city"
+  if (normalized.includes("mg road") || normalized.includes("m.g. road")) return "mg road"
+  if (normalized.includes("cubbon")) return "cubbon park"
+  if (normalized.includes("kalyan nagar")) return "kalyan nagar"
   if (normalized === "malleswaram") return "malleshwaram"
+  
   return normalized
 }
 
@@ -374,12 +381,9 @@ export default function ParkingSlots() {
           const beforeCount = filtered.length
           filtered = filtered.filter((slot) => {
             const slotAreaKey = getSlotAreaKey(slot)
-            const match = slotAreaKey === selectedAreaKey
-            // Always log for debugging (remove in production)
-            console.log(`🔎 Slot "${slot.name?.substring(0, 30)}": areaKey="${slotAreaKey}" vs "${selectedAreaKey}" = ${match ? '✅' : '❌'}`)
-            return match
+            return slotAreaKey === selectedAreaKey
           })
-          console.log(`🎯 AREA FILTER: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
+          console.log(`🎯 Area filter: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
         } else {
           // Fallback for ad-hoc searched places: use a conservative contains match.
           const targetName = selectedLocation.name.toLowerCase()
@@ -903,7 +907,6 @@ export default function ParkingSlots() {
             <div className="text-sm text-gray-600">
               <span className="font-semibold text-gray-900">{filteredSlots.length}</span> parking spots found
               {selectedLocation && <span> near <span className="font-medium text-purple-600">{selectedLocation.name}</span></span>}
-              {selectedLocation && selectedLocation.areaKey && <span className="text-xs text-purple-400 ml-1">[key: {selectedLocation.areaKey}]</span>}
               {filters.vehicleType !== "all" && <span> • {filters.vehicleType === "TWO_WHEELER" ? "🏍️ Bike" : "🚗 Car"}</span>}
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -1041,8 +1044,6 @@ export default function ParkingSlots() {
                             )}
                           </div>
                           <p className="text-xs text-gray-500 truncate">{slot.address || slot.location}</p>
-                          {/* DEBUG: Show slot's area info */}
-                          <p className="text-[10px] text-orange-500 font-mono">Area: {slot.areaName || slot.area || slot.areaKey || 'N/A'}</p>
                           <div className="flex items-center gap-3 mt-2 text-xs">
                             <span className={`font-semibold ${Number(slot.pricePerHour) === 0 ? 'text-emerald-600' : 'text-blue-600'}`}>
                               {Number(slot.pricePerHour) === 0 ? "Free" : `₹${slot.pricePerHour}/hr`}

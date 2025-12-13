@@ -140,7 +140,7 @@ public class DataInitializer {
                         .build());
             }
 
-            // MG Road - Premium Parking (5 slots)
+            // MG Road - Premium Parking (5 car slots + 5 bike slots)
             for (int i = 1; i <= 5; i++) {
                 String slotNumber = "MGR-4W-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -156,8 +156,24 @@ public class DataInitializer {
                         .longitude(new BigDecimal("77.6066"))
                         .build());
             }
+            // MG Road - Bike Slots
+            for (int i = 1; i <= 5; i++) {
+                String slotNumber = "MGR-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(30.0))
+                        .locationDescription("MG Road Metro Station - " + slotNumber)
+                        .areaName("MG Road")
+                        .latitude(new BigDecimal("12.9756"))
+                        .longitude(new BigDecimal("77.6066"))
+                        .build());
+            }
 
-            // Whitefield - IT Park Parking (5 slots)
+            // Whitefield - IT Park Parking (5 car slots + 5 bike slots)
             for (int i = 1; i <= 5; i++) {
                 String slotNumber = "WHT-4W-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -173,8 +189,24 @@ public class DataInitializer {
                         .longitude(new BigDecimal("77.7499"))
                         .build());
             }
+            // Whitefield - Bike Slots
+            for (int i = 1; i <= 5; i++) {
+                String slotNumber = "WHT-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(15.0))
+                        .locationDescription("Whitefield TTMC - " + slotNumber)
+                        .areaName("Whitefield")
+                        .latitude(new BigDecimal("12.9771"))
+                        .longitude(new BigDecimal("77.7265"))
+                        .build());
+            }
 
-            // Electronic City - Budget Parking (5 slots)
+            // Electronic City - Budget Parking (5 car slots + 5 bike slots)
             for (int i = 1; i <= 5; i++) {
                 String slotNumber = "ELC-4W-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -190,8 +222,24 @@ public class DataInitializer {
                         .longitude(new BigDecimal("77.6593"))
                         .build());
             }
+            // Electronic City - Bike Slots
+            for (int i = 1; i <= 5; i++) {
+                String slotNumber = "ELC-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(10.0))
+                        .locationDescription("Electronic City Infosys Gate - " + slotNumber)
+                        .areaName("Electronic City")
+                        .latitude(new BigDecimal("12.8426"))
+                        .longitude(new BigDecimal("77.6598"))
+                        .build());
+            }
 
-            // HSR Layout - Residential Area (5 slots)
+            // HSR Layout - Residential Area (5 bike slots + 5 car slots)
             for (int i = 1; i <= 5; i++) {
                 String slotNumber = "HSR-2W-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -207,8 +255,54 @@ public class DataInitializer {
                         .longitude(new BigDecimal("77.6476"))
                         .build());
             }
+            // HSR Layout - Car Slots
+            for (int i = 1; i <= 5; i++) {
+                String slotNumber = "HSR-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(35.0))
+                        .locationDescription("HSR Layout BDA Complex - " + slotNumber)
+                        .areaName("HSR Layout")
+                        .latitude(new BigDecimal("12.9082"))
+                        .longitude(new BigDecimal("77.6476"))
+                        .build());
+            }
 
-            // Jayanagar - Heavy Vehicle Bay (3 slots)
+            // Jayanagar - Shopping Complex (3 bike + 3 car + 3 heavy)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "JAY-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(20.0))
+                        .locationDescription("Jayanagar 4th Block - " + slotNumber)
+                        .areaName("Jayanagar")
+                        .latitude(new BigDecimal("12.9250"))
+                        .longitude(new BigDecimal("77.5838"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "JAY-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(45.0))
+                        .locationDescription("Jayanagar Shopping Complex - " + slotNumber)
+                        .areaName("Jayanagar")
+                        .latitude(new BigDecimal("12.9250"))
+                        .longitude(new BigDecimal("77.5838"))
+                        .build());
+            }
             for (int i = 1; i <= 3; i++) {
                 String slotNumber = "JAY-HV-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -218,14 +312,29 @@ public class DataInitializer {
                         .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
                         .isActive(true)
                         .pricePerHour(BigDecimal.valueOf(100.0))
-                        .locationDescription("Jayanagar Shopping Complex - " + slotNumber)
+                        .locationDescription("Jayanagar Bus Stand - " + slotNumber)
                         .areaName("Jayanagar")
                         .latitude(new BigDecimal("12.9250"))
                         .longitude(new BigDecimal("77.5838"))
                         .build());
             }
 
-            // BTM Layout - Mixed Parking (3 slots)
+            // BTM Layout - Mixed Parking (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BTM-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(15.0))
+                        .locationDescription("BTM Layout 1st Stage - " + slotNumber)
+                        .areaName("BTM Layout")
+                        .latitude(new BigDecimal("12.9165"))
+                        .longitude(new BigDecimal("77.6101"))
+                        .build());
+            }
             for (int i = 1; i <= 3; i++) {
                 String slotNumber = "BTM-4W-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -242,7 +351,22 @@ public class DataInitializer {
                         .build());
             }
 
-            // Marathahalli - Tech Hub (4 slots)
+            // Marathahalli - Tech Hub (4 bike + 4 car)
+            for (int i = 1; i <= 4; i++) {
+                String slotNumber = "MAR-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(20.0))
+                        .locationDescription("Marathahalli ORR Parking - " + slotNumber)
+                        .areaName("Marathahalli")
+                        .latitude(new BigDecimal("12.9591"))
+                        .longitude(new BigDecimal("77.6974"))
+                        .build());
+            }
             for (int i = 1; i <= 4; i++) {
                 String slotNumber = "MAR-4W-" + String.format("%03d", i);
                 slots.add(ParkingSlot.builder()
@@ -273,6 +397,294 @@ public class DataInitializer {
                         .areaName("Kalyan Nagar")
                         .latitude(new BigDecimal("13.0280"))
                         .longitude(new BigDecimal("77.6390"))
+                        .build());
+            }
+
+            // Malleshwaram - Heritage Area (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "MAL-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(15.0))
+                        .locationDescription("Malleshwaram 8th Cross - " + slotNumber)
+                        .areaName("Malleshwaram")
+                        .latitude(new BigDecimal("13.0096"))
+                        .longitude(new BigDecimal("77.5679"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "MAL-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(40.0))
+                        .locationDescription("Mantri Mall Malleshwaram - " + slotNumber)
+                        .areaName("Malleshwaram")
+                        .latitude(new BigDecimal("13.0110"))
+                        .longitude(new BigDecimal("77.5705"))
+                        .build());
+            }
+
+            // Banashankari - Temple Area (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BSK-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(10.0))
+                        .locationDescription("Banashankari Temple Road - " + slotNumber)
+                        .areaName("Banashankari")
+                        .latitude(new BigDecimal("12.9260"))
+                        .longitude(new BigDecimal("77.5400"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BSK-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(35.0))
+                        .locationDescription("Banashankari TTMC - " + slotNumber)
+                        .areaName("Banashankari")
+                        .latitude(new BigDecimal("12.9245"))
+                        .longitude(new BigDecimal("77.5450"))
+                        .build());
+            }
+
+            // Yelahanka - North Bangalore (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "YLK-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(10.0))
+                        .locationDescription("Yelahanka New Town - " + slotNumber)
+                        .areaName("Yelahanka")
+                        .latitude(new BigDecimal("13.0690"))
+                        .longitude(new BigDecimal("77.5857"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "YLK-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(30.0))
+                        .locationDescription("Yelahanka Old Town - " + slotNumber)
+                        .areaName("Yelahanka")
+                        .latitude(new BigDecimal("13.1000"))
+                        .longitude(new BigDecimal("77.5960"))
+                        .build());
+            }
+
+            // Basavanagudi - Bull Temple Area (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BGD-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(15.0))
+                        .locationDescription("Bull Temple Road - " + slotNumber)
+                        .areaName("Basavanagudi")
+                        .latitude(new BigDecimal("12.9428"))
+                        .longitude(new BigDecimal("77.5693"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BGD-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(40.0))
+                        .locationDescription("DVG Road Basavanagudi - " + slotNumber)
+                        .areaName("Basavanagudi")
+                        .latitude(new BigDecimal("12.9450"))
+                        .longitude(new BigDecimal("77.5720"))
+                        .build());
+            }
+
+            // Majestic - Bus/Railway Station (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "MJT-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(20.0))
+                        .locationDescription("Majestic KSRTC - " + slotNumber)
+                        .areaName("Majestic")
+                        .latitude(new BigDecimal("12.9763"))
+                        .longitude(new BigDecimal("77.5713"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "MJT-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(50.0))
+                        .locationDescription("KSR Railway Station - " + slotNumber)
+                        .areaName("Majestic")
+                        .latitude(new BigDecimal("12.9719"))
+                        .longitude(new BigDecimal("77.5950"))
+                        .build());
+            }
+
+            // Bellandur - IT Corridor (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BLR-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(15.0))
+                        .locationDescription("Bellandur ORR - " + slotNumber)
+                        .areaName("Bellandur")
+                        .latitude(new BigDecimal("12.9258"))
+                        .longitude(new BigDecimal("77.6742"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "BLR-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(45.0))
+                        .locationDescription("Prestige Shantiniketan - " + slotNumber)
+                        .areaName("Bellandur")
+                        .latitude(new BigDecimal("12.9300"))
+                        .longitude(new BigDecimal("77.6800"))
+                        .build());
+            }
+
+            // Airport - Kempegowda International (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "AIR-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(25.0))
+                        .locationDescription("BIAL Terminal 1 - " + slotNumber)
+                        .areaName("Airport")
+                        .latitude(new BigDecimal("13.1986"))
+                        .longitude(new BigDecimal("77.7066"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "AIR-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(100.0))
+                        .locationDescription("BIAL Long Term Parking - " + slotNumber)
+                        .areaName("Airport")
+                        .latitude(new BigDecimal("13.1950"))
+                        .longitude(new BigDecimal("77.7100"))
+                        .build());
+            }
+
+            // Rajajinagar - Industrial Area (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "RJN-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(15.0))
+                        .locationDescription("Rajajinagar 1st Block - " + slotNumber)
+                        .areaName("Rajajinagar")
+                        .latitude(new BigDecimal("12.9991"))
+                        .longitude(new BigDecimal("77.5560"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "RJN-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(40.0))
+                        .locationDescription("Navrang Theatre Rajajinagar - " + slotNumber)
+                        .areaName("Rajajinagar")
+                        .latitude(new BigDecimal("13.0020"))
+                        .longitude(new BigDecimal("77.5590"))
+                        .build());
+            }
+
+            // Cubbon Park - CBD Area (3 bike + 3 car)
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "CBN-2W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.TWO_WHEELER)
+                        .floorNumber(0)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(10.0))
+                        .locationDescription("Cubbon Park East Gate - " + slotNumber)
+                        .areaName("Cubbon Park")
+                        .latitude(new BigDecimal("12.9762"))
+                        .longitude(new BigDecimal("77.5929"))
+                        .build());
+            }
+            for (int i = 1; i <= 3; i++) {
+                String slotNumber = "CBN-4W-" + String.format("%03d", i);
+                slots.add(ParkingSlot.builder()
+                        .slotNumber(slotNumber)
+                        .vehicleType(ParkingSlot.VehicleType.FOUR_WHEELER)
+                        .floorNumber(1)
+                        .slotStatus(ParkingSlot.SlotStatus.AVAILABLE)
+                        .isActive(true)
+                        .pricePerHour(BigDecimal.valueOf(50.0))
+                        .locationDescription("Vidhana Soudha Parking - " + slotNumber)
+                        .areaName("Cubbon Park")
+                        .latitude(new BigDecimal("12.9795"))
+                        .longitude(new BigDecimal("77.5913"))
                         .build());
             }
 
