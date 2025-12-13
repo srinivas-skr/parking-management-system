@@ -308,6 +308,10 @@ public class DataInitializer {
             System.out.println("\n╔════════════════════════════════════════════╗");
             System.out.println("║   🎉 DATABASE INITIALIZED SUCCESSFULLY!   ║");
             System.out.println("╚════════════════════════════════════════════╝");
+            
+            // FIX EXISTING SLOTS: Update areaName for slots that don't have it
+            updateMissingAreaNames(slotRepository);
+            
             System.out.println("\n📝 Sample Login Credentials:");
             System.out.println("   👤 Admin    → username: admin    | password: admin123");
             System.out.println("   👤 User     → username: user     | password: user123");
@@ -339,5 +343,85 @@ public class DataInitializer {
                 throw e;
             }
         };
+    }
+    
+    /**
+     * Updates existing slots that don't have areaName set.
+     * This fixes the area filtering issue for production databases.
+     */
+    private void updateMissingAreaNames(ParkingSlotRepository slotRepository) {
+        System.out.println("\n🔧 Checking for slots without areaName...");
+        
+        java.util.List<ParkingSlot> allSlots = slotRepository.findAll();
+        int updatedCount = 0;
+        
+        for (ParkingSlot slot : allSlots) {
+            if (slot.getAreaName() == null || slot.getAreaName().isEmpty()) {
+                String inferredArea = inferAreaFromSlot(slot);
+                if (inferredArea != null) {
+                    slot.setAreaName(inferredArea);
+                    slotRepository.save(slot);
+                    updatedCount++;
+                    System.out.println("   ✅ Updated slot " + slot.getId() + " -> " + inferredArea);
+                }
+            }
+        }
+        
+        if (updatedCount > 0) {
+            System.out.println("   📍 Updated " + updatedCount + " slots with areaName");
+        } else {
+            System.out.println("   ✓ All slots already have areaName set");
+        }
+    }
+    
+    /**
+     * Infers the area name from slot's locationDescription
+     */
+    private String inferAreaFromSlot(ParkingSlot slot) {
+        String searchText = "";
+        if (slot.getLocationDescription() != null) {
+            searchText = slot.getLocationDescription().toLowerCase();
+        }
+        
+        // Check for known areas in Bangalore
+        if (searchText.contains("koramangala")) return "Koramangala";
+        if (searchText.contains("indiranagar")) return "Indiranagar";
+        if (searchText.contains("hsr")) return "HSR Layout";
+        if (searchText.contains("whitefield")) return "Whitefield";
+        if (searchText.contains("jayanagar")) return "Jayanagar";
+        if (searchText.contains("jp nagar") || searchText.contains("jpnagar")) return "JP Nagar";
+        if (searchText.contains("electronic city") || searchText.contains("ecity")) return "Electronic City";
+        if (searchText.contains("marathahalli")) return "Marathahalli";
+        if (searchText.contains("mg road")) return "MG Road";
+        if (searchText.contains("brigade road") || searchText.contains("brigade")) return "Brigade Road";
+        if (searchText.contains("hebbal")) return "Hebbal";
+        if (searchText.contains("yelahanka")) return "Yelahanka";
+        if (searchText.contains("bannerghatta")) return "Bannerghatta Road";
+        if (searchText.contains("btm")) return "BTM Layout";
+        if (searchText.contains("malleshwaram")) return "Malleshwaram";
+        if (searchText.contains("rajajinagar")) return "Rajajinagar";
+        if (searchText.contains("sadashivanagar")) return "Sadashivanagar";
+        if (searchText.contains("basavanagudi")) return "Basavanagudi";
+        if (searchText.contains("vijayanagar")) return "Vijayanagar";
+        if (searchText.contains("banashankari")) return "Banashankari";
+        if (searchText.contains("cunningham")) return "Cunningham Road";
+        if (searchText.contains("ulsoor")) return "Ulsoor";
+        if (searchText.contains("richmond")) return "Richmond Town";
+        if (searchText.contains("lavelle")) return "Lavelle Road";
+        if (searchText.contains("residency")) return "Residency Road";
+        if (searchText.contains("church street")) return "Church Street";
+        if (searchText.contains("ub city")) return "UB City";
+        if (searchText.contains("commercial street")) return "Commercial Street";
+        if (searchText.contains("majestic")) return "Majestic";
+        if (searchText.contains("yeshwanthpur")) return "Yeshwanthpur";
+        if (searchText.contains("peenya")) return "Peenya";
+        if (searchText.contains("domlur")) return "Domlur";
+        if (searchText.contains("sarjapur")) return "Sarjapur Road";
+        if (searchText.contains("bellandur")) return "Bellandur";
+        if (searchText.contains("brookefield")) return "Brookefield";
+        if (searchText.contains("kengeri")) return "Kengeri";
+        if (searchText.contains("nagarbhavi")) return "Nagarbhavi";
+        
+        return "Bangalore"; // Default fallback
     }
 }
