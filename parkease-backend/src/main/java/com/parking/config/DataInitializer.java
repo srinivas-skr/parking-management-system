@@ -688,33 +688,36 @@ public class DataInitializer {
                         .build());
             }
 
-            // Persist slots only if none exist yet. If slots already present, add Kalyan Nagar only if missing.
-            if (slotRepository.count() == 0) {
-                slotRepository.saveAll(slots);
-                System.out.println("✅ Created 55 parking slots across Bangalore");
-            } else {
-                // If Kalyan Nagar entries are missing, add them specifically
-                if (slotRepository.findBySlotNumber("KLN-001").isEmpty()) {
-                    List<ParkingSlot> kln = new ArrayList<>();
-                    for (int i = 1; i <= 5; i++) {
-                        String slotNumber = "KLN-" + (i <= 2 ? "2W" : "4W") + "-" + String.format("%03d", i);
-                        kln.add(ParkingSlot.builder()
-                                .slotNumber(slotNumber)
-                                .vehicleType(i <= 2 ? ParkingSlot.VehicleType.TWO_WHEELER : ParkingSlot.VehicleType.FOUR_WHEELER)
-                                .floorNumber(i <= 2 ? 0 : 1)
-                                .slotStatus(i == 3 ? ParkingSlot.SlotStatus.OCCUPIED : ParkingSlot.SlotStatus.AVAILABLE)
-                                .isActive(true)
-                                .pricePerHour(BigDecimal.valueOf(i <= 2 ? 20.0 : 50.0))
-                                .locationDescription("Kalyan Nagar Main Road - " + slotNumber)
-                                .latitude(new BigDecimal("13.0280"))
-                                .longitude(new BigDecimal("77.6390"))
-                                .build());
-                    }
-                    slotRepository.saveAll(kln);
-                    System.out.println("✅ Added Kalyan Nagar parking slots to existing database");
-                } else {
-                    System.out.println("✅ Parking slots already initialized - skipping slot creation");
+            // FRESH INSTALL: Delete old data and create new complete slot set
+            // This ensures all 19 areas have both bike and car slots
+            long existingCount = slotRepository.count();
+            boolean needsReset = false;
+            
+            // Check if we have the new areas (Malleshwaram, Banashankari, etc.)
+            if (existingCount > 0) {
+                boolean hasMalleshwaram = slotRepository.findBySlotNumber("MAL-2W-001").isPresent();
+                boolean hasCubbonPark = slotRepository.findBySlotNumber("CBN-2W-001").isPresent();
+                boolean hasMGRoadBikes = slotRepository.findBySlotNumber("MGR-2W-001").isPresent();
+                
+                if (!hasMalleshwaram || !hasCubbonPark || !hasMGRoadBikes) {
+                    needsReset = true;
+                    System.out.println("⚠️ Missing new areas - will reset parking slots database");
                 }
+            }
+            
+            if (existingCount == 0 || needsReset) {
+                if (needsReset) {
+                    System.out.println("🗑️ Clearing old parking slots...");
+                    slotRepository.deleteAll();
+                }
+                slotRepository.saveAll(slots);
+                System.out.println("✅ Created " + slots.size() + " parking slots across 19 Bangalore areas");
+                System.out.println("   Areas: Koramangala, Indiranagar, MG Road, Whitefield, Electronic City,");
+                System.out.println("          HSR Layout, Jayanagar, BTM Layout, Marathahalli, Kalyan Nagar,");
+                System.out.println("          Malleshwaram, Banashankari, Yelahanka, Basavanagudi, Majestic,");
+                System.out.println("          Bellandur, Airport, Rajajinagar, Cubbon Park");
+            } else {
+                System.out.println("✅ " + existingCount + " parking slots already initialized - skipping");
             }
 
             System.out.println("\n╔════════════════════════════════════════════╗");
