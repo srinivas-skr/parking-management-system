@@ -859,7 +859,7 @@ export default function ParkingSlots() {
                 <span>Live data</span>
               </div>
               <span className="text-gray-300">|</span>
-              <span className="text-gray-500">📍 {TOTAL_OSM_LOCATIONS} OpenStreetMap locations</span>
+              <span className="text-gray-500">📍 {slots.length} parking locations</span>
               {lastUpdated && (
                 <>
                   <span className="text-gray-300">|</span>
