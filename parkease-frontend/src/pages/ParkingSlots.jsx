@@ -101,16 +101,17 @@ const getSlotAreaKey = (slot) => {
   const text = `${slot?.name || ""} ${slot?.address || ""} ${slot?.location || ""} ${slot?.locationDescription || ""}`.toLowerCase()
   
   // Strict inference: only match strong area indicators
+  // Keys MUST match areaKeywordMap keys exactly
   const strict = {
     koramangala: ["koramangala", "kormangala", "forum mall"],
     indiranagar: ["indiranagar", "indira nagar", "100ft road"],
     whitefield: ["whitefield", "itpl", "hope farm", "vydehi"],
     "mg road": ["mg road", "m.g. road", "brigade", "church street"],
-    hsr: ["hsr layout", "hsr sector"],
+    "hsr layout": ["hsr layout", "hsr sector", "hsr bda"],
     "electronic city": ["electronic city", "ecity", "phase 1", "phase 2"],
     jayanagar: ["jayanagar"],
     malleshwaram: ["malleshwaram", "malleswaram"],
-    btm: ["btm layout", "btm 2nd"],
+    "btm layout": ["btm layout", "btm 1st", "btm 2nd"],
     yelahanka: ["yelahanka"],
     marathahalli: ["marathahalli", "marthahalli"],
     basavanagudi: ["basavanagudi"],
@@ -120,6 +121,7 @@ const getSlotAreaKey = (slot) => {
     airport: ["airport", "bial", "devanahalli"],
     rajajinagar: ["rajajinagar"],
     "kalyan nagar": ["kalyan nagar"],
+    "cubbon park": ["cubbon park", "cubbon", "vidhana soudha"],
   }
 
   for (const [key, tokens] of Object.entries(strict)) {
