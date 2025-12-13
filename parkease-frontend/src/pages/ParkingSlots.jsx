@@ -9,8 +9,6 @@ import LocationSearchBar from "../components/LocationSearchBar"
 import SlotCard from "../components/SlotCard"
 import { SkeletonCard } from "../components/SkeletonLoaders"
 import { toast } from "sonner"
-// Use OpenStreetMap real Bangalore parking data (120+ verified locations)
-import { getRealtimeParkingData, calculateDistances, OSM_ATTRIBUTION, TOTAL_OSM_LOCATIONS } from "../data/osmParkingData"
 import { motion } from "framer-motion"
 
 // Popular areas in Bengaluru with coordinates
@@ -86,46 +84,9 @@ const getSelectedAreaKey = (location) => {
 }
 
 const getSlotAreaKey = (slot) => {
-  // 1. Direct area field - check ALL possible field names
-  // Backend uses: areaName
-  // OSM data uses: area, areaKey
-  const directArea = slot?.areaName || slot?.areaKey || slot?.area
-  if (directArea) {
-    const normalized = normalizeAreaKey(directArea)
-    if (normalized) return normalized
-  }
-
-  // 2. Text-based inference from ALL possible text fields (FALLBACK ONLY)
-  // Backend uses: name, location, locationDescription
-  // OSM uses: name, address
-  const text = `${slot?.name || ""} ${slot?.address || ""} ${slot?.location || ""} ${slot?.locationDescription || ""}`.toLowerCase()
-  
-  // Strict inference: only match strong area indicators
-  // Keys MUST match areaKeywordMap keys exactly
-  const strict = {
-    koramangala: ["koramangala", "kormangala", "forum mall"],
-    indiranagar: ["indiranagar", "indira nagar", "100ft road"],
-    whitefield: ["whitefield", "itpl", "hope farm", "vydehi"],
-    "mg road": ["mg road", "m.g. road", "brigade", "church street"],
-    "hsr layout": ["hsr layout", "hsr sector", "hsr bda"],
-    "electronic city": ["electronic city", "ecity", "phase 1", "phase 2"],
-    jayanagar: ["jayanagar"],
-    malleshwaram: ["malleshwaram", "malleswaram"],
-    "btm layout": ["btm layout", "btm 1st", "btm 2nd"],
-    yelahanka: ["yelahanka"],
-    marathahalli: ["marathahalli", "marthahalli"],
-    basavanagudi: ["basavanagudi"],
-    majestic: ["majestic", "ksrtc", "kempegowda", "ksr"],
-    banashankari: ["banashankari", "bsk"],
-    bellandur: ["bellandur"],
-    airport: ["airport", "bial", "devanahalli"],
-    rajajinagar: ["rajajinagar"],
-    "kalyan nagar": ["kalyan nagar"],
-    "cubbon park": ["cubbon park", "cubbon", "vidhana soudha"],
-  }
-
-  for (const [key, tokens] of Object.entries(strict)) {
-    if (tokens.some(t => text.includes(t))) return key
+  // Backend uses areaName - just normalize it
+  if (slot?.areaName) {
+    return normalizeAreaKey(slot.areaName)
   }
   return null
 }
@@ -287,11 +248,7 @@ export default function ParkingSlots() {
     try {
       setLoading(true)
       
-      // Always get OSM data as base (129 locations × 2 vehicle types = 258 slots)
-      const osmData = getRealtimeParkingData()
-      console.log(`📍 OSM data: ${osmData.length} demo slots`)
-      
-      // Try to fetch real parking slots from backend API
+      // Fetch real parking slots from backend API ONLY (no OSM data)
       let backendSlots = []
       try {
         const apiUrl = `${getApiBaseUrl()}/slots`
@@ -317,31 +274,26 @@ export default function ParkingSlots() {
           console.log(`✅ Available backend slots: ${backendSlots.length}`)
         }
       } catch (error) {
-        console.log('⚠️ Backend unavailable, using OSM data only')
+        console.log('⚠️ Backend unavailable')
+        toast.error("Backend unavailable. Please try again.")
       }
       
-      // COMBINE: Backend slots (priority) + OSM slots (for coverage)
-      // This ensures every location has slots for both vehicle types
-      const combinedSlots = [...backendSlots, ...osmData]
-      
-      console.log(`📦 Total combined slots: ${combinedSlots.length}`)
+      // USE ONLY BACKEND SLOTS - no OSM data mixing
+      console.log(`📦 Total slots: ${backendSlots.length}`)
       console.log(`🔍 Current vehicle filter: ${filters.vehicleType}`)
       
-      setSlots(combinedSlots)
-      // DON'T set filteredSlots directly - let applyFilters handle it via useEffect
+      setSlots(backendSlots)
       
-      // Unified message - no confusing "demo" vs "real" distinction
-      const totalLocations = Math.floor(combinedSlots.length / 2) // Each location has 2 vehicle types
-      toast.success(`Loaded ${combinedSlots.length} parking spots from ${totalLocations} locations`)
+      if (backendSlots.length > 0) {
+        toast.success(`Loaded ${backendSlots.length} parking spots`)
+      }
       
       setLastUpdated(new Date())
     } catch (error) {
       console.error("Error loading parking data:", error)
-      toast.error("Using demo data (backend unavailable)")
-      // Fallback to OSM data if backend fails
-      const fallbackData = getRealtimeParkingData()
-      setSlots(fallbackData)
-      setFilteredSlots(fallbackData)
+      toast.error("Failed to load parking data")
+      setSlots([])
+      setFilteredSlots([])
     } finally {
       setLoading(false)
     }
@@ -373,36 +325,17 @@ export default function ParkingSlots() {
           filtered = filtered.filter((slot) => slot.distance <= maxDistance)
         }
       } 
-      // B. Named Location Mode: Use Strict Text Matching only (no distance)
+      // B. Named Location Mode: Filter by areaName
       else {
         const selectedAreaKey = getSelectedAreaKey(selectedLocation)
-        console.log(`🎯 Selected area key: "${selectedAreaKey}" from "${selectedLocation.name}"`)
+        console.log(`🎯 Filtering for: "${selectedAreaKey}"`)
 
-        // If it's one of our known areas, filter by areaKey only (prevents cross-area bleeding).
-        if (selectedAreaKey && (selectedAreaKey in areaKeywordMap)) {
-          const beforeCount = filtered.length
-          console.log(`🔍 Filtering for area: "${selectedAreaKey}"`)
-          
-          // DEBUG: Log first 5 slots and their area keys
-          filtered.slice(0, 5).forEach((slot, i) => {
-            const slotKey = getSlotAreaKey(slot)
-            console.log(`  Slot ${i}: "${slot.name?.substring(0, 30)}" → areaName="${slot.areaName}", area="${slot.area}", computed="${slotKey}"`)
-          })
-          
-          filtered = filtered.filter((slot) => {
-            const slotAreaKey = getSlotAreaKey(slot)
-            const match = slotAreaKey === selectedAreaKey
-            return match
-          })
-          console.log(`🎯 Area filter: ${beforeCount} → ${filtered.length} slots for "${selectedAreaKey}"`)
-        } else {
-          // Fallback for ad-hoc searched places: use a conservative contains match.
-          const targetName = selectedLocation.name.toLowerCase()
-          filtered = filtered.filter((slot) => {
-            const slotText = (slot.name + " " + (slot.address || "")).toLowerCase()
-            return slotText.includes(targetName)
-          })
-        }
+        // Simple filter: match slot.areaName with selected area
+        filtered = filtered.filter((slot) => {
+          const slotAreaKey = getSlotAreaKey(slot)
+          return slotAreaKey === selectedAreaKey
+        })
+        console.log(`✅ Found ${filtered.length} slots for "${selectedAreaKey}"`)
       }
     }
     // C. Search Query Fallback (if no location selected but user typed something)
