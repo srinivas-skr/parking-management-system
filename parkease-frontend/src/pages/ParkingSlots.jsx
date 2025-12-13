@@ -994,7 +994,7 @@ export default function ParkingSlots() {
                             </span>
                             {slot.distance != null && (
                               <span className="text-gray-500">{Number(slot.distance).toFixed(1)} km</span>
-                            )}}
+                            )}
                             <span className="text-gray-400">{slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}</span>
                           </div>
                         </div>
