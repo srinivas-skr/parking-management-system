@@ -262,16 +262,21 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
 
   // ✅ FIT BOUNDS TO SHOW ALL SLOT MARKERS when area is selected
   useEffect(() => {
-    if (!mapInstance || !searchLocation || slots.length === 0) return
+    if (!mapInstance || slots.length === 0) return
     
     // Get valid slot coordinates
     const validSlots = slots.filter(s => s.latitude && s.longitude)
     if (validSlots.length === 0) return
     
-    // Create a unique key for this set of slots
-    const boundsKey = `${searchLocation.name}-${validSlots.length}-${validSlots[0]?.id}`
+    // Create a unique key using all slot IDs to detect changes
+    const slotIds = validSlots.map(s => s.id).sort().join(',')
+    const boundsKey = `${searchLocation?.name || 'all'}-${slotIds}`
+    
+    // Skip if we've already fit to these exact slots
     if (lastFitBoundsRef.current === boundsKey) return
     lastFitBoundsRef.current = boundsKey
+    
+    console.log(`🗺️ Fitting bounds for ${validSlots.length} slots in "${searchLocation?.name || 'all areas'}"`)
     
     // Calculate bounds from all slot coordinates
     const lats = validSlots.map(s => parseFloat(s.latitude))
@@ -282,8 +287,8 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
     const minLng = Math.min(...lngs)
     const maxLng = Math.max(...lngs)
     
-    // Add some padding to bounds
-    const padding = 0.005 // ~500m padding
+    // Add padding based on number of slots
+    const padding = validSlots.length === 1 ? 0.01 : 0.003
     const bounds = [
       [minLat - padding, minLng - padding],
       [maxLat + padding, maxLng + padding]
@@ -293,15 +298,16 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
     setTimeout(() => {
       try {
         mapInstance.fitBounds(bounds, { 
-          padding: [50, 50],
-          maxZoom: 16,
+          padding: [60, 60],
+          maxZoom: validSlots.length === 1 ? 17 : 15, // Closer zoom for single slot
           animate: true,
           duration: 0.5
         })
+        console.log(`✅ Map fitted to show ${validSlots.length} markers`)
       } catch (e) {
         console.log("Fit bounds error:", e)
       }
-    }, 100)
+    }, 150)
     
   }, [slots, searchLocation, mapInstance])
 
