@@ -451,7 +451,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           </Marker>
         )}
 
-        {/* Parking Slot Markers - Using CircleMarker for visibility test */}
+        {/* Parking Slot Markers - enlarge when highlighted */}
         {slots.map((slot) => {
           // Skip if no coordinates
           if (!slot.latitude || !slot.longitude) {
@@ -470,18 +470,25 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           const isFree = Number(slot.pricePerHour || 0) === 0
           const price = Number(slot.pricePerHour || 0)
 
+          const isHighlighted = String(highlightedSlotId) === String(slot.id)
+          const radius = isHighlighted ? 20 : 12
+
           return (
             <CircleMarker
               key={slot.id}
               center={coords}
-              radius={15}
-              fillColor={isFree ? "#10B981" : "#3B82F6"}
+              radius={radius}
+              fillColor={isHighlighted ? "#7C3AED" : (isFree ? "#10B981" : "#3B82F6")}
               color="#ffffff"
-              weight={3}
+              weight={isHighlighted ? 4 : 3}
               opacity={1}
-              fillOpacity={0.9}
+              fillOpacity={0.95}
               eventHandlers={{
                 click: () => handleMarkerClick(slot),
+                mouseover: () => {
+                  try { /* bring marker to front by setting zIndex (Leaflet manages via panes) */ }
+                  catch(e){}
+                }
               }}
             >
               <Popup className="custom-popup" maxWidth={300}>
@@ -537,7 +544,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
                   )}
                 </div>
               </Popup>
-            </CircleMarker>
+              </CircleMarker>
           )
         })}
       </MapContainer>

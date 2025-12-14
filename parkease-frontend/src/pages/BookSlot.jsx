@@ -492,7 +492,7 @@ export default function BookSlot() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">🚗 Select Vehicle</h2>
                   <button 
-                    onClick={() => navigate('/my-vehicles')}
+                    onClick={() => navigate('/vehicles')}
                     className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
                   >
                     <Plus className="h-4 w-4" /> Add New
