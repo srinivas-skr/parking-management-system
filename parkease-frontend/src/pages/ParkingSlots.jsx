@@ -234,9 +234,16 @@ export default function ParkingSlots() {
       const response = await fetch(apiUrl)
       if (response.ok) {
         const freshData = await response.json()
+        // Fix: check both status and slotStatus fields
         const availableSlots = freshData.filter(slot => 
-          slot.slotStatus === 'AVAILABLE' || slot.slotStatus === 'available'
-        )
+          slot.status === 'AVAILABLE' || slot.slotStatus === 'AVAILABLE' ||
+          slot.status === 'available' || slot.slotStatus === 'available'
+        ).map(slot => ({
+          ...slot,
+          slotStatus: slot.status || slot.slotStatus,
+          pricePerHour: slot.pricePerHour || 0,
+          dataSource: 'Backend'
+        }))
         
         if (availableSlots.length > 0) {
           setSlots(availableSlots)

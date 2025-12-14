@@ -151,3 +151,22 @@
 select, .dropdown-option {
   color: #ffffff !important;
 }
+
+/* Leaflet custom marker visibility fix */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.leaflet-marker-icon.custom-marker {
+  z-index: 1000 !important;
+}
+
+/* Ensure markers are above tiles */
+.leaflet-marker-pane {
+  z-index: 600 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 700 !important;
+}

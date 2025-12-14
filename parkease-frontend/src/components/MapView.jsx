@@ -53,12 +53,14 @@ const createCustomIcon = (slot, isHighlighted = false) => {
         height: ${size}px;
         border-radius: 50%;
         border: 3px solid rgba(255,255,255,0.95);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 2px rgba(0,0,0,0.1);
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
         cursor: pointer;
+        z-index: 1000;
+        position: relative;
       ">
         <span style="
           color: ${textColor};
@@ -145,6 +147,9 @@ function ChangeMapView({ center, zoom, onlyOnce = false }) {
 }
 
 export default function MapView({ slots = [], onSlotSelect, userLocation = null, searchLocation = null, openSearchPopup = false, onSearchPopupShown = null, highlightedSlotId = null }) {
+  // Debug: Log slots received
+  console.log(`🗺️ MapView received ${slots.length} slots:`, slots.slice(0, 2).map(s => ({ id: s.id, lat: s.latitude, lng: s.longitude, name: s.name })))
+  
   // Default center: Bangalore (12.9716, 77.5946)
   const [mapCenter, setMapCenter] = useState([12.9716, 77.5946])
   const [showUserLocation, setShowUserLocation] = useState(false)
@@ -419,6 +424,21 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        {/* DEBUG: Test marker at Bangalore center */}
+        {slots.length > 0 && (
+          <Marker 
+            position={[12.9716, 77.5946]} 
+            icon={L.divIcon({
+              className: "debug-marker",
+              html: `<div style="background:red;width:30px;height:30px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:10px;">TEST</div>`,
+              iconSize: [30, 30],
+              iconAnchor: [15, 15],
+            })}
+          >
+            <Popup>DEBUG: Test marker - {slots.length} slots loaded</Popup>
+          </Marker>
+        )}
+
         {/* Searched Location Marker */}
         {searchedCoords && (
           <Marker position={searchedCoords} icon={youAreHereIcon}>
@@ -443,11 +463,16 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           </Marker>
         )}
 
-        {/* Parking Slot Markers */}
-        {slots.map((slot) => {
-          if (!slot.latitude || !slot.longitude) return null
+        {/* Parking Slot Markers - DEBUG */}
+        {console.log(`🔴 RENDERING ${slots.length} MARKERS IN JSX`)}
+        {slots.length > 0 && slots.map((slot, index) => {
+          if (!slot.latitude || !slot.longitude) {
+            console.warn(`⚠️ Slot ${slot.id} missing coords: lat=${slot.latitude}, lng=${slot.longitude}`)
+            return null
+          }
 
           const coords = getSlotCoordinates(slot)
+          console.log(`📍 Rendering marker #${index + 1}:`, { id: slot.id, name: slot.name, coords, price: slot.pricePerHour })
           const distance = userCoords
             ? calculateDistance(userCoords[0], userCoords[1], coords[0], coords[1])
             : null
