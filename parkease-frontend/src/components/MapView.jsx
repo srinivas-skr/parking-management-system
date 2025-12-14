@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo, useCallback } from "react"
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from "react-leaflet"
 import { MapPin, Navigation, CheckCircle, XCircle, Clock, Info, Map as MapIcon, X } from "lucide-react"
 import { Button } from "./ui/button"
 import { Card } from "./ui/card"
@@ -450,8 +450,8 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           </Marker>
         )}
 
-        {/* Parking Slot Markers - SIMPLIFIED FOR DEBUG */}
-        {slots.map((slot, index) => {
+        {/* Parking Slot Markers - Using CircleMarker for visibility test */}
+        {slots.map((slot) => {
           // Skip if no coordinates
           if (!slot.latitude || !slot.longitude) {
             return null
@@ -466,37 +466,19 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           }
           
           const coords = [lat, lng]
-          const isHighlighted = highlightedSlotId === slot.id
           const isFree = Number(slot.pricePerHour || 0) === 0
           const price = Number(slot.pricePerHour || 0)
 
-          // Simple inline divIcon to avoid any custom function issues
-          const simpleIcon = L.divIcon({
-            className: "slot-marker",
-            html: `<div style="
-              background: ${isFree ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #3B82F6, #2563EB)'};
-              width: ${isHighlighted ? 44 : 36}px;
-              height: ${isHighlighted ? 44 : 36}px;
-              border-radius: 50%;
-              border: 3px solid white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: white;
-              font-size: 11px;
-              font-weight: bold;
-            ">${isFree ? 'F' : '₹' + price}</div>`,
-            iconSize: [isHighlighted ? 44 : 36, isHighlighted ? 44 : 36],
-            iconAnchor: [isHighlighted ? 22 : 18, isHighlighted ? 22 : 18],
-            popupAnchor: [0, -20],
-          })
-
           return (
-            <Marker
+            <CircleMarker
               key={slot.id}
-              position={coords}
-              icon={simpleIcon}
+              center={coords}
+              radius={15}
+              fillColor={isFree ? "#10B981" : "#3B82F6"}
+              color="#ffffff"
+              weight={3}
+              opacity={1}
+              fillOpacity={0.9}
               eventHandlers={{
                 click: () => handleMarkerClick(slot),
               }}
@@ -525,34 +507,21 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-700">
                       <MapPin className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">{slot.location || slot.locationDescription}</span>
+                      <span className="font-medium">{slot.location || slot.areaName}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-700">
                       <span className="font-semibold text-green-600">
-                        {formatRupees(slot.pricePerHour)} / hour
+                        {isFree ? 'FREE' : `₹${price}/hr`}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-700">
                       <span className="text-lg">
-                        {(slot.vehicleType === "TWO_WHEELER" || slot.vehicleType === "Bike") ? "🏍️" : "🚗"}
+                        {slot.vehicleType === "TWO_WHEELER" ? "🏍️" : "🚗"}
                       </span>
-                      <span>{(slot.vehicleType === "TWO_WHEELER" || slot.vehicleType === "Bike") ? "Bike" : "Car"}</span>
+                      <span>{slot.vehicleType === "TWO_WHEELER" ? "Bike" : "Car"}</span>
                     </div>
-
-                    {slot.availableSpots !== undefined && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <CheckCircle className="h-4 w-4 text-emerald-500" />
-                        <span>{slot.availableSpots} spots free</span>
-                      </div>
-                    )}
-
-                    {slot.floorNumber !== undefined && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <span>📍 Floor {slot.floorNumber}</span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Book Now Button */}
@@ -567,7 +536,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
                   )}
                 </div>
               </Popup>
-            </Marker>
+            </CircleMarker>
           )
         })}
       </MapContainer>
