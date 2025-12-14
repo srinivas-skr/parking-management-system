@@ -147,9 +147,6 @@ function ChangeMapView({ center, zoom, onlyOnce = false }) {
 }
 
 export default function MapView({ slots = [], onSlotSelect, userLocation = null, searchLocation = null, openSearchPopup = false, onSearchPopupShown = null, highlightedSlotId = null }) {
-  // Debug: Log slots received
-  console.log(`🗺️ MapView received ${slots.length} slots:`, slots.slice(0, 2).map(s => ({ id: s.id, lat: s.latitude, lng: s.longitude, name: s.name })))
-  
   // Default center: Bangalore (12.9716, 77.5946)
   const [mapCenter, setMapCenter] = useState([12.9716, 77.5946])
   const [showUserLocation, setShowUserLocation] = useState(false)
@@ -424,21 +421,6 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* DEBUG: Test marker at Bangalore center */}
-        {slots.length > 0 && (
-          <Marker 
-            position={[12.9716, 77.5946]} 
-            icon={L.divIcon({
-              className: "debug-marker",
-              html: `<div style="background:red;width:30px;height:30px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:10px;">TEST</div>`,
-              iconSize: [30, 30],
-              iconAnchor: [15, 15],
-            })}
-          >
-            <Popup>DEBUG: Test marker - {slots.length} slots loaded</Popup>
-          </Marker>
-        )}
-
         {/* Searched Location Marker */}
         {searchedCoords && (
           <Marker position={searchedCoords} icon={youAreHereIcon}>
@@ -463,26 +445,53 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           </Marker>
         )}
 
-        {/* Parking Slot Markers - DEBUG */}
-        {console.log(`🔴 RENDERING ${slots.length} MARKERS IN JSX`)}
-        {slots.length > 0 && slots.map((slot, index) => {
+        {/* Parking Slot Markers - SIMPLIFIED FOR DEBUG */}
+        {slots.map((slot, index) => {
+          // Skip if no coordinates
           if (!slot.latitude || !slot.longitude) {
-            console.warn(`⚠️ Slot ${slot.id} missing coords: lat=${slot.latitude}, lng=${slot.longitude}`)
             return null
           }
 
-          const coords = getSlotCoordinates(slot)
-          console.log(`📍 Rendering marker #${index + 1}:`, { id: slot.id, name: slot.name, coords, price: slot.pricePerHour })
-          const distance = userCoords
-            ? calculateDistance(userCoords[0], userCoords[1], coords[0], coords[1])
-            : null
+          const lat = parseFloat(slot.latitude)
+          const lng = parseFloat(slot.longitude)
+          
+          // Validate coordinates
+          if (isNaN(lat) || isNaN(lng)) {
+            return null
+          }
+          
+          const coords = [lat, lng]
           const isHighlighted = highlightedSlotId === slot.id
+          const isFree = Number(slot.pricePerHour || 0) === 0
+          const price = Number(slot.pricePerHour || 0)
+
+          // Simple inline divIcon to avoid any custom function issues
+          const simpleIcon = L.divIcon({
+            className: "slot-marker",
+            html: `<div style="
+              background: ${isFree ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #3B82F6, #2563EB)'};
+              width: ${isHighlighted ? 44 : 36}px;
+              height: ${isHighlighted ? 44 : 36}px;
+              border-radius: 50%;
+              border: 3px solid white;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-size: 11px;
+              font-weight: bold;
+            ">${isFree ? 'F' : '₹' + price}</div>`,
+            iconSize: [isHighlighted ? 44 : 36, isHighlighted ? 44 : 36],
+            iconAnchor: [isHighlighted ? 22 : 18, isHighlighted ? 22 : 18],
+            popupAnchor: [0, -20],
+          })
 
           return (
             <Marker
               key={slot.id}
               position={coords}
-              icon={createCustomIcon(slot, isHighlighted)}
+              icon={simpleIcon}
               eventHandlers={{
                 click: () => handleMarkerClick(slot),
               }}
@@ -513,13 +522,6 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
                       <MapPin className="h-4 w-4 text-blue-500" />
                       <span className="font-medium">{slot.location || slot.locationDescription}</span>
                     </div>
-
-                    {distance && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Navigation className="h-4 w-4 text-purple-500" />
-                        <span>{distance} km away</span>
-                      </div>
-                    )}
 
                     <div className="flex items-center gap-2 text-gray-700">
                       <span className="font-semibold text-green-600">
