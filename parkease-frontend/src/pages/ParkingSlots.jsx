@@ -119,6 +119,7 @@ export default function ParkingSlots() {
   const refreshIntervalRef = useRef(null)
   const [searchQuery, setSearchQuery] = useState("") // Search input text
   const [showSearchDropdown, setShowSearchDropdown] = useState(false) // Show/hide area dropdown
+  const [locationDenied, setLocationDenied] = useState(false) // Track if user denied location permission
   const [filters, setFilters] = useState(() => {
     // Initialize filters from URL params immediately
     const urlParams = new URLSearchParams(window.location.search)
@@ -171,8 +172,14 @@ export default function ParkingSlots() {
   }, [showSearchDropdown])
 
   const detectLocation = () => {
+    // If user already denied, show a gentler message
+    if (locationDenied) {
+      toast.info("Location access was denied. Please select an area from the list.", { id: "location-denied" })
+      return
+    }
+    
     if (navigator.geolocation) {
-      toast.info("Detecting your location...")
+      toast.info("Detecting your location...", { id: "detecting-location" })
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos = {
@@ -190,15 +197,16 @@ export default function ParkingSlots() {
           setSelectedLocation(currentLocationObj)
           setDistanceFilter("2") // Default to 2km for current location
           setShowLocationDropdown(false)
-          toast.success("Location detected successfully")
+          toast.success("Location detected successfully", { id: "detecting-location" })
         },
         (error) => {
           console.log("Location not available", error)
-          toast.error("Could not detect location. Please enable location services.")
+          setLocationDenied(true) // Remember that user denied
+          toast.error("Could not detect location. Please enable location services.", { id: "detecting-location" })
         }
       )
     } else {
-      toast.error("Geolocation is not supported by your browser")
+      toast.error("Geolocation is not supported by your browser", { id: "detecting-location" })
     }
   }
 
