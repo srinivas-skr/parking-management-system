@@ -976,8 +976,19 @@ export default function ParkingSlots() {
             {/* MAP - Top section (40vh on mobile) */}
             <div className="relative h-[40vh] border-b border-gray-200 flex-shrink-0">
               <MapView
-                key={`mobile-map-${filteredSlots.length}-${selectedLocation?.name || 'all'}`}
-                slots={filteredSlots}
+                key={`mobile-map-${slots.length}-${filters.vehicleType}`}
+                slots={slots.filter(slot => {
+                  if (filters.vehicleType && filters.vehicleType !== "all") {
+                    const slotVehicleType = (slot.vehicleType || "").toString().toUpperCase();
+                    if (filters.vehicleType === "TWO_WHEELER") {
+                      return slotVehicleType === "TWO_WHEELER" || slotVehicleType === "BIKE" || slotVehicleType === "TWO WHEELER";
+                    } else if (filters.vehicleType === "FOUR_WHEELER") {
+                      return slotVehicleType === "FOUR_WHEELER" || slotVehicleType === "CAR" || slotVehicleType === "FOUR WHEELER";
+                    }
+                    return slotVehicleType === filters.vehicleType;
+                  }
+                  return true;
+                })}
                 onSlotSelect={handleSlotSelect}
                 searchLocation={selectedLocation}
                 openSearchPopup={openSearchPopup}
@@ -1181,8 +1192,19 @@ export default function ParkingSlots() {
             {/* RIGHT: MAP (60% width or 100% in map-only mode) */}
             <div className={`relative ${viewMode === "map" ? "flex-1" : "flex-1"}`}>
               <MapView
-                key={`desktop-map-${filteredSlots.length}-${selectedLocation?.name || 'all'}`}
-                slots={filteredSlots}
+                key={`desktop-map-${slots.length}-${filters.vehicleType}`}
+                slots={slots.filter(slot => {
+                  if (filters.vehicleType && filters.vehicleType !== "all") {
+                    const slotVehicleType = (slot.vehicleType || "").toString().toUpperCase();
+                    if (filters.vehicleType === "TWO_WHEELER") {
+                      return slotVehicleType === "TWO_WHEELER" || slotVehicleType === "BIKE" || slotVehicleType === "TWO WHEELER";
+                    } else if (filters.vehicleType === "FOUR_WHEELER") {
+                      return slotVehicleType === "FOUR_WHEELER" || slotVehicleType === "CAR" || slotVehicleType === "FOUR WHEELER";
+                    }
+                    return slotVehicleType === filters.vehicleType;
+                  }
+                  return true;
+                })}
                 onSlotSelect={handleSlotSelect}
                 searchLocation={selectedLocation}
                 openSearchPopup={openSearchPopup}
