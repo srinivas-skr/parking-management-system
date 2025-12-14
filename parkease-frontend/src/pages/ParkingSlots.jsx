@@ -976,6 +976,7 @@ export default function ParkingSlots() {
             {/* MAP - Top section (40vh on mobile) */}
             <div className="relative h-[40vh] border-b border-gray-200 flex-shrink-0">
               <MapView
+                key={`mobile-map-${filteredSlots.length}-${selectedLocation?.name || 'all'}`}
                 slots={filteredSlots}
                 onSlotSelect={handleSlotSelect}
                 searchLocation={selectedLocation}
@@ -1180,6 +1181,7 @@ export default function ParkingSlots() {
             {/* RIGHT: MAP (60% width or 100% in map-only mode) */}
             <div className={`relative ${viewMode === "map" ? "flex-1" : "flex-1"}`}>
               <MapView
+                key={`desktop-map-${filteredSlots.length}-${selectedLocation?.name || 'all'}`}
                 slots={filteredSlots}
                 onSlotSelect={handleSlotSelect}
                 searchLocation={selectedLocation}
