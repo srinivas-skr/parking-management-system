@@ -396,8 +396,9 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
       )}
 
       {/* DEBUG: Slot count indicator */}
-      <div className="absolute top-2 left-2 z-[1001] bg-black/80 text-white text-xs px-2 py-1 rounded">
-        🗺️ Markers: {slots.length} | Valid: {slots.filter(s => s.latitude && s.longitude).length}
+      <div className="absolute top-2 left-2 z-[1001] bg-black/80 text-white text-xs px-2 py-1 rounded max-w-[200px]">
+        🗺️ Slots: {slots.length} | 
+        {slots.length > 0 && ` First: [${parseFloat(slots[0]?.latitude).toFixed(4)}, ${parseFloat(slots[0]?.longitude).toFixed(4)}]`}
       </div>
 
       {/* Map Container - WITH ANTI-AUTO-ZOOM SETTINGS */}
