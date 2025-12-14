@@ -157,6 +157,7 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
   const hasAutoLocatedRef = useRef(false)
   const lastSearchLocationRef = useRef(null)
   const popupShownForRef = useRef(null)
+  const lastFitBoundsRef = useRef(null)
   
   const formatRupees = (amount) =>
     new Intl.NumberFormat("en-IN", {
@@ -258,6 +259,51 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
       popupShownForRef.current = null
     }
   }, [searchLocation, mapInstance]) // ✅ Removed searchedCoords, openSearchPopup from deps to prevent loops
+
+  // ✅ FIT BOUNDS TO SHOW ALL SLOT MARKERS when area is selected
+  useEffect(() => {
+    if (!mapInstance || !searchLocation || slots.length === 0) return
+    
+    // Get valid slot coordinates
+    const validSlots = slots.filter(s => s.latitude && s.longitude)
+    if (validSlots.length === 0) return
+    
+    // Create a unique key for this set of slots
+    const boundsKey = `${searchLocation.name}-${validSlots.length}-${validSlots[0]?.id}`
+    if (lastFitBoundsRef.current === boundsKey) return
+    lastFitBoundsRef.current = boundsKey
+    
+    // Calculate bounds from all slot coordinates
+    const lats = validSlots.map(s => parseFloat(s.latitude))
+    const lngs = validSlots.map(s => parseFloat(s.longitude))
+    
+    const minLat = Math.min(...lats)
+    const maxLat = Math.max(...lats)
+    const minLng = Math.min(...lngs)
+    const maxLng = Math.max(...lngs)
+    
+    // Add some padding to bounds
+    const padding = 0.005 // ~500m padding
+    const bounds = [
+      [minLat - padding, minLng - padding],
+      [maxLat + padding, maxLng + padding]
+    ]
+    
+    // Fit map to show all markers with animation
+    setTimeout(() => {
+      try {
+        mapInstance.fitBounds(bounds, { 
+          padding: [50, 50],
+          maxZoom: 16,
+          animate: true,
+          duration: 0.5
+        })
+      } catch (e) {
+        console.log("Fit bounds error:", e)
+      }
+    }, 100)
+    
+  }, [slots, searchLocation, mapInstance])
 
   // Calculate distance between two points (Haversine formula)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
