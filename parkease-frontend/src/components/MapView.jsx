@@ -395,6 +395,11 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
         </div>
       )}
 
+      {/* DEBUG: Slot count indicator */}
+      <div className="absolute top-2 left-2 z-[1001] bg-black/80 text-white text-xs px-2 py-1 rounded">
+        🗺️ Markers: {slots.length} | Valid: {slots.filter(s => s.latitude && s.longitude).length}
+      </div>
+
       {/* Map Container - WITH ANTI-AUTO-ZOOM SETTINGS */}
       <MapContainer
         center={mapCenter}
