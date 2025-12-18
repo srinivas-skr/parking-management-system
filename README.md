@@ -34,18 +34,9 @@
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: React 18 with Vite
-- **Styling**: Tailwind CSS & Framer Motion (Animations)
-- **Maps**: Leaflet / React-Leaflet
-- **Icons**: Lucide-React
+- **Frontend**: React 18 (Vite), Tailwind CSS, Framer Motion, Leaflet, Lucide-React
 
-### Backend
-- **Core**: Java 21 & Spring Boot 3.2
-- **Security**: Spring Security 6 & JWT
-- **Database**: MySQL with Hibernate/JPA
-- **QR Engine**: ZXing Google Library
-- **Docs**: Swagger UI (OpenAPI 3)
+- **Backend**: Java 21, Spring Boot 3.2, Spring Security 6 (JWT), MySQL, Hibernate/JPA, ZXing (QR), Swagger UI (OpenAPI 3)
 
 ---
 
@@ -82,19 +73,11 @@ For detailed deployment instructions (Render/Docker), see [DEPLOY_INSTRUCTIONS.m
 ---
 
 ## 🤝 Contributing
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
+1. Fork & Branch → 2. Commit → 3. Push → 4. Pull Request
 
 ## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT License. See [LICENSE](LICENSE).
 
 ---
+**⭐ Give it a star if you find it useful!**
 
-**⭐ If you like this project, please give it a star on GitHub!**
