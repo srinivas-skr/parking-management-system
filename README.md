@@ -36,16 +36,13 @@
 
 - **Frontend**: React 18 (Vite), Tailwind CSS, Framer Motion, Leaflet, Lucide-React
 
-- **Backend**: Java 21, Spring Boot 3.2, Spring Security 6 (JWT), MySQL, Hibernate/JPA, ZXing (QR), Swagger UI (OpenAPI 3)
+- **Backend**: Java 21, Spring Boot 3.2, Spring Security 6 (JWT), PostgreSQL, Hibernate/JPA, ZXing (QR), Swagger UI (OpenAPI 3)
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- JDK 21
-- Node.js (v22+)
-- MySQL
+- **Prerequisites**: JDK 21, Node.js (v22+), PostgreSQL
 
 ### Setup
 1. **Clone the Repository**
@@ -69,6 +66,8 @@
    ```
 
 For detailed deployment instructions (Render/Docker), see [DEPLOY_INSTRUCTIONS.md](DEPLOY_INSTRUCTIONS.md).
+
+
 
 ---
 
