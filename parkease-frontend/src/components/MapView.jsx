@@ -174,7 +174,16 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
     if (hasAutoLocatedRef.current) return
     hasAutoLocatedRef.current = true
     
-    if (navigator.geolocation) {
+    // Check if geolocation is supported and we're on HTTPS
+    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+    
+    if (navigator.geolocation && isSecure) {
+      const options = {
+        enableHighAccuracy: false,
+        timeout: 15000,
+        maximumAge: 120000
+      }
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords
@@ -184,15 +193,24 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           setSearchedCoords(null)
         },
         (error) => {
-          console.log("Location denied, using Bangalore center")
-        }
+          console.log("Location denied or unavailable, using Bangalore center")
+        },
+        options
       )
     }
   }, [])
 
   // Manual location refresh
   const getUserLocation = () => {
-    if (navigator.geolocation) {
+    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+    
+    if (navigator.geolocation && isSecure) {
+      const options = {
+        enableHighAccuracy: false,
+        timeout: 20000,
+        maximumAge: 120000
+      }
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords
@@ -202,8 +220,9 @@ export default function MapView({ slots = [], onSlotSelect, userLocation = null,
           setSearchedCoords(null)
         },
         (error) => {
-          console.error("Error getting user location:", error)
-        }
+          console.error("Error getting user location:", error.code, error.message)
+        },
+        options
       )
     }
   }

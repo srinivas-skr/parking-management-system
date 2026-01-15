@@ -178,36 +178,79 @@ export default function ParkingSlots() {
       return
     }
     
-    if (navigator.geolocation) {
-      toast.info("Detecting your location...", { id: "detecting-location" })
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          }
-          setUserLocation(userPos)
-          
-          const currentLocationObj = {
-            name: "Current Location",
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            icon: "📍"
-          }
-          setSelectedLocation(currentLocationObj)
-          setDistanceFilter("2") // Default to 2km for current location
-          setShowLocationDropdown(false)
-          toast.success("Location detected successfully", { id: "detecting-location" })
-        },
-        (error) => {
-          console.log("Location not available", error)
-          setLocationDenied(true) // Remember that user denied
-          toast.error("Could not detect location. Please enable location services.", { id: "detecting-location" })
-        }
-      )
-    } else {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser", { id: "detecting-location" })
+      return
     }
+    
+    // Check if we're on HTTPS (required for geolocation in production)
+    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+    if (!isSecure) {
+      toast.error("Location requires HTTPS connection", { 
+        id: "detecting-location",
+        description: "Please select an area from the list instead"
+      })
+      return
+    }
+    
+    toast.loading("Detecting your location...", { id: "detecting-location" })
+    
+    const options = {
+      enableHighAccuracy: false,  // Faster - uses network/WiFi location
+      timeout: 20000,             // 20 second timeout
+      maximumAge: 120000          // Accept 2-minute-old cached location
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userPos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        }
+        setUserLocation(userPos)
+        
+        const currentLocationObj = {
+          name: "Current Location",
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          icon: "📍"
+        }
+        setSelectedLocation(currentLocationObj)
+        setDistanceFilter("2") // Default to 2km for current location
+        setShowLocationDropdown(false)
+        toast.success("Location detected successfully", { id: "detecting-location" })
+      },
+      (error) => {
+        console.log("Location error:", error.code, error.message)
+        
+        let errorMsg = "Could not detect location."
+        let description = "Please select an area from the list."
+        
+        switch (error.code) {
+          case 1: // PERMISSION_DENIED
+            setLocationDenied(true) // Remember that user denied
+            errorMsg = "Location permission denied."
+            description = "Enable location in browser settings, or select an area."
+            break
+          case 2: // POSITION_UNAVAILABLE
+            errorMsg = "Location unavailable."
+            description = "Check GPS/network, or select an area."
+            break
+          case 3: // TIMEOUT
+            errorMsg = "Location request timed out."
+            description = "Try again or select an area."
+            break
+        }
+        
+        toast.error(errorMsg, { 
+          id: "detecting-location",
+          description: description,
+          duration: 5000
+        })
+      },
+      options
+    )
   }
 
   useEffect(() => {

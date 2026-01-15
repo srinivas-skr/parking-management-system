@@ -172,19 +172,33 @@ function Dashboard() {
     
     setLocationLoading(true)
     
+    // Check if geolocation is supported
     if (!navigator.geolocation) {
       setLocationLoading(false)
-      toast.error("Geolocation is not supported by your browser.")
+      toast.error("Geolocation is not supported by your browser.", {
+        description: "💡 Use the search box or select an area instead"
+      })
+      return
+    }
+    
+    // Check if we're on HTTPS (required for geolocation in production)
+    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+    if (!isSecure) {
+      setLocationLoading(false)
+      toast.error("Location requires HTTPS connection.", {
+        description: "💡 Use the search box or select an area instead"
+      })
       return
     }
     
     console.log('🔍 Requesting location...')
+    toast.loading("Detecting your location...", { id: "location-detect" })
     
     // ✅ Improved options - use network location first (faster)
     const options = {
       enableHighAccuracy: false,  // ✅ Faster - uses network/WiFi location
-      timeout: 15000,             // ✅ 15 second timeout
-      maximumAge: 60000           // ✅ Accept 1-minute-old cached location
+      timeout: 20000,             // ✅ 20 second timeout (increased for mobile)
+      maximumAge: 120000          // ✅ Accept 2-minute-old cached location
     }
     
     navigator.geolocation.getCurrentPosition(
@@ -194,7 +208,7 @@ function Dashboard() {
         const { latitude, longitude } = position.coords
         setUserLocation({ lat: latitude, lng: longitude })
         setLocationLoading(false)
-        toast.success("Location detected! Redirecting to nearby parking...")
+        toast.success("Location detected! Redirecting to nearby parking...", { id: "location-detect" })
         
         // Redirect to parking slots page with location AND vehicle type
         navigate(`/slots?lat=${latitude}&lng=${longitude}&vehicleType=${selectedVehicle}`)
@@ -205,22 +219,28 @@ function Dashboard() {
         setLocationLoading(false)
         
         let errorMsg = ''
+        let description = "💡 Use the search box or select an area instead"
+        
         switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMsg = 'Location permission denied. Please enable in browser settings.'
+          case 1: // PERMISSION_DENIED
+            errorMsg = 'Location permission denied.'
+            description = "💡 Enable location in browser settings, or select an area manually"
             break
-          case error.POSITION_UNAVAILABLE:
-            errorMsg = 'Location unavailable. Check GPS/network connection.'
+          case 2: // POSITION_UNAVAILABLE
+            errorMsg = 'Location unavailable.'
+            description = "💡 Check GPS/network connection, or select an area manually"
             break
-          case error.TIMEOUT:
-            errorMsg = 'Location request timed out. Please try again or search manually.'
+          case 3: // TIMEOUT
+            errorMsg = 'Location request timed out.'
+            description = "💡 Try again or select an area manually"
             break
           default:
-            errorMsg = 'Failed to get location. Please search manually.'
+            errorMsg = 'Failed to get location.'
         }
         
         toast.error(errorMsg, {
-          description: "💡 Tip: Use the search box or select an area instead",
+          id: "location-detect",
+          description: description,
           duration: 5000
         })
       },
